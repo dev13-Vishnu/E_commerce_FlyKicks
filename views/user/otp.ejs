@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Evara - eCommerce HTML Template</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="" />
+    <meta property="og:type" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:image" content="" />
+    <!-- Favicon -->
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="assets/imgs/theme/favicon.svg"
+    />
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="assets/css/main.css?v=3.4" />
+  </head>
+
+  <body>
+    <section class="pt-150 pb-150">        
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-10 m-auto">
+            <div class="row">
+              <div class="col-lg-5">
+                <div
+                  class="login_wrap widget-taber-content p-30 background-white border-radius-10 mb-md-5 mb-lg-0 mb-sm-5"
+                >
+                  <div class="padding_eight_all bg-white">
+                    <div class="heading_s1">
+                      <h3 class="mb-30">Verify OTP</h3>
+                    </div>
+                    <form method="post" id="verify-otp-form" onsubmit="validateAndSubmit(event)">
+                      <div class="form-group">
+
+                        <% if(typeof message != 'undefined') {%>
+                            <p class="text-success" id="error-message"><%= message%></p>
+                            <%}%>
+
+                        <input
+                          type="text"
+                          required
+                          id="otp"
+                          name="verify"
+                          placeholder="enter OTP"
+                        />
+                      </div>
+                      <div id="error-otp" class="text-danger"></div>
+                      <div class="form-group">
+                        <button
+                          type="submit"
+                          class="btn btn-fill-out btn-block hover-up"
+                          name="login"
+                          id="verify-otp"
+                        >
+                          Verify
+                        </button>
+                        <div class="pl-10 pt-20 pb-10">
+                        <a href="" id="resend" class="disabled text-success">Resend OTP</a>
+                        <span id="timer"></span>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <script src="assets/js/vendor/modernizr-3.6.0.min.js"></script>
+      <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
+      <script src="assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+      <script src="assets/js/vendor/bootstrap.bundle.min.js"></script>
+      <script src="assets/js/plugins/slick.js"></script>
+      <script src="assets/js/plugins/jquery.syotimer.min.js"></script>
+      <script src="assets/js/plugins/wow.js"></script>
+      <script src="assets/js/plugins/jquery-ui.js"></script>
+      <script src="assets/js/plugins/perfect-scrollbar.js"></script>
+      <script src="assets/js/plugins/magnific-popup.js"></script>
+      <script src="assets/js/plugins/select2.min.js"></script>
+      <script src="assets/js/plugins/waypoints.js"></script>
+      <script src="assets/js/plugins/counterup.js"></script>
+      <script src="assets/js/plugins/jquery.countdown.min.js"></script>
+      <script src="assets/js/plugins/images-loaded.js"></script>
+      <script src="assets/js/plugins/isotope.js"></script>
+      <script src="assets/js/plugins/scrollup.js"></script>
+      <script src="assets/js/plugins/jquery.vticker-min.js"></script>
+      <script src="assets/js/plugins/jquery.theia.sticky.js"></script>
+      <!-- Template  JS -->
+      <script src="./assets/js/main.js?v=3.4"></script>
+      
+      <script>
+
+        // const inputOtp = document.getElementById('otp');
+        
+        // const verifyButton = document.getElementById('verify-otp');
+
+        // verifyButton.addEventListener('click',() => {
+        //     try {
+                
+        //     const enteredOtp =inputOtp.value;
+        //     if (enteredOtp.trim() === '') {
+        //         errorElement.textContent = 'Please Enter OTP';
+        //         return ;
+        //     }   
+        //     } catch (error) {
+        //         console.log(error);
+        //     }
+        // })
+        function validateAndSubmit(event){
+            event.preventDefault();
+            var otpInput = document.getElementById('otp').value;
+            var otpError = document.getElementById('error-otp');
+
+            if(otpInput.trim() === ''){
+                otpError.innerHTML ="Please enter OTP";
+                return;
+            }else if (otpInput.trim().length !== 4) {
+                otpError.innerHTML = " OTP must be exactly 4 charecters long";  
+                return;
+            } else if (isNaN(otpInput)) {
+                       otpError.innerHTML = 'OTP must be a Number';
+            } else {
+                otpError.innerHTML = "";
+            }
+
+            if (!otpError.innerHTML) {
+                document.getElementById('verify-otp-form').submit();
+            }
+        }
+
+
+        let resendLink = document.getElementById('resend');
+
+        // function to start timer
+        function startTimer(){
+            let seconds = getRemainingSeconds() || 60;
+            const timerElement = document.getElementById('timer');
+
+
+            // disble the resend link during the countdown
+            console.log(resendLink.classList);
+            resendLink.style.display = 'none'
+            console.log(resendLink.classList); 
+
+            const timerInterval = setInterval(()=>{
+                seconds --;
+
+                if(seconds >= 0){
+                    timerElement.textContent = `Resend  OTP in ${seconds} seconds`;
+                    setRemainingSeconds(seconds); //store remaining seconds in local storage
+                }else{
+                    clearInterval(timerInterval);
+                    timerElement.textContent = '';
+                    // Re-enable the resend link after the countdown finishes
+                    resendLink.style.display = 'block';
+                    clearRemainingSeconds();
+
+                }
+            },1000);
+
+        }
+
+        // function to get remaining seconds from local storage
+        function getRemainingSeconds(){
+            return localStorage.getItem('remainingSeconds');
+        }
+
+        // function to ser remaining second in local storage
+        function setRemainingSeconds(seconds){
+            localStorage.setItem('remainingSeconds',seconds);
+        }
+
+        // function to clear remaining seconds from local storage
+
+        function clearRemainingSeconds() {
+            localStorage.removeItem('remainingSeconds');
+        }
+
+        // Resend OTP
+        function resendOTP(){
+    
+            const errorElement = document.getElementById('error-message');
+
+            if (errorElement) {
+            errorElement.textContent = null; // Clear the text content
+            }
+            fetch('/resend-otp',{
+                method:'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Resend request processed successfully');
+                    startTimer();   
+                } else {
+                    console.error('Failed to process resend request:',response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Error processing resend request:',error.message);
+            });
+        }
+        // add event listners to the Resesnd OTP element
+        resendLink.addEventListener('click',function(event){
+            console.log('otp function running');
+            event.preventDefault(); 
+            resendOTP();
+        });
+
+        
+        startTimer();
+
+
+      </script>
+    </body>
+  </html>
+  
