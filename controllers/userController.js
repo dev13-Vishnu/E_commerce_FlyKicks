@@ -2,6 +2,31 @@ const User = require("../models/userModel")
 const otp = require('../helpers/otp');
 const securePassword = require('../helpers/securePassword')
 
+
+const loadSuccessGoogle = async(req,res)=>{
+    try {
+        if (!req.user) {
+            console.log("not in user load success");
+            res.redirect('/failure');
+            console.log(req.user);
+            
+        
+        } else {
+            console.log("loadsuccess",req.user._id);
+        req.session.user = {
+            _id:req.user._id,
+            username:req.user.username
+        }
+        console.log('success',req.user._id);
+        res.status(200).redirect('/home')
+        
+        }
+    } catch (error) {
+        console.log('error from the user controller load success',error);
+    }
+}
+
+
 const loadLoginSignup = async(req,res)=>{
     try {
         res.render('user/signup')
@@ -18,7 +43,25 @@ const loadLogin = async(req,res)=>{
     }
 }
 
+const loadFailureGoogle = async(req,res)=>{
+    try{
+        console.log("failed");
+        res.status(404).redirect('/login')
+    }catch(error){
+        console.log('error from UserController loadFailureGoogle',error);
+    }
+}
 
+const loadLandingPage = async(req,res)=>{
+    try {
+        
+        res.render('user/land')
+        console.log('users home rendered');
+
+    } catch (error) {
+        console.log('errro from userController londhome',error);
+    }
+}
 
 
 const insertUser = async(req,res) => {
@@ -157,11 +200,16 @@ const resendOTP = async(req,res) =>{
     }
 }
 
+
+
 module.exports= {
     loadLoginSignup,
     loadLogin,
     loadOtp,
     insertUser,
     verifyOtp,
-    resendOTP
+    resendOTP,
+    loadSuccessGoogle,
+    loadFailureGoogle ,
+    loadLandingPage
 }

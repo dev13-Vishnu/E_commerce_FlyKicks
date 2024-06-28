@@ -2,6 +2,7 @@ require('dotenv').config()
 const mongoose = require ("mongoose");
 const express = require("express");
 const app = express();
+const passport =require('passport');
 const path = require("path");
 const morgan = require("morgan");
 const session = require ("express-session");
@@ -21,6 +22,9 @@ app.use(session({
   saveUninitialized:true
 }))
 
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 
 try {
@@ -55,4 +59,4 @@ app.use(cors())
   
 // ... your server setup code (routes, middleware, etc.)
 
-app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
+app.listen(PORT, () => console.log(` app listening on port ${PORT}!`))
