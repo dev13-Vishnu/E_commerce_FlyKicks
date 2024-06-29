@@ -1,215 +1,258 @@
-const User = require("../models/userModel")
-const otp = require('../helpers/otp');
-const securePassword = require('../helpers/securePassword')
+const User = require("../models/userModel");
+const otp = require("../helpers/otp");
+const securePassword = require("../helpers/securePassword");
+const bcrypt = require('bcrypt');
 
-
-const loadSuccessGoogle = async(req,res)=>{
-    try {
-        if (!req.user) {
-            console.log("not in user load success");
-            res.redirect('/failure');
-            console.log(req.user);
-            
-        
-        } else {
-            console.log("loadsuccess",req.user._id);
-        req.session.user = {
-            _id:req.user._id,
-            username:req.user.username
-        }
-        console.log('success',req.user._id);
-        res.status(200).redirect('/home')
-        
-        }
-    } catch (error) {
-        console.log('error from the user controller load success',error);
+const loadSuccessGoogle = async (req, res) => {
+  try {
+    if (!req.user) {
+      console.log("not in user load success");
+      res.redirect("/failure");
+      console.log(req.user);
+    } else {
+      console.log("loadsuccess", req.user._id);
+      req.session.user = {
+        _id: req.user._id,
+        username: req.user.username,
+      };
+      console.log("success", req.user._id);
+      res.status(200).redirect("/home");
     }
-}
+  } catch (error) {
+    console.log("error from the user controller load success", error);
+  }
+};
 
+const loadSignup = async (req, res) => {
+  try {
+    res.render("user/signup");
+  } catch (error) {
+    console.log(error.message);
+  }
+};
 
-const loadLoginSignup = async(req,res)=>{
-    try {
-        res.render('user/signup')
-    } catch (error) {
-        console.log(error.message);
-    }
-}
+const loadLogin = async (req, res) => {
+  try {
+    res.render("user/login");
+  } catch (error) {
+    console.log(error.message);
+  }
+};
 
-const loadLogin = async(req,res)=>{
-    try {
-        res.render('user/login');   
-    } catch (error) {
-        console.log(error.message);
-    }
-}
+const loadFailureGoogle = async (req, res) => {
+  try {
+    console.log("failed");
+    res.status(404).redirect("/login");
+  } catch (error) {
+    console.log("error from UserController loadFailureGoogle", error);
+  }
+};
 
-const loadFailureGoogle = async(req,res)=>{
-    try{
-        console.log("failed");
-        res.status(404).redirect('/login')
-    }catch(error){
-        console.log('error from UserController loadFailureGoogle',error);
-    }
-}
+const loadLandingPage = async (req, res) => {
+  try {
+    res.render("user/land");
+    console.log("users home rendered");
+  } catch (error) {
+    console.log("errro from userController londhome", error);
+  }
+};
 
-const loadLandingPage = async(req,res)=>{
-    try {
-        
-        res.render('user/land')
-        console.log('users home rendered');
+const insertUser = async (req, res) => {
+  try {
+    const existingEmail = await User.findOne({
+      email: req.body.email,
+    });
+    const existingMobile = await User.findOne({
+      email: req.body.mobile,
+    });
 
-    } catch (error) {
-        console.log('errro from userController londhome',error);
-    }
-}
+    if (existingMobile && existingEmail) {
+      res.render("user/signup", {
+        message: "Email and Phone number already exist!",
+      });
+      console.log("Email and number already exist");
+    } else if (existingEmail) {
+      res.render("user/signup", {
+        message: "Email already exist!",
+      });
+      console.log("Email already exist!");
+    } else if (existingMobile) {
+      res.render("user/signup", {
+        message: "Phone number already exist!",
+      });
+      console.log("Mobile number already exist!");
+    } else {
+      // creating OTP
 
+      const otpCode = otp.generate();
+      console.log("otp geenrator" + otpCode);
+      // for saving otp data's in session for verifying in future
+      req.session.tempUser = req.body;
+      req.session.email = req.body.email;
+      req.session.otp = otpCode;
+      req.session.otpExpire = Date.now() + 60 * 1000;
 
-const insertUser = async(req,res) => {
-    try {
-        const existingEmail = await User.findOne({
-            email:req.body.email
+      console.log("OTP:" + req.session.otp);
+
+      await otp
+        .sendOtp(req.session.email, otpCode)
+        .then((result) => {
+          res.redirect("/otp");
+          console.log(result);
         })
-        const existingMobile = await User.findOne({
-            email: req.body.mobile
-        })
+        .catch((err) => {
+          res.render("user/signup", {
+            message: "error in otp or server error please try again",
+          });
+          console.log(err);
+        });
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+};
 
-        if(existingMobile && existingEmail){
-            res.render('user/signup',{
-                message:'Email and Phone number already exist!'
-            })
-            console.log("Email and number already exist");
-        }else if (existingEmail){
-            res.render('user/signup',{
-                message: 'Email already exist!'
-            })
-            console.log("Email already exist!");
-        }else if(existingMobile) {
-            res.render('user/signup',{
-                message:'Phone number already exist!'
-            })
-            console.log("Mobile number already exist!")
-        }else{
+const loadOtp = async (req, res) => {
+  try {
+    res.render("user/otp");
+  } catch (error) {
+    console.log(error.message);
+  }
+};
 
-            // creating OTP
+const verifyOtp = async (req, res) => {
+  try {
+    const obj = req.body;
 
-            const otpCode = otp.generate()
-            console.log('otp geenrator'+otpCode);
-            // for saving otp data's in session for verifying in future
-            req.session.tempUser = req.body;
-            req.session.email = req.body.email;
-            req.session.otp = otpCode;
-            req.session.otpExpire = Date.now() + 60 * 1000;
+    const jsonString = JSON.stringify(obj);
 
-            console.log('OTP:' + req.session.otp);
+    console.log("jsonstring" + jsonString);
 
+    const data = req.body;
 
-            await otp.sendOtp(req.session.email,otpCode)
-            .then((result) => {
-                res.redirect('/otp');
-                console.log(result);
-            }).catch((err) => {
-                res.render('user/signup',{
-                    message:'error in otp or server error please try again'
-                })
-                console.log(err);
-            });
+    if (data.verify && typeof data.verify === "string") {
+      const otp = data.verify;
+      console.log(otp);
+      const enterOtp = otp;
+
+      const sessionOtp = req.session.otp;
+      const expOtp = req.session.otpExpire;
+      console.log("entered otp" + enterOtp);
+      console.log("session otp" + sessionOtp);
+      console.log("expire in session" + expOtp);
+
+      if (enterOtp === sessionOtp && Date.now() < expOtp) {
+        console.log("otp verification finished");
+        req.session.otp = null;
+        const userData = req.session.tempUser;
+        // console.log(userData.password, userData);
+        const Spassword = await securePassword.SecurePassword(
+          userData.password
+        );
+
+        const user = await User.create({
+          username: userData.username,
+          email: userData.email,
+          mobile: userData.mobile,
+          password: Spassword,
+          isBlocked: false,
+        });
+        const userInfo = await user.save();
+        if (userInfo) {
+          res.redirect("/login");
+          console.log("saved user in mongo db");
         }
-    } catch (error) {
-        console.log(error.message);
+      }
+    } else {
+      res.render("user/otp", {
+        message: "Incorrect OTP or expired  OTP. Please try again",
+      });
     }
-}
-
-const loadOtp = async (req,res) =>{
-    try {
-        res.render('user/otp')
-    } catch (error) {
-        console.log(error.message);
-    }
-}
-
-const verifyOtp = async(req,res) =>{
-    try {
-        const obj = req.body;
-
-        const jsonString = JSON.stringify(obj)
-
-        console.log("jsonstring"+ jsonString);
-        
-        const data = req.body;
-
-        if (data.verify && typeof data.verify === 'string') {
-            const otp = data.verify;
-            console.log(otp);
-            const enterOtp = otp;
-
-            const sessionOtp = req.session.otp
-            const expOtp = req.session.otpExpire
-            console.log('entered otp'+enterOtp);
-            console.log('session otp'+sessionOtp);
-            console.log('expire in session'+expOtp);
-
-            if(enterOtp === sessionOtp && Date.now() < expOtp){
-                console.log('otp verification finished');
-                req.session.otp = null;
-                const userData = req.session.tempUser;
-                // console.log(userData.password, userData);
-                const Spassword = await securePassword.SecurePassword(userData.password);
-
-                const user = await User.create({
-                    username: userData.username,
-                    email: userData.email,
-                    mobile: userData.mobile,
-                    password:Spassword,
-                    isBlocked: false
-                })
-                const userInfo = await user.save();
-                if (userInfo) {
-                    res.redirect('/login');
-                    console.log('saved user in mongo db');
-
-                }
-            }
-        } else {
-            res.render('user/otp',{message:'Incorrect OTP or expired  OTP. Please try again'})
-        }
-
-    } catch (error) {
-        console.log('error from user control > verifyOtp',error);
-    }
-}
+  } catch (error) {
+    console.log("error from user control > verifyOtp", error);
+  }
+};
 
 //resend OTP
-const resendOTP = async(req,res) =>{
-    try {
-        console.log('resend otp rendering');
-        if(req.session.otp || req.session.otpExpire < Date.now()){
-            // generate now otp
-            const otpCode = otp.generate();
-            console.log("resendotp",otpCode)
-            req.session.otp = otpCode
-            req.session.otpExpire = Date.now() + 60 * 1000
+const resendOTP = async (req, res) => {
+  try {
+    console.log("resend otp rendering");
+    if (req.session.otp || req.session.otpExpire < Date.now()) {
+      // generate now otp
+      const otpCode = otp.generate();
+      console.log("resendotp", otpCode);
+      req.session.otp = otpCode;
+      req.session.otpExpire = Date.now() + 60 * 1000;
 
-            await otp.sendOtp(req.session.email, otpCode)
-            .then((result) =>{
-                res.redirect('/otp');
-                console.log(result);
-            })
+      await otp.sendOtp(req.session.email, otpCode).then((result) => {
+        res.redirect("/otp");
+        console.log(result);
+      });
+    }
+  } catch (error) {
+    console.log("error from userController resend otp", error);
+  }
+};
+
+const verifyLogin = async (req, res) => {
+  try {
+    const email = req.body.email;
+    const password = req.body.password;
+    const userData = await User.findOne({ email: email });
+
+    if (userData) {
+      if (userData.isBlocked) {
+        res.render("user/login", { message: "user is blocked" });
+      } else {
+        console.log(userData.email);
+        console.log("verify login");
+
+        const passwordMatch = await bcrypt.compare(password, userData.password);
+        if (passwordMatch) {
+          req.session.user = {
+            _id: userData._id,
+            email: email,
+            isBlocked: false,
+            username: userData.username,
+          };
+          res.redirect("/home");
+        } else {
+          res.render("user/login", { message: "Wrong password" });
         }
+      }
+    } else {
+        res.render('user/login',{message:'Your Email and password is wrong'})
+    }
+  } catch (error) {
+    console.log('error from userController verify login',error);
+  }
+};
+
+const loadHome = async(req,res)=>{
+    try {
+        let name ="";
+        if(req.session.user){
+            name = req.session.user.username
+            console.log("username:",name);
+        }
+        //render home page
+        res.render('user/home');
     } catch (error) {
-        console.log('error from userController resend otp',error);
+        console.log("error from userController load home",error);
     }
 }
 
 
-
-module.exports= {
-    loadLoginSignup,
-    loadLogin,
-    loadOtp,
-    insertUser,
-    verifyOtp,
-    resendOTP,
-    loadSuccessGoogle,
-    loadFailureGoogle ,
-    loadLandingPage
-}
+module.exports = {
+  loadSignup,
+  loadLogin,
+  loadOtp,
+  insertUser,
+  verifyOtp,
+  resendOTP,
+  loadSuccessGoogle,
+  loadFailureGoogle,
+  loadLandingPage,
+  verifyLogin,
+  loadHome
+};

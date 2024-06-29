@@ -92,8 +92,8 @@
                     </ul>
                   </li>
                   <li>
-                    <i class="fi-rs-user"></i
-                    ><a href="/signup">Sign Up</a>
+                    <!-- <i class="fi-rs-user"></i
+                    ><a href="/signup">Sign Up</a> -->
                   </li>
                 </ul>
               </div>
@@ -784,6 +784,12 @@
                       <div class="heading_s1">
                         <h3 class="mb-30">Login</h3>
                       </div>
+                      <div>
+                        <% if(typeof message != 'undefined') {%>
+                          <p class="text-danger"><%= message%></p>
+                          <%}%>
+
+                      </div>
                       <form method="post">
                         <div class="form-group">
                           <input
@@ -828,6 +834,9 @@
                           >
                             Log in
                           </button>
+                          <div class="text-muted text-center">
+                            Doesn't have an account?  <a href="/signup">Sign Up</a>
+                          </div>
                         </div>
                       </form>
                     </div>

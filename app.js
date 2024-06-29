@@ -56,6 +56,10 @@ app.use(cors())
   app.use('/',userRoute);
 
 
+  //for admin routes
+
+  
+
   
 // ... your server setup code (routes, middleware, etc.)
 
