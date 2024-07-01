@@ -57,7 +57,9 @@ app.use(cors())
 
 
   //for admin routes
+const adminRoutes = require('./routes/adminRoutes');
 
+app.use('/admin',adminRoutes);
   
 
   

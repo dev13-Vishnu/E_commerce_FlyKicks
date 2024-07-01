@@ -26,7 +26,7 @@ const sendOtp = (email, otp) => {
         pass:  process.env.Password,
       },
     });
-
+ 
     const mailOption = {
       from: 'devmail.required@gmail.com',
       to: email,
