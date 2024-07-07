@@ -65,7 +65,7 @@ const insertUser = async (req, res) => {
     const existingMobile = await User.findOne({
       email: req.body.mobile,
     });
-
+ 
     if (existingMobile && existingEmail) {
       res.render("user/signup", {
         message: "Email and Phone number already exist!",

@@ -19,8 +19,12 @@ const categorySchema = mongoose.Schema({
         required: true
     },
     delete: {
+        type: Boolean,
+        defautl:false
+    },
+    date:{
         type: Date,
-        defautl: Date.now()
+        defautl:Date.now()
     },
 
         offer: {

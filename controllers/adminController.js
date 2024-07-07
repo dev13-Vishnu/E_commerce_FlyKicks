@@ -60,9 +60,80 @@ const loadDashboard = async(req,res)=>{
     }
 }
 
+const loadUserList = async(req,res)=>{
+    try {
+        const users = await User.find({
+            isAdmin : 0
+        
+        })
 
+        console.log(users);
+        
+        res.render('admin/userslist',{users});
+    } catch (error) {
+        console.log( "error from admin contronller LoadUsersList",error);
+    }
+}
+
+const userBlock = async(req,res) =>{
+    try {
+        console.log(req.query.id);
+        const saved = await User.findByIdAndUpdate(
+            { _id: req.query.id },
+            { $set: { isBlocked: true } },
+            { new: true }
+          )      // user.isBlocked = true;
+        // const saved = await user.save();
+        // console.log(saved); 
+        console.log(saved);
+        if(saved){
+            res.redirect('/admin/users')
+        }
+    } catch (error) {
+        console.log('error from admincontroller userBlock',error);
+    }
+}
+
+const userUnblock = async(req,res) =>{
+    try {
+        console.log(req.query.id);
+        const saved = await User.findByIdAndUpdate(
+            { _id: req.query.id },
+            { $set: { isBlocked: false } },
+            { new: true }
+          )      // user.isBlocked = true;
+        // const saved = await user.save();
+        // console.log(saved); 
+        console.log(saved);
+        if(saved){
+            res.redirect('/admin/users')
+        }
+    } catch (error) {
+        console.log('error from admincontroller userBlock',error);
+    }
+}
+
+const logout = async (req, res) => {
+    try {
+      req.session.destroy((err) => {
+        if (err) {
+          console.log("error from admin logout", err);
+          res.status(500).send("server error");
+        } else {
+          console.log("logout working");
+          res.redirect("/admin");
+        }
+      });
+    } catch (error) {
+      console.log("error from admin controll logout", error);
+    }
+  };
 module.exports={
     login,
     verifyLogin,
-    loadDashboard
+    loadDashboard,
+    loadUserList,
+    userBlock,
+    userUnblock,
+    logout
 }

@@ -51,5 +51,6 @@ userRoute.get('/failure',userController.loadFailureGoogle);
 //verify login
 userRoute.post('/login',isLoggedOut,userController.verifyLogin);
 
+
 module.exports = userRoute;
  

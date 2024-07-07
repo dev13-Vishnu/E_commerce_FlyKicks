@@ -144,9 +144,9 @@
 
 
             // disble the resend link during the countdown
-            console.log(resendLink.classList);
+            // console.log(resendLink.classList);
             resendLink.style.display = 'none'
-            console.log(resendLink.classList); 
+            // console.log(resendLink.classList); 
 
             const timerInterval = setInterval(()=>{
                 seconds --;
@@ -184,7 +184,8 @@
 
         // Resend OTP
         function resendOTP(){
-    
+          
+          clearError();
             const errorElement = document.getElementById('error-message');
 
             if (errorElement) {
@@ -214,7 +215,10 @@
             event.preventDefault(); 
             resendOTP();
         });
-
+        function clearError(){
+          const errorElement = document.getElementByid('error-message');
+          errorElement.textContent ="";
+        }
         
         startTimer();
 
