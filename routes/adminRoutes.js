@@ -25,4 +25,8 @@ adminRoutes.get('/users', auth.isLogin,adminController.loadUserList);
 adminRoutes.get('/user/block',auth.isLogin,adminController.userBlock);
 adminRoutes.get('/user/unblock',auth.isLogin,adminController.userUnblock);
 
+//productList
+adminRoutes.post('/addproduct',productController.addproduct);
+adminRoutes.get('/products',productController.loadProducts);
+
 module.exports = adminRoutes;

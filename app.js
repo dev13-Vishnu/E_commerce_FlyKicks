@@ -4,7 +4,6 @@ const express = require("express");
 const app = express();
 const passport =require('passport');
 const path = require("path");
-const morgan = require("morgan");
 const session = require ("express-session");
 const bodyparser = require('body-parser');
 const nocache = require("nocache");
@@ -15,6 +14,7 @@ app.use(flash());
 
 
 const PORT =process.env.PORT; // Use default port or environment variable
+app.use(nocache());
 
 app.use(session({
   secret:process.env.Secret,

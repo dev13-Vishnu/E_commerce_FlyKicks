@@ -52,7 +52,8 @@ const verifyLogin = async(req,res)=>{
 
 const loadDashboard = async(req,res)=>{
     try {
-        res.render('admin/dashboard');
+        console.log(req.url);
+        res.render('admin/dashboard',{currentUrl:req.url});
         console.log('dashboard rederning');
 
     } catch (error) {
@@ -69,7 +70,7 @@ const loadUserList = async(req,res)=>{
 
         console.log(users);
         
-        res.render('admin/userslist',{users});
+        res.render('admin/userslist',{users,currentUrl:req.url});
     } catch (error) {
         console.log( "error from admin contronller LoadUsersList",error);
     }

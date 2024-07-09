@@ -12,7 +12,7 @@ const loadCategory = async(req,res) =>{
         } else {
             categoryData = await category.find({})
         }
-        res.render('admin/categories',{data:categoryData});
+        res.render('admin/categories',{data:categoryData,currentUrl:req.url});
     } catch (error) {
         console.log('error from category controller load category',error);
     }
@@ -21,7 +21,6 @@ const loadCategory = async(req,res) =>{
 const addCategory = async (req,res) =>{
     try {
         const categoryName = req.body.category_name
-        const categorySlug = req.body.category_slug
         const categoryAction = req.body.category_action
         const categoryDescription =req.body.category_description
 
@@ -29,21 +28,20 @@ const addCategory = async (req,res) =>{
 
         const uniqCategory = await category.findOne({name:{$regex:categoryName,$options:"i"}});
         if(uniqCategory){
-            res.render('admin/categories');
+            res.render('admin/categories',{data:categoryData,currentUrl:req.url});
         }else{
             const categoryData = await category.create({
                 name: categoryName,
                 description:categoryDescription,
                 action:categoryAction,
-                slug:categorySlug,
                 delete:false
         })
             const categoryInfo = await categoryData.save();
             if (categoryInfo) {
-                res.redirect('/admin/categories');
+                res.redirect('/admin/categories',{data:categoryData,currentUrl:req.url});
                 console.log('saved category in mongo db');
             } else {
-                res.render('admin/categories');
+                res.render('admin/categories',{data:categoryData,currentUrl:req.url});
                 
             }
         }
@@ -58,7 +56,7 @@ const loadEditCategory = async(req,res)=>{
         const categoryData = await category.findOne({_id:id});
         console.log('category data',categoryData);
         if (categoryData) {
-            res.render('admin/editcategories',{edit:categoryData})
+            res.render('admin/editcategories',{edit:categoryData,currentUrl:req.url})
         } else {
             console.log('not category')
         }
@@ -72,7 +70,6 @@ const editCategory= async(req,res)=>{
         const id = req.query.id;
 
         const categoryName = req.body.category_name;
-        const categorySlug = req.body.category_slug;
         const categoryAction = req.body.category_action;
         const categoryDescription = req.body.category_description;
 
@@ -83,12 +80,11 @@ const editCategory= async(req,res)=>{
         const uniqueCategory = await category.findOne({name:{$regex:categoryName,$options:"i"}})
         const target = await category.findOne({_id:id});
         if (uniqueCategory._id.toString() != target._id.toString()) {
-            res.render('admin/categories',{message:'category already exists',data:categoryData})
+            res.render('admin/categories',{message:'category already exists',data:categoryData,currentUrl:req.url})
         } else {
             const categoryEdit = await category.findByIdAndUpdate(id,{
             name:categoryName,
             description:categoryDescription,
-            slug: categorySlug,
             action: categoryAction,
         },{new:true})
 
@@ -96,7 +92,7 @@ const editCategory= async(req,res)=>{
             res.redirect('/admin/categories');
 
         }else{
-            res.render('admin/editcategories');
+            res.render('admin/editcategories',{currentUrl:req.url});
         }
 
         }
@@ -117,7 +113,7 @@ const deleteCategory = async(req,res) =>{
         if (deleteData) {
             res.redirect('/admin/categories');
         } else {
-            res.render('admin/categories',{message:'Error from deleteing User'});
+            res.render('admin/categories',{message:'Error from deleteing User',currentUrl:req.url});
         }
     } catch (error) {
         console.log('Error from deleteCategory',error);
