@@ -26,7 +26,12 @@ adminRoutes.get('/user/block',auth.isLogin,adminController.userBlock);
 adminRoutes.get('/user/unblock',auth.isLogin,adminController.userUnblock);
 
 //productList
-adminRoutes.post('/addproduct',productController.addproduct);
-adminRoutes.get('/products',productController.loadProducts);
+adminRoutes.post('/addproduct',auth.isLogin,productController.addproduct);
+adminRoutes.get('/products',auth.isLogin,productController.loadProducts);
+adminRoutes.get('/product/edit',auth.isLogin,productController.loadEditProduct);
+adminRoutes.get('/product/delete',auth.isLogin,productController.deleteProduct);
+adminRoutes.get('/product/add',auth.isLogin,productController.addProduct);
+
+
 
 module.exports = adminRoutes;

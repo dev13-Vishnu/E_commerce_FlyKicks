@@ -51,8 +51,12 @@ const loadFailureGoogle = async (req, res) => {
 
 const loadLandingPage = async (req, res) => {
   try {
-    res.render("user/land");
-    console.log("users home rendered");
+    const products = await Product.find({});
+    products.forEach(product => {
+        product.image = product.image.map(img => img.replace(/\\/g, '/'));
+    });
+    console.log('products url', req.url)
+  res.render('user/land',{products})
   } catch (error) {
     console.log("errro from userController londhome", error);
   }
@@ -237,15 +241,69 @@ const loadHome = async(req,res)=>{
             console.log("username:",name);
         }
         //render home page
-        const products = await Product.find({});
+
+        //pagination
+        var page = 1;
+        if(req.query.page){
+          page = req.query.page;
+        }
+
+        const limit = 5;
+
+
+        const products = await Product.find({delete:false})
+        .limit(limit * 1)
+        .skip((page -1) * limit)
+        .exec();
+
+        const count = await Product.find({delete:false})
+        .countDocuments();
+
         products.forEach(product => {
             product.image = product.image.map(img => img.replace(/\\/g, '/'));
         });
         console.log('products url', req.url)
-      
+      res.render('user/home',{products,
+        totalPages:Math.ceil(count/limit),
+        currentPage: page,
+      currentUrl:req.query.page
+    });
+        
     } catch (error) {
         console.log("error from userController.loadHome",error);
     }
+}
+
+
+const logout = async(req,res)=> {
+  try {
+    req.session.destroy((err) => {
+      if (err) {
+        console.log("error from admin logout", err);
+        res.status(500).send("server error");
+      } else {
+        console.log("logout working");
+        res.redirect("/login");
+      }
+    });
+    
+  } catch (error) {
+    console.log('error from userController.logout',error);
+  }
+}
+
+const loadProductDetails = async (req,res) =>{
+  try {
+    console.log('passed id:',req.query.id);
+
+    const id = req.query.id;
+    const product = await Product.find({_id:id})
+    console.log('product data:',product)
+    res.render('user/productDetails',{product});
+  } catch (error) {
+    console.log('error from userController.loadProductDetails',error);
+
+  }
 }
 
 
@@ -260,5 +318,7 @@ module.exports = {
   loadFailureGoogle,
   loadLandingPage,
   verifyLogin,
-  loadHome
+  loadHome,
+  logout,
+  loadProductDetails
 };

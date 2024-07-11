@@ -15,6 +15,15 @@
     <link rel="shortcut icon" type="image/x-icon" href="/admin/assets/imgs/theme/favicon.svg">
     <!-- Template CSS -->
     <link href="/admin/assets/css/main.css" rel="stylesheet" type="text/css" />
+    <style>
+        .table th, .table td {
+            padding: 15px 10px; /* Adjust padding as needed */
+        }
+
+        .itemside {
+            gap: 10px; /* Adjust gap as needed */
+        }
+    </style>
 </head>
 
 <body>
@@ -57,22 +66,22 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Seller</th>
-                                    <th>Email</th>
-                                    <th>Status</th>
-                                    <th>Registered</th>
-                                    <th class="text-end"> Action </th>
+                                    <th style="width: 20%;padding-left: 35px;">User</th>
+                                    <th style="width: 30%;">Email</th>
+                                    <th style="width: 20%;">Status</th>
+                                    <th style="width: 20%;" >Registered</th>
+                                    <th style="width: 20%;" class="text-end"> Action </th>
                                 </tr>
                             </thead>
                             <tbody>
 
                                  <%users.forEach(user =>{%>
                                 <tr>
-                                    <td width="40%">
+                                    <td width="25%">
                                         <a href="#" class="itemside">
-                                            <div class="left">
+                                            <!-- <div class="left">
                                                 <img src="/admin/assets/imgs/people/avatar1.jpg" class="img-sm img-avatar" alt="Userpic">
-                                            </div>
+                                            </div> -->
                                             <div class="info pl-3">
                                                 <h6 class="mb-0 title"><%=user.username%></h6>
                                                 <!-- <small class="text-muted">Seller ID: #439</small> -->
@@ -115,7 +124,18 @@
                     </ul>
                 </nav> -->
             </div>
+            <div class="pagination-area mt-15 mb-50">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-start">
+                  <% for(let j = 1; j<= totalPages; j++){ %>
+
+                    <li class="page-item <%=currentUrlPage == j ? "active" : "" %>"><a class="page-link" href="?page=<%=j%>"><%=j %></a></li>
+                    <% } %>
+                </ul>
+            </nav>
+        </div>
         </section> <!-- content-main end// -->
+        
         <footer class="main-footer font-xs">
             <div class="row pb-30 pt-15">
                 <div class="col-sm-6">

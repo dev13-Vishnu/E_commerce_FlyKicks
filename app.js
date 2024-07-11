@@ -39,6 +39,9 @@ try {
     process.exit(1);
   }
 
+  //set the static files directory
+  app.use(express.static(path.join(__dirname,'public')))
+
   // configure view engine
   app.set('views',path.join(__dirname,'views'));
   app.set('view engine','ejs');

@@ -50,6 +50,10 @@ userRoute.get('/failure',userController.loadFailureGoogle);
 
 //verify login
 userRoute.post('/login',isLoggedOut,userController.verifyLogin);
+userRoute.get('/logout',isLoggedIn,userController.logout)
+
+//product details
+userRoute.get('/product/detail',isLoggedIn,userController.loadProductDetails)
 
 
 module.exports = userRoute;

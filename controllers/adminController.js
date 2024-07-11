@@ -63,14 +63,33 @@ const loadDashboard = async(req,res)=>{
 
 const loadUserList = async(req,res)=>{
     try {
-        const users = await User.find({
-            isAdmin : 0
         
-        })
+         var page = 1;
+         if(req.query.page){
+            page = req.query.page;
+         }
+
+         const limit = 5;
+         
+    
+
+        const users = await User.find({isAdmin : 0})
+        .limit(limit*1)
+        .skip((page - 1) * limit)
+        .exec();
+
+        const count = await User.find({isAdmin:0})
+        .countDocuments();
+
+
 
         console.log(users);
         
-        res.render('admin/userslist',{users,currentUrl:req.url});
+        res.render('admin/userslist',{users,
+            totalPages:Math.ceil(count/limit),
+            currentPage: page,
+            currentUrlPage:req.query.page,
+            currentUrl:req.url});
     } catch (error) {
         console.log( "error from admin contronller LoadUsersList",error);
     }
@@ -129,6 +148,10 @@ const logout = async (req, res) => {
       console.log("error from admin controll logout", error);
     }
   };
+
+  
+
+
 module.exports={
     login,
     verifyLogin,
