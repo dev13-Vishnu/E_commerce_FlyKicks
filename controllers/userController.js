@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const otp = require("../helpers/otp");
 const securePassword = require("../helpers/securePassword");
 const bcrypt = require('bcrypt');
+const Product = require("../models/productModel")
 
 const loadSuccessGoogle = async (req, res) => {
   try {
@@ -236,9 +237,14 @@ const loadHome = async(req,res)=>{
             console.log("username:",name);
         }
         //render home page
-        res.render('user/home');
+        const products = await Product.find({});
+        products.forEach(product => {
+            product.image = product.image.map(img => img.replace(/\\/g, '/'));
+        });
+        console.log('products url', req.url)
+      
     } catch (error) {
-        console.log("error from userController load home",error);
+        console.log("error from userController.loadHome",error);
     }
 }
 
