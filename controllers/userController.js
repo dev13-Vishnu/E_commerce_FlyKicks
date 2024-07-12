@@ -2,7 +2,10 @@ const User = require("../models/userModel");
 const otp = require("../helpers/otp");
 const securePassword = require("../helpers/securePassword");
 const bcrypt = require('bcrypt');
-const Product = require("../models/productModel")
+const Product = require("../models/productModel");
+const Category = require("../models/categoryModel");
+
+
 
 const loadSuccessGoogle = async (req, res) => {
   try {
@@ -51,12 +54,34 @@ const loadFailureGoogle = async (req, res) => {
 
 const loadLandingPage = async (req, res) => {
   try {
-    const products = await Product.find({});
-    products.forEach(product => {
-        product.image = product.image.map(img => img.replace(/\\/g, '/'));
+    //render home page
+
+        //pagination
+        var page = 1;
+        if(req.query.page){
+          page = req.query.page;
+        }
+
+        const limit = 5;
+
+
+        const products = await Product.find({delete:false})
+        .limit(limit * 1)
+        .skip((page -1) * limit)
+        .exec();
+
+        const count = await Product.find({delete:false})
+        .countDocuments();
+
+        products.forEach(product => {
+            product.image = product.image.map(img => img.replace(/\\/g, '/'));
+        });
+        console.log('products url', req.url)
+      res.render('user/land',{products,
+        totalPages:Math.ceil(count/limit),
+        currentPage: page,
+      currentUrl:req.query.page
     });
-    console.log('products url', req.url)
-  res.render('user/land',{products})
   } catch (error) {
     console.log("errro from userController londhome", error);
   }
@@ -297,9 +322,39 @@ const loadProductDetails = async (req,res) =>{
     console.log('passed id:',req.query.id);
 
     const id = req.query.id;
-    const product = await Product.find({_id:id})
+    const product = await Product.findById(id);
+    if(!product){
+      return res.status(404).send('product not found');
+    }
+
+    //product image 
+    product.image = product.image.map(img => img.replace(/\\/g,'/'));
+  
+
+    const category =  await Category.findById(product.category);
+    const categoryName = category.name;
+
+    console.log('category:',categoryName);
+
+    const relatedProducts = await Product.find({
+      category: category._id,
+      _id: {$ne: product._id},
+    }).limit(4);
+
+    relatedProducts.forEach(prod =>{
+      prod.image = prod.image.map(img => img.replace(/\\/g, '/'));
+    });
+
+    console.log('stock:',product.stock);
     console.log('product data:',product)
-    res.render('user/productDetails',{product});
+    res.render('user/productDetails',{product,
+      stock: product.stock,
+      relatedProducts,
+      breadcrumbs: [
+          { name: 'Home', url: '/home' },
+          { name: categoryName, url: `/category/${product.category}` },
+          { name: product.name, url: `/product/${id}` }
+      ]});
   } catch (error) {
     console.log('error from userController.loadProductDetails',error);
 

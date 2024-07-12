@@ -53,7 +53,7 @@ userRoute.post('/login',isLoggedOut,userController.verifyLogin);
 userRoute.get('/logout',isLoggedIn,userController.logout)
 
 //product details
-userRoute.get('/product/detail',isLoggedIn,userController.loadProductDetails)
+userRoute.get('/product/detail',userController.loadProductDetails)
 
 
 module.exports = userRoute;
