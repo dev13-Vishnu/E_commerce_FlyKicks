@@ -18,6 +18,44 @@
     />
     <!-- Template CSS -->
     <link rel="stylesheet" href="/user/assets/css/main.css?v=3.4" />
+
+    <style>
+      form .inputBox {
+    position: relative;
+    width: 100%;
+}
+
+form .inputBox input {
+    margin-bottom: 6px;
+    position: relative;
+    width: 100%;
+    background: white;
+    outline: none;
+    padding: 10px 20px 7.5px;
+    border-radius: 4px;
+    color: #1d1a1a;
+    font-weight: 500;
+    font-size: 1em;
+
+}
+
+form .inputBox i {
+    position: absolute;
+    left: 10px;
+    top: 15px;
+    font-style: normal;
+    color: #5e5e5e;
+    transition: 0.5s;
+    pointer-events: none;
+}
+
+form .inputBox input:focus ~ i,
+form .inputBox input:valid ~ i {
+    transform: translateY(-20px);
+    font-size: 0.8em;
+    color: #aaa;
+}
+    </style>
   </head>
 
   <body>
@@ -790,22 +828,20 @@
                           <%}%>
 
                       </div>
-                      <form method="post">
+                      <form method="POST" onsubmit="return formValidation()">
                         <div class="form-group">
-                          <input
-                            type="text"
-                            required=""
-                            name="email"
-                            placeholder="Your Email"
-                          />
+                            <div class="inputBox">
+                                <input type="text" required name="email" id="email" placeholder=" ">
+                                <i>Email</i>
+                                <div class="error text-danger" id="emailError"></div>
+                            </div>
                         </div>
                         <div class="form-group">
-                          <input
-                            required=""
-                            type="password"
-                            name="password"
-                            placeholder="Password"
-                          />
+                            <div class="inputBox">
+                                <input type="password" required name="password" id="password" placeholder=" ">
+                                <i>Password</i>
+                                <div class="error text-danger" id="passwordError"></div>
+                            </div>
                         </div>
                         <div class="login_footer form-group">
                           <div class="chek-form">
@@ -992,5 +1028,49 @@
     <script src="/user/assets/js/plugins/jquery.theia.sticky.js"></script>
     <!-- Template  JS -->
     <script src=".//user/assets/js/main.js?v=3.4"></script>
+
+    <script>
+        function formValidation() {
+    let valid = true;
+
+    // Clear previous errors
+    document.querySelectorAll('.error').forEach(error => error.textContent = '');
+
+    // Validation rules
+    const rules = [
+        
+        {
+            field: 'email',
+            errorElement: 'emailError',
+            validations: [
+                { rule: value => value !== '', errorMsg: 'Email is required' },
+                { rule: value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), errorMsg: 'Invalid email format' }
+            ]
+        },
+        {
+            field: 'password',
+            errorElement: 'passwordError',
+            validations: [
+                { rule: value => value !== '', errorMsg: 'Password is required' }
+            ]
+        }
+    ];
+
+    // Apply validations
+    rules.forEach(({ field, errorElement, validations }) => {
+        const value = document.getElementById(field).value.trim();
+        validations.forEach(({ rule, errorMsg }) => {
+            if (!rule(value)) {
+                document.getElementById(errorElement).textContent = errorMsg;
+                valid = false;
+            }
+        });
+    });
+
+    return valid;
+}
+    </script>
+
+
   </body>
 </html>

@@ -161,7 +161,7 @@ const verifyOtp = async (req, res) => {
     const data = req.body;
 
     if (data.verify && typeof data.verify === "string") {
-      const otp = data.verify;
+      const otp = data.verify.trim();
       console.log(otp);
       const enterOtp = otp;
 
@@ -189,15 +189,19 @@ const verifyOtp = async (req, res) => {
         });
         const userInfo = await user.save();
         if (userInfo) {
-          res.redirect("/login");
+          req.session.user = userInfo;
+          req.session.tempUser = null;
+          res.redirect("/home");
           console.log("saved user in mongo db");
         }
-      }
-    } else {
+      }else {
+
+      console.log('incorrect otp');
       res.render("user/otp", {
-        message: "Incorrect OTP or expired  OTP. Please try again",
+        message: "Incorrect or expired  OTP. Please try again",
       });
     }
+    } 
   } catch (error) {
     console.log("error from user control > verifyOtp", error);
   }

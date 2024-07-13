@@ -36,35 +36,21 @@
                     </div>
                     <form method="post" id="verify-otp-form" onsubmit="validateAndSubmit(event)">
                       <div class="form-group">
-
-                        <% if(typeof message != 'undefined') {%>
-                            <p class="text-success" id="error-message"><%= message%></p>
-                            <%}%>
-
-                        <input
-                          type="text"
-                          required
-                          id="otp"
-                          name="verify"
-                          placeholder="enter OTP"
-                        />
+                          <% if(typeof message != 'undefined') {%>
+                              <p class="text-danger" id="error-message"><%= message %></p>
+                          <% } %>
+                          <input type="text" required id="otp" name="verify" placeholder="enter OTP"/>
                       </div>
                       <div id="error-otp" class="text-danger"></div>
                       <div class="form-group">
-                        <button
-                          type="submit"
-                          class="btn btn-fill-out btn-block hover-up"
-                          name="login"
-                          id="verify-otp"
-                        >
-                          Verify
-                        </button>
-                        <div class="pl-10 pt-20 pb-10">
-                        <a href="" id="resend" class="disabled text-success">Resend OTP</a>
-                        <span id="timer"></span>
-                        </div>
+                          <button type="submit" class="btn btn-fill-out btn-block hover-up" name="login" id="verify-otp">Verify</button>
+                          <div class="pl-10 pt-20 pb-10">
+                              <a href="" id="resend" class="disabled text-success">Resend OTP</a>
+                              <span id="timer"></span>
+                          </div>
                       </div>
-                    </form>
+                  </form>
+                  
                   </div>
                 </div>
               </div>
@@ -95,36 +81,21 @@
       <script src=".//user/assets/js/main.js?v=3.4"></script>
       
       <script>
-
-        // const inputOtp = document.getElementById('otp');
         
-        // const verifyButton = document.getElementById('verify-otp');
-
-        // verifyButton.addEventListener('click',() => {
-        //     try {
-                
-        //     const enteredOtp =inputOtp.value;
-        //     if (enteredOtp.trim() === '') {
-        //         errorElement.textContent = 'Please Enter OTP';
-        //         return ;
-        //     }   
-        //     } catch (error) {
-        //         console.log(error);
-        //     }
-        // })
-        function validateAndSubmit(event){
+        function validateAndSubmit(event) {
             event.preventDefault();
             var otpInput = document.getElementById('otp').value;
             var otpError = document.getElementById('error-otp');
 
-            if(otpInput.trim() === ''){
-                otpError.innerHTML ="Please enter OTP";
+            if (otpInput.trim() === '') {
+                otpError.innerHTML = "Please enter OTP";
                 return;
-            }else if (otpInput.trim().length !== 4) {
-                otpError.innerHTML = " OTP must be exactly 4 charecters long";  
+            } else if (otpInput.trim().length !== 4) {
+                otpError.innerHTML = "OTP must be exactly 4 characters long";
                 return;
             } else if (isNaN(otpInput)) {
-                       otpError.innerHTML = 'OTP must be a Number';
+                otpError.innerHTML = "OTP must be a number";
+                return;
             } else {
                 otpError.innerHTML = "";
             }
@@ -134,65 +105,45 @@
             }
         }
 
-
         let resendLink = document.getElementById('resend');
 
-        // function to start timer
-        function startTimer(){
+        function startTimer() {
             let seconds = getRemainingSeconds() || 60;
             const timerElement = document.getElementById('timer');
 
+            resendLink.style.display = 'none';
 
-            // disble the resend link during the countdown
-            // console.log(resendLink.classList);
-            resendLink.style.display = 'none'
-            // console.log(resendLink.classList); 
+            const timerInterval = setInterval(() => {
+                seconds--;
 
-            const timerInterval = setInterval(()=>{
-                seconds --;
-
-                if(seconds >= 0){
-                    timerElement.textContent = `Resend  OTP in ${seconds} seconds`;
-                    setRemainingSeconds(seconds); //store remaining seconds in local storage
-                }else{
+                if (seconds >= 0) {
+                    timerElement.textContent = `Resend OTP in ${seconds} seconds`;
+                    setRemainingSeconds(seconds);
+                } else {
                     clearInterval(timerInterval);
                     timerElement.textContent = '';
-                    // Re-enable the resend link after the countdown finishes
                     resendLink.style.display = 'block';
                     clearRemainingSeconds();
-
                 }
-            },1000);
-
+            }, 1000);
         }
 
-        // function to get remaining seconds from local storage
-        function getRemainingSeconds(){
-            return localStorage.getItem('remainingSeconds');
+        function getRemainingSeconds() {
+            return localStorage.getItem(' ');
         }
 
-        // function to ser remaining second in local storage
-        function setRemainingSeconds(seconds){
-            localStorage.setItem('remainingSeconds',seconds);
+        function setRemainingSeconds(seconds) {
+            localStorage.setItem('remainingSeconds', seconds);
         }
-
-        // function to clear remaining seconds from local storage
 
         function clearRemainingSeconds() {
             localStorage.removeItem('remainingSeconds');
         }
 
-        // Resend OTP
-        function resendOTP(){
-          
-          clearError();
-            const errorElement = document.getElementById('error-message');
-
-            if (errorElement) {
-            errorElement.textContent = null; // Clear the text content
-            }
-            fetch('/resend-otp',{
-                method:'POST',
+        function resendOTP() {
+            clearError();
+            fetch('/resend-otp', {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -200,28 +151,29 @@
             .then(response => {
                 if (response.ok) {
                     console.log('Resend request processed successfully');
-                    startTimer();   
+                    startTimer();
                 } else {
-                    console.error('Failed to process resend request:',response.statusText);
+                    console.error('Failed to process resend request:', response.statusText);
                 }
             })
             .catch(error => {
-                console.error('Error processing resend request:',error.message);
+                console.error('Error processing resend request:', error.message);
             });
         }
-        // add event listners to the Resesnd OTP element
-        resendLink.addEventListener('click',function(event){
-            console.log('otp function running');
-            event.preventDefault(); 
+
+        resendLink.addEventListener('click', function(event) {
+            event.preventDefault();
             resendOTP();
         });
-        function clearError(){
-          const errorElement = document.getElementByid('error-message');
-          errorElement.textContent ="";
-        }
-        
-        startTimer();
 
+        function clearError() {
+            const errorElement = document.getElementById('error-message');
+            if (errorElement) {
+                errorElement.textContent = "";
+            }
+        }
+
+        startTimer();
 
       </script>
     </body>
