@@ -343,6 +343,7 @@ const loadProductDetails = async (req,res) =>{
     const relatedProducts = await Product.find({
       category: category._id,
       _id: {$ne: product._id},
+      delete:false
     }).limit(4);
 
     relatedProducts.forEach(prod =>{

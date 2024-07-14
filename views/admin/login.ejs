@@ -70,16 +70,16 @@
                     <form method="post" onsubmit="return validation()">
 
                         <% if(typeof message != "undefined"){ %>
-                            <p><%= message %></p>
+                            <p class="text-danger"><%= message %></p>
                         <% } %>
 
                         <div class="mb-3">
                             <input class="form-control" placeholder="Username or email" id="email" name="email" type="text">
-                            <div id="error-email" class="text-danger"></div>
+                            <div id="emailError" class="error text-danger"></div>
                         </div> <!-- form-group// -->
                         <div class="mb-3">
                             <input class="form-control" placeholder="Password" id="password" name="password" type="password">
-                            <div id="error-pass" class="text-danger"></div>
+                            <div id="passwordError" class="error text-danger"></div>
                         </div> <!-- form-group// -->
                         <div class="mb-3">
                             <a href="#" class="float-end font-sm text-muted">Forgot password?</a>
@@ -128,23 +128,44 @@
     <script src="/admin/assets/js/main.js" type="text/javascript"></script>
     <script>
         function validation(){
-            const email = document.getElementById('email').value.trim()
-            const password = document.getElementById('password').value.trim()
-            var isValid = true;
-            if (email === '') {
-                document.getElementById('error-email').innerHTML = 'please enter email';
-                isValid = false;
-            } else {
-                document.getElementById('error-email').innerHTML="";
-            }
-            if (password =="") {
-                document.getElementById('error-pass').innerHTML="please enter the password";
-                isValid = false;
-            } else {
-                document.getElementById('error-pass').innerHTML="";
-            }
-            return isValid;
+            let valid = true;
+
+    // Clear previous errors
+    document.querySelectorAll('.error').forEach(error => error.textContent = '');
+
+    // Validation rules
+    const rules = [
+        
+        {
+            field: 'email',
+            errorElement: 'emailError',
+            validations: [
+                { rule: value => value !== '', errorMsg: 'Email is required' },
+                { rule: value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), errorMsg: 'Invalid email format' }
+            ]
+        },
+        {
+            field: 'password',
+            errorElement: 'passwordError',
+            validations: [
+                { rule: value => value !== '', errorMsg: 'Password is required' }
+            ]
         }
+    ];
+
+    // Apply validations
+    rules.forEach(({ field, errorElement, validations }) => {
+        const value = document.getElementById(field).value.trim();
+        validations.forEach(({ rule, errorMsg }) => {
+            if (!rule(value)) {
+                document.getElementById(errorElement).textContent = errorMsg;
+                valid = false;
+            }
+        });
+    });
+
+    return valid;
+}
     </script>
 </body>
 

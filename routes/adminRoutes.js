@@ -26,12 +26,13 @@ adminRoutes.get('/user/block',auth.isLogin,adminController.userBlock);
 adminRoutes.get('/user/unblock',auth.isLogin,adminController.userUnblock);
 
 //productList
-adminRoutes.post('/addproduct',auth.isLogin,productController.addproduct);
+adminRoutes.post('/addproduct',auth.isLogin,productController.addProduct);
 adminRoutes.get('/products',auth.isLogin,productController.loadProducts);
 adminRoutes.get('/product/edit',auth.isLogin,productController.loadEditProduct);
+adminRoutes.get('/product/add',auth.isLogin,productController.pushToUserSide)
 adminRoutes.get('/product/delete',auth.isLogin,productController.deleteProduct);
-adminRoutes.get('/product/add',auth.isLogin,productController.addProduct);
-
+adminRoutes.get('/product/edit/remove-image',productController.removeImage);
+adminRoutes.post('/product/edit',productController.editProduct);
 
 
 module.exports = adminRoutes;

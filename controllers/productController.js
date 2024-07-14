@@ -2,22 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const Category = require('../models/categoryModel');
 const Product = require('../models/productModel');
-const multer= require('multer');
 const mongoose = require('mongoose');
+const upload = require('../helpers/multer')
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'public/uploads/'); // Ensure this directory exists
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-    }
-});
-
-const upload = multer({ storage: storage }).array('images', 4); // Accept up to 4 files
 
 // Controller function to handle the form submission
-const addproduct = async (req, res) => {
+const addProduct = async (req, res) => {
     try {
 
         const categoryData = await Category.find({})
@@ -66,6 +56,7 @@ const addproduct = async (req, res) => {
 }; 
 
 
+
 const loadaddProduct = async(req,res)=>{
     try {
         const categoryData = await Category.find({})
@@ -112,14 +103,24 @@ const loadProducts = async(req,res)=>{
     }
 }
 
-
-const loadEditProduct = async(req,res)=>{
+const loadEditProduct = async (req, res) => {
     try {
-        res.send('product edit page')
+        const id = req.query.productId;
+        const categoryData = await Category.find({});
+        const productData = await Product.findById(id);
+
+        productData.image = productData.image.map(img => img.replace(/\\/g, '/'));
+
+        res.render('admin/editProduct', {
+            currentUrl: req.url,
+            categoryData,
+            productData
+        });
     } catch (error) {
-        console.log('error from productController.loadEditProduct',error)
+        console.log('error from productController.loadEditProduct', error);
     }
-}
+};
+
 
 const deleteProduct = async (req,res)=>{
     try {
@@ -140,7 +141,7 @@ const deleteProduct = async (req,res)=>{
     }
 }
 
-const addProduct = async(req,res)=>{
+const pushToUserSide = async(req,res)=>{
     try {
         console.log(req.query.id);
         const saved = await Product.findByIdAndUpdate(
@@ -159,12 +160,92 @@ const addProduct = async(req,res)=>{
     }
 }
 
+const removeImage = async(req,res) =>{
+    try {
+
+        console.log('remove image req.body:',req.query);
+
+        const {productId,index} = req.query;
+        
+        const product = await Product.findOne({_id:productId});
+        if(product){
+            product.image.splice(index,1);
+            await product.save();
+            res.redirect(`/admin/product/edit?id=${productId}`);
+        }else{
+            res.status(404).send('Product not found');
+        }
+    } catch (error) {
+        console.log('error from product controller remove image',error);
+    }
+}
+
+const editProduct = async (req,res)  =>{try {
+    const productId = req.query.productId;
+
+    upload(req, res, async (err) => {
+        if (err) {
+            return res.status(500).send(err.message);
+        }
+
+        const { product_name, description, product_Aprice, product_Pprice, product_category, stock } = req.body;
+        const imageFiles = req.files;
+        let images = [];
+
+        if (imageFiles && imageFiles.length > 0) {
+            images = imageFiles.map(file => file.path); // Store the file paths in the images array
+        }
+
+        const productData = await Product.findById(productId);
+        const categoryData = await Category.findById(   );
+
+        if (!productData) {
+            return res.status(404).send('Product not found');
+        }
+        productData.image = productData.image.map(img => img.replace(/\\/g,'/'));
+
+
+        // Merge existing images with new images
+        if (images.length > 0) {
+            productData.image = [...productData.image, ...images];
+        }
+
+        productData.name = product_name;
+        productData.description = description;
+        productData.price = product_Aprice;
+        productData.promo_price = product_Pprice;
+        productData.category = new mongoose.Types.ObjectId(product_category);
+        productData.stock = {
+            7: Number(stock[7]) || 0,
+            8: Number(stock[8]) || 0,
+            9: Number(stock[9]) || 0,
+            10: Number(stock[10]) || 0,
+            11: Number(stock[11]) || 0,
+            12: Number(stock[12]) || 0
+        };
+
+        await productData.save();
+
+        res.render('admin/editProduct',{
+            currentUrl:req.url,
+            categoryData,
+            productData
+
+        });
+    });
+} catch (error) {
+    res.status(500).send(error.message);
+}
+};
+
 
 module.exports = {
     loadaddProduct,
-    addproduct,
+    addProduct,
     loadProducts,
     loadEditProduct,
     deleteProduct,
-    addProduct
+    pushToUserSide,
+    removeImage,
+    editProduct
 }

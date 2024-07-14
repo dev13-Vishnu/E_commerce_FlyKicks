@@ -29,7 +29,7 @@
             <div class="content-header">
                 <div>
                     <h2 class="content-title card-title">Products grid</h2>
-                    <p>Lorem ipsum dolor sit amet.</p>
+                    <p></p>
                 </div>
                 <div>
                     <a href="#" class="btn btn-light rounded font-md">Export</a>
@@ -75,12 +75,12 @@
                                 <div class="price mt-1">₹
                                     <%=product.promo_price%>/-</div><span style="text-decoration: line-through;"> ₹<%=product.price %>/-</span> <!-- price-wrap.// -->
                             <div class="d-flex px-5 justify-content-between">
-                                <a class="btn btn-sm btn-brand mr-3 rounded" href="product/edit?id=<%=product._id %>">Edit info</a>
+                                <a class="btn btn-sm btn-brand mr-3 rounded" href="product/edit?productId=<%=product._id %>">Edit info</a>
                                 <% if(product.delete){ %>
-                                <a class="btn btn-sm ml-2 btn-success  rounded" href="product/add?id=<%=product._id %>">Add</a>
+                                <a class="btn btn-sm ml-2 btn-success  rounded" href="product/add?productId=<%=product._id %>">Add</a>
 
                                     <% }else{ %>
-                                <a class="btn btn-sm ml-2 btn-danger rounded" href="product/delete?id=<%=product._id %>">Delete</a>
+                                <a class="btn btn-sm ml-2 btn-danger rounded" href="product/delete?productId=<%=product._id %>">Delete</a>
                                 <% } %>
                             </div>
                             </div>

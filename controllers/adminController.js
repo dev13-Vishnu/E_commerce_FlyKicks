@@ -16,7 +16,7 @@ const verifyLogin = async(req,res)=>{
     try {
         const email = req.body.email;
         const password = req.body.password;
-        console.log(req.body.email,'\n',req.body.password );
+        // console.log(req.body.email,'\n',req.body.password );
 
         const userData = await User.findOne({email: email});
         {

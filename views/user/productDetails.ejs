@@ -444,27 +444,20 @@
                                         <span class="zoom-icon"><i class="fi-rs-search"></i></span>
                                         <!-- MAIN SLIDES -->
                                         <div class="product-image-slider">
+                                            <% for(let i =0; i<product.image.length;i++){ %>
+                                            
                                             <figure class="border-radius-10">
-                                                <img src="/<%= product.image[0].replace(/\\/g, '/') %>" alt="product image">
+                                                <img src="/<%= product.image[i].replace(/\\/g, '/') %>" alt="product image">
                                             </figure>
-                                            <figure class="border-radius-10">
-                                                <img src="/<%= product.image[1].replace(/\\/g, '/') %>" alt="product image">
-                                            </figure>
-                                            <figure class="border-radius-10">
-                                                <img src="/<%= product.image[2].replace(/\\/g, '/') %>" alt="product image">
-                                            </figure>
-                                            <figure class="border-radius-10">
-                                                <img src="/<%= product.image[3].replace(/\\/g, '/') %>" alt="product image">
-                                            </figure>
+                                            <% } %>
                                             
                                         </div>
                                         <!-- THUMBNAILS -->
                                         <div class="slider-nav-thumbnails pl-15 pr-15">
-                                            <div><img src="/<%= product.image[0].replace(/\\/g, '/') %>" alt="product image"></div>
-                                            <div><img src="/<%= product.image[1].replace(/\\/g, '/') %>" alt="product image"></div>
-                                            <div><img src="/<%= product.image[2].replace(/\\/g, '/') %>" alt="product image"></div>
-                                            <div><img src="/<%= product.image[3].replace(/\\/g, '/') %>" alt="product image"></div>
-                                            
+                                            <% for(let j =0; j<product.image.length;j++){ %>
+
+                                            <div><img src="/<%= product.image[j].replace(/\\/g, '/') %>" alt="product image"></div>
+                                            <% } %>
                                         </div>
                                     </div>
                                     <!-- End Gallery -->

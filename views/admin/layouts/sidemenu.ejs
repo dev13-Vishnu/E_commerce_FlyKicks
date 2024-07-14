@@ -15,7 +15,7 @@
                     <span class="text">Dashboard</span>
                 </a>
             </li>
-            <li class="menu-item <%=currentUrl==='/products'?'active':''%> ">
+            <li class="menu-item  <%= currentUrl.includes('product') ? 'active' : '' %> ">
                 <a class="menu-link" href="/admin/products"> <i class="icon material-icons md-shopping_bag"></i>
                     <span class="text">Products</span>
                 </a>
