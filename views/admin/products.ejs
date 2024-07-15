@@ -31,13 +31,13 @@
                     <h2 class="content-title card-title">Products grid</h2>
                     <p></p>
                 </div>
-                <div>
+                <!-- <div>
                     <a href="#" class="btn btn-light rounded font-md">Export</a>
                     <a href="#" class="btn btn-light rounded  font-md">Import</a>
                     <a href="#" class="btn btn-primary btn-sm rounded">Create new</a>
-                </div>
+                </div> -->
             </div>
-            <header class="card card-body mb-4">
+            <!-- <header class="card card-body mb-4">
                 <div class="row gx-3">
                     <div class="col-lg-4 col-md-6 me-auto">
                         <input type="text" placeholder="Search..." class="form-control">
@@ -58,7 +58,7 @@
                         </select>
                     </div>
                 </div>
-            </header> <!-- card-header end// -->
+            </header> card-header end// -->
                 <div class="row">
             <% products.forEach(product => {%>
                     <div class="col-md-4 mb-4">
@@ -71,16 +71,16 @@
                                         
                                     </div>
                                 </div>
-                                <a href="#" class="title"><%=product.name%></a>
+                                <a href="products/edit?productId=<%=product._id %>" class="title"><%=product.name%></a>
                                 <div class="price mt-1">₹
                                     <%=product.promo_price%>/-</div><span style="text-decoration: line-through;"> ₹<%=product.price %>/-</span> <!-- price-wrap.// -->
                             <div class="d-flex px-5 justify-content-between">
-                                <a class="btn btn-sm btn-brand mr-3 rounded" href="product/edit?productId=<%=product._id %>">Edit info</a>
+                                <a class="btn btn-sm btn-brand mr-3 rounded" href="products/edit?productId=<%=product._id %>">Edit info</a>
                                 <% if(product.delete){ %>
-                                <a class="btn btn-sm ml-2 btn-success  rounded" href="product/add?productId=<%=product._id %>">Add</a>
+                                <a class="btn btn-sm ml-2 btn-success  rounded" href="products/add?productId=<%=product._id %>">Add</a>
 
                                     <% }else{ %>
-                                <a class="btn btn-sm ml-2 btn-danger rounded" href="product/delete?productId=<%=product._id %>">Delete</a>
+                                <a class="btn btn-sm ml-2 btn-danger rounded" href="products/delete?productId=<%=product._id %>">Delete</a>
                                 <% } %>
                             </div>
                             </div>

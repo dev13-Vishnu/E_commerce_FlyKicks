@@ -4,14 +4,8 @@ const path = require("path");
 const passport = require('passport');
 require('../helpers/oAuth');
 
-const nocache = require('nocache');
 
-const setNoCacheHeaders = (req, res, next) => {
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    next();
-};
+
 
 userRoute.use(passport.initialize());
 userRoute.use(passport.session());
@@ -21,13 +15,13 @@ const userController = require("../controllers/userController");
 const { isLoggedOut, isLoggedIn } = require("../middlewares/userAuthentication");
 
 
-userRoute.get('/',setNoCacheHeaders,userController.loadLandingPage)
+userRoute.get('/',isLoggedOut,userController.loadLandingPage)
 //home page rendering
-userRoute.get('/home',isLoggedIn,setNoCacheHeaders,userController.loadHome);
+userRoute.get('/home',isLoggedIn,userController.loadHome);
 // load signup page
 userRoute.get('/signup',userController.loadSignup);
 // load login page
-userRoute.get('/login',isLoggedOut,setNoCacheHeaders,userController.loadLogin);
+userRoute.get('/login',isLoggedOut,userController.loadLogin);
 // inserting user
 userRoute.post('/signup',userController.insertUser);
 // loading otp page
@@ -53,7 +47,7 @@ userRoute.post('/login',isLoggedOut,userController.verifyLogin);
 userRoute.get('/logout',isLoggedIn,userController.logout)
 
 //product details
-userRoute.get('/product/detail',userController.loadProductDetails)
+userRoute.get('/product/detail',isLoggedIn,userController.loadProductDetails)
 
 
 module.exports = userRoute;

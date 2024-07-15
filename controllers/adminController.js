@@ -42,7 +42,7 @@ const verifyLogin = async(req,res)=>{
 
                 }
             }else{
-                res.render('admin/login',{messaga: "email and password doesna't match"});
+                res.render('admin/login',{message: "email and password doesn't match"});
             }
         }
     } catch (error) {

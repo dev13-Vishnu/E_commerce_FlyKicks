@@ -1,7 +1,7 @@
 
 <aside class="navbar-aside" id="offcanvas_aside">
     <div class="aside-top">
-        <a href="index.html" class="brand-wrap">
+        <a href="/admin/home" class="brand-wrap">
             <img src="/admin/assets/imgs/theme/FLY_KICKS_gold_crropped.png" class="logo" alt="Evara Dashboard">
         </a>
         <div>
@@ -11,11 +11,11 @@
     <nav>
         <ul class="menu-aside">
             <li class="menu-item <%=currentUrl==='/home'?'active':''%> ">
-                <a class="menu-link " href="home"> <i class="icon material-icons md-home"></i>
+                <a class="menu-link " href="/admin/home"> <i class="icon material-icons md-home"></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>
-            <li class="menu-item  <%= currentUrl.includes('product') ? 'active' : '' %> ">
+            <li class="menu-item  <%= currentUrl.includes('products') ? 'active' : '' %> ">
                 <a class="menu-link" href="/admin/products"> <i class="icon material-icons md-shopping_bag"></i>
                     <span class="text">Products</span>
                 </a>
@@ -49,7 +49,7 @@
                 </div> -->
             </li>
             <li class="menu-item <%= currentUrl === '/addproduct' ? 'active' : '' %> ">
-                <a class="menu-link" href="addproduct"> <i class="icon material-icons md-add_box"></i>
+                <a class="menu-link" href="/admin/addproduct"> <i class="icon material-icons md-add_box"></i>
                     <span class="text">Add product</span>
                 </a>
                 <div class="submenu">
@@ -60,7 +60,7 @@
                 </div>
             </li>
             <li class="menu-item <%= currentUrl === '/categories' ? 'active' : '' %>">
-                <a class="menu-link" href="categories"> <i class="icon material-icons md-monetization_on"></i>
+                <a class="menu-link" href="/admin/categories"> <i class="icon material-icons md-monetization_on"></i>
                     <span class="text">Categories</span>
                 </a>
                 <!-- <div class="submenu">

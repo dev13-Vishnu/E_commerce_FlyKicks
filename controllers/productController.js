@@ -25,7 +25,8 @@ const addProduct = async (req, res) => {
                 return res.status(400).send('No files uploaded.');
             }
 
-            const images = imageFiles.map(file => file.path); // Store the file paths in the images array
+            const images = imageFiles.map(file => path.join('uploads', path.basename(file.path)).replace(/\\/g, '/'));
+            // Store the file paths in the images array
 
             const newProduct = new Product({
                 name : product_name,
@@ -76,7 +77,7 @@ const loadProducts = async(req,res)=>{
           page = parseInt(req.query.page,10);
         }
 
-        const limit = 5;
+        const limit = 6;
 
 
         const products = await Product.find({})
@@ -105,12 +106,19 @@ const loadProducts = async(req,res)=>{
 
 const loadEditProduct = async (req, res) => {
     try {
-        const id = req.query.productId;
+        const productId = req.query.productId;
+        console.log
+
+
+        console.log('loadEditProduct req.query:',req.query);
+        // console.log('loadEditProduct req.query.id:',id);
+        // console.log('loadEditProduct req.query.id:',id);
         const categoryData = await Category.find({});
-        const productData = await Product.findById(id);
+        let productData = await Product.findOne({_id:productId});
 
         productData.image = productData.image.map(img => img.replace(/\\/g, '/'));
 
+        productData = productData.toObject();
         res.render('admin/editProduct', {
             currentUrl: req.url,
             categoryData,
@@ -124,9 +132,9 @@ const loadEditProduct = async (req, res) => {
 
 const deleteProduct = async (req,res)=>{
     try {
-        console.log(req.query.id);
+        console.log(req.query.productId);
         const saved = await Product.findByIdAndUpdate(
-            { _id: req.query.id },
+            { _id: req.query.productId },
             { $set: { delete: true } },
             { new: true }
           )      // user.isBlocked = true;
@@ -145,7 +153,7 @@ const pushToUserSide = async(req,res)=>{
     try {
         console.log(req.query.id);
         const saved = await Product.findByIdAndUpdate(
-            { _id: req.query.id },
+            { _id: req.query.productId },
             { $set: { delete: false } },
             { new: true }
           )      // user.isBlocked = true;
@@ -171,7 +179,7 @@ const removeImage = async(req,res) =>{
         if(product){
             product.image.splice(index,1);
             await product.save();
-            res.redirect(`/admin/product/edit?id=${productId}`);
+            res.redirect(`/admin/products/edit?productId=${productId}`);
         }else{
             res.status(404).send('Product not found');
         }
@@ -193,11 +201,11 @@ const editProduct = async (req,res)  =>{try {
         let images = [];
 
         if (imageFiles && imageFiles.length > 0) {
-            images = imageFiles.map(file => file.path); // Store the file paths in the images array
+            images = imageFiles.map(file => path.join('uploads', path.basename(file.path)).replace(/\\/g, '/')); // Store the file paths in the images array
         }
 
-        const productData = await Product.findById(productId);
-        const categoryData = await Category.findById(   );
+        const productData = await Product.findOne({_id:productId});
+        const categoryData = await Category.find({});
 
         if (!productData) {
             return res.status(404).send('Product not found');
@@ -229,7 +237,8 @@ const editProduct = async (req,res)  =>{try {
         res.render('admin/editProduct',{
             currentUrl:req.url,
             categoryData,
-            productData
+            productData,
+            message: 'Prodect details updated successfully!'
 
         });
     });

@@ -62,7 +62,7 @@ const loadLandingPage = async (req, res) => {
           page = req.query.page;
         }
 
-        const limit = 5;
+        const limit = 6;
 
 
         const products = await Product.find({delete:false})
@@ -277,7 +277,7 @@ const loadHome = async(req,res)=>{
           page = req.query.page;
         }
 
-        const limit = 5;
+        const limit = 6;
 
 
         const products = await Product.find({delete:false})
