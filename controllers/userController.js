@@ -271,7 +271,10 @@ const loadHome = async(req,res)=>{
             name = req.session.user.username
             console.log("username:",name);
         }
+        console.log('load home:',req.session.user);
+
         //render home page
+
 
         //pagination
         var page = 1;
@@ -297,7 +300,8 @@ const loadHome = async(req,res)=>{
       res.render('user/home',{products,
         totalPages:Math.ceil(count/limit),
         currentPage: page,
-      currentUrl:req.query.page
+      currentUrl:req.query.page,
+      
     });
         
     } catch (error) {
@@ -368,6 +372,28 @@ const loadProductDetails = async (req,res) =>{
   }
 }
 
+//load account
+const loadAccount = async(req,res)=>{
+  try {
+    const sessionUserData = req.session.user;
+    const userId = req.session.user._id;
+
+    const userData = await User.findById(userId);
+
+    
+
+    console.log('loadAccount userId:',userId);
+    console.log('loadAccount userData:',userData);
+    console.log('load account user:',req.session.user);
+    res.render('user/userAccount',{
+      userData
+    }
+    )
+  } catch (error) {
+    console.log('error from userController.loadAccount',error);
+  }
+}
+
 
 module.exports = {
   loadSignup,
@@ -382,5 +408,6 @@ module.exports = {
   verifyLogin,
   loadHome,
   logout,
-  loadProductDetails
+  loadProductDetails,
+  loadAccount
 };

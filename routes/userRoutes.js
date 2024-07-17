@@ -48,7 +48,7 @@ userRoute.get('/logout',isLoggedIn,userController.logout)
 
 //product details
 userRoute.get('/product/detail',isLoggedIn,userController.loadProductDetails)
-
+userRoute.get('/account',isLoggedIn,userController.loadAccount);
 
 module.exports = userRoute;
  
