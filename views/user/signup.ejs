@@ -645,7 +645,7 @@ form .inputBox input:valid ~ i {
                       </div>
                       <!-- <p class="mb-50 font-sm"> -->
                         <% if(typeof message != 'undefined') {%>
-                          <p class="text-success" id="error-message"><%= message%></p>
+                          <p class="text-danger" id="error-message"><%= message%></p>
                           <%}%>
                       <!-- </p> -->
                       <form method="POST" onsubmit="return formValidation()">
@@ -803,7 +803,8 @@ form .inputBox input:valid ~ i {
             field: 'password',
             errorElement: 'passwordError',
             validations: [
-                { rule: value => value !== '', errorMsg: 'Password is required' }
+                { rule: value => value !== '', errorMsg: 'Password is required' },
+                {rule:value=> /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value),errorMsg:"Password must be at least 8 characters long and contain at least one letter and one number." }
             ]
         },
         {

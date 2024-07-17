@@ -19,7 +19,7 @@ userRoute.get('/',isLoggedOut,userController.loadLandingPage)
 //home page rendering
 userRoute.get('/home',isLoggedIn,userController.loadHome);
 // load signup page
-userRoute.get('/signup',userController.loadSignup);
+userRoute.get('/signup',isLoggedOut,userController.loadSignup);
 // load login page
 userRoute.get('/login',isLoggedOut,userController.loadLogin);
 // inserting user

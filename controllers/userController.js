@@ -118,6 +118,8 @@ const insertUser = async (req, res) => {
       console.log("otp geenrator" + otpCode);
       // for saving otp data's in session for verifying in future
       req.session.tempUser = req.body;
+      
+
       req.session.email = req.body.email;
       req.session.otp = otpCode;
       req.session.otpExpire = Date.now() + 60 * 1000;

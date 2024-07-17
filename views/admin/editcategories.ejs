@@ -34,6 +34,14 @@
                     <h2 class="content-title card-title">Categories </h2>
                     <p>Add, edit or delete a category</p>
                 </div>
+
+
+                <% if(typeof sMessage != "undefined"){ %>
+                    <h4 class="text-success"><%= sMessage %></h4>
+                    <% } %>
+                    <% if(typeof fMessage != "undefined"){ %>
+                        <h4 class="text-danger"><%= fMessage %></h4>
+                        <% } %>
                 <form action="/admin/categories" method="get" class="d-flex align-items-center">
                     <div class="col-lg-6 col-md-6">
                         <input type="text" name="search" placeholder="Search..." class="form-control bg-white">
@@ -44,15 +52,15 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="">
                             <form method="post">
                                 <div class="mb-4">
                                     <label for="product_name" class="form-label">Name</label>
-                                    <input type="text" value="<%=edit.name%>" class="form-control" id="category_name" name="category_name"/>
+                                    <input type="text" value="<%=data.name%>" class="form-control" id="category_name" name="category_name" />
                                 </div>
                                 <div class="mb-4">
                                     <label for="produc_name" class="form-label">Slug</label>
-                                    <input type="text" value="<%=edit.slug %>" class="form-control" id="category_slug" name="category_slug" />
+                                    <input type="text" value="<%=data.slug %>" class="form-control" id="category_slug" name="category_slug" />
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Action</label>
@@ -64,7 +72,7 @@
                                 <div class="mb-4">
                                     <label class="form-label">Description</label>
                                     
-                                     <textarea placeholder="<%=edit.description%>" name="category_description" class="form-control" id="category_description"></textarea>
+                                     <textarea placeholder="" name="category_description" class="form-control" id="category_description"><%=data.description%></textarea>
                                 </div>
                                 <div class="d-grid">
                                     <button class="btn btn-primary" id="category_submit" type="submit">Save Changes</button>

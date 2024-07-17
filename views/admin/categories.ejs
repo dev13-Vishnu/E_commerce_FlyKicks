@@ -41,6 +41,15 @@
                     <h2 class="content-title card-title">Categories </h2>
                     <p>Add, edit or delete a category</p>
                 </div>
+
+                <% if(typeof sMessage != "undefined"){ %>
+                    <h4 class="text-success"><%= sMessage %></h4>
+                    <% } %>
+                    <% if(typeof fMessage != "undefined"){ %>
+                        <h4 class="text-danger"><%= fMessage %></h4>
+                        <% } %>
+
+
                 <form action="/admin/categories" method="get" class="d-flex align-items-center">
                     <div class="col-lg-6 col-md-6">
                         <input type="text" name="search" placeholder="Search..." class="form-control bg-white">
@@ -118,9 +127,7 @@
                         </div>
                             <div class="text-danger">
                                 
-                                <% if(typeof message !=="undefined"){ %>
-                                    <p class="text_danger"><%=message %></p>
-                                    <% } %>
+                            
 
                             </div>
                         </div> <!-- .col// -->

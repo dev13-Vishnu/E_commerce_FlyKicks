@@ -81,101 +81,105 @@
       <script src=".//user/assets/js/main.js?v=3.4"></script>
       
       <script>
-        
         function validateAndSubmit(event) {
-            event.preventDefault();
-            var otpInput = document.getElementById('otp').value;
-            var otpError = document.getElementById('error-otp');
-
-            if (otpInput.trim() === '') {
-                otpError.innerHTML = "Please enter OTP";
-                return;
-            } else if (otpInput.trim().length !== 4) {
-                otpError.innerHTML = "OTP must be exactly 4 characters long";
-                return;
-            } else if (isNaN(otpInput)) {
-                otpError.innerHTML = "OTP must be a number";
-                return;
-            } else {
-                otpError.innerHTML = "";
-            }
-
-            if (!otpError.innerHTML) {
-                document.getElementById('verify-otp-form').submit();
-            }
+          event.preventDefault();
+          var otpInput = document.getElementById('otp').value;
+          var otpError = document.getElementById('error-otp');
+  
+          if (otpInput.trim() === '') {
+              otpError.innerHTML = "Please enter OTP";
+              return;
+          } else if (otpInput.trim().length !== 4) {
+              otpError.innerHTML = "OTP must be exactly 4 characters long";
+              return;
+          } else if (isNaN(otpInput)) {
+              otpError.innerHTML = "OTP must be a number";
+              return;
+          } else {
+              otpError.innerHTML = "";
+          }
+  
+          if (!otpError.innerHTML) {
+              document.getElementById('verify-otp-form').submit();
+          }
         }
-
+  
         let resendLink = document.getElementById('resend');
-
+  
         function startTimer() {
-            let seconds = getRemainingSeconds() || 60;
-            const timerElement = document.getElementById('timer');
-
-            resendLink.style.display = 'none';
-
-            const timerInterval = setInterval(() => {
-                seconds--;
-
-                if (seconds >= 0) {
-                    timerElement.textContent = `Resend OTP in ${seconds} seconds`;
-                    setRemainingSeconds(seconds);
-                } else {
-                    clearInterval(timerInterval);
-                    timerElement.textContent = '';
-                    resendLink.style.display = 'block';
-                    clearRemainingSeconds();
-                }
-            }, 1000);
-        }
-
-        function getRemainingSeconds() {
-            return localStorage.getItem(' ');
-        }
-
-        function setRemainingSeconds(seconds) {
-            localStorage.setItem('remainingSeconds', seconds);
-        }
-
-        function clearRemainingSeconds() {
-            localStorage.removeItem('remainingSeconds');
-        }
-
-        function resendOTP() {
-            clearError();
-            fetch('/resend-otp', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('Resend request processed successfully');
-                    startTimer();
-                } else {
-                    console.error('Failed to process resend request:', response.statusText);
-                }
-            })
-            .catch(error => {
-                console.error('Error processing resend request:', error.message);
-            });
-        }
-
-        resendLink.addEventListener('click', function(event) {
-            event.preventDefault();
-            resendOTP();
-        });
-
-        function clearError() {
-            const errorElement = document.getElementById('error-message');
-            if (errorElement) {
-                errorElement.textContent = "";
+          let isNewSignup = localStorage.getItem('isNewSignup');
+          let seconds = (isNewSignup === 'true' || isNewSignup === null) ? 60 : getRemainingSeconds() || 60;
+          const timerElement = document.getElementById('timer');
+  
+          if (isNewSignup === 'true' || isNewSignup === null) {
+            clearRemainingSeconds();
+            localStorage.setItem('isNewSignup', 'false');  // Clear the flag after first use
+          }
+  
+          resendLink.style.display = 'none';
+  
+          const timerInterval = setInterval(() => {
+            seconds--;
+  
+            if (seconds >= 0) {
+              timerElement.textContent = `Resend OTP in ${seconds} seconds`;
+              setRemainingSeconds(seconds);
+            } else {
+              clearInterval(timerInterval);
+              timerElement.textContent = '';
+              resendLink.style.display = 'block';
+              clearRemainingSeconds();
             }
+          }, 1000);
         }
-
+  
+        function getRemainingSeconds() {
+          return parseInt(localStorage.getItem('remainingSeconds'), 10);
+        }
+  
+        function setRemainingSeconds(seconds) {
+          localStorage.setItem('remainingSeconds', seconds);
+        }
+  
+        function clearRemainingSeconds() {
+          localStorage.removeItem('remainingSeconds');
+        }
+  
+        function resendOTP() {
+          clearError();
+          fetch('/resend-otp', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+          })
+          .then(response => {
+            if (response.ok) {
+              console.log('Resend request processed successfully');
+              startTimer();
+            } else {
+              console.error('Failed to process resend request:', response.statusText);
+            }
+          })
+          .catch(error => {
+            console.error('Error processing resend request:', error.message);
+          });
+        }
+  
+        resendLink.addEventListener('click', function(event) {
+          event.preventDefault();
+          resendOTP();
+        });
+  
+        function clearError() {
+          const errorElement = document.getElementById('error-message');
+          if (errorElement) {
+            errorElement.textContent = "";
+          }
+        }
+  
         startTimer();
-
-      </script>
+      </script> 
     </body>
   </html>
   
