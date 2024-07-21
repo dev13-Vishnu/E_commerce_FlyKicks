@@ -4,6 +4,7 @@ const securePassword = require("../helpers/securePassword");
 const bcrypt = require('bcrypt');
 const Product = require("../models/productModel");
 const Category = require("../models/categoryModel");
+const Address = require("../models/addressModel");
 
 
 
@@ -155,15 +156,19 @@ const loadOtp = async (req, res) => {
 const verifyOtp = async (req, res) => {
   try {
     const obj = req.body;
+    console.log('obj verifyOtp:',obj);
 
     const jsonString = JSON.stringify(obj);
 
     console.log("jsonstring" + jsonString);
 
-    const data = req.body;
+    const data = req.body['otp-1']+req.body['otp-2']+req.body['otp-3']+req.body['otp-4'];
+    // console.log('concatenated otp:',data);
+    // console.log('typof data,verifyOtp:',typeof data);
 
-    if (data.verify && typeof data.verify === "string") {
-      const otp = data.verify.trim();
+
+    if (data && typeof data === "string") {
+      const otp = data.trim();
       console.log(otp);
       const enterOtp = otp;
 
@@ -271,6 +276,9 @@ const loadHome = async(req,res)=>{
             name = req.session.user.username
             console.log("username:",name);
         }
+
+        console.log("username:",name);
+
         console.log('load home:',req.session.user);
 
         //render home page
@@ -301,6 +309,7 @@ const loadHome = async(req,res)=>{
         totalPages:Math.ceil(count/limit),
         currentPage: page,
       currentUrl:req.query.page,
+        name
       
     });
         
@@ -379,6 +388,10 @@ const loadAccount = async(req,res)=>{
     const userId = req.session.user._id;
 
     const userData = await User.findById(userId);
+    const addressData = await Address.find({userId});
+
+    console.log('userController. loadAccount,addressData:',addressData);
+    
 
     
 
@@ -386,7 +399,8 @@ const loadAccount = async(req,res)=>{
     console.log('loadAccount userData:',userData);
     console.log('load account user:',req.session.user);
     res.render('user/userAccount',{
-      userData
+      userData,
+      addressData
     }
     )
   } catch (error) {
@@ -410,4 +424,5 @@ module.exports = {
   logout,
   loadProductDetails,
   loadAccount
+
 };

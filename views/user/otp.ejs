@@ -18,6 +18,21 @@
     />
     <!-- Template CSS -->
     <link rel="stylesheet" href="/user/assets/css/main.css?v=3.4" />
+    <style>
+      .otp-container {
+        display: flex !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        margin-bottom: 20px !important;
+      }
+      .otp-input {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 24px !important;
+        color: #6f6f6f !important;
+        /* text-align: center !important; */
+      }
+    </style>
   </head>
 
   <body>
@@ -39,10 +54,15 @@
                           <% if(typeof message != 'undefined') {%>
                               <p class="text-danger" id="error-message"><%= message %></p>
                           <% } %>
-                          <input type="text" required id="otp" name="verify" placeholder="enter OTP"/>
+                          <div class="otp-container">
+                            <input type="text" id="otp-1" name="otp-1" maxlength="1" class="otp-input" autofocus>
+                            <input type="text" id="otp-2" name="otp-2" maxlength="1" class="otp-input">
+                            <input type="text" id="otp-3" name="otp-3" maxlength="1" class="otp-input">
+                            <input type="text" id="otp-4" name="otp-4" maxlength="1" class="otp-input">
+                          </div>
                       </div>
                       <div id="error-otp" class="text-danger"></div>
-                      <div class="form-group">
+                      <div class="form-group d-flex justify-content-center">
                           <button type="submit" class="btn btn-fill-out btn-block hover-up" name="login" id="verify-otp">Verify</button>
                           <div class="pl-10 pt-20 pb-10">
                               <a href="" id="resend" class="disabled text-success">Resend OTP</a>
@@ -78,49 +98,69 @@
       <script src="/user/assets/js/plugins/jquery.vticker-min.js"></script>
       <script src="/user/assets/js/plugins/jquery.theia.sticky.js"></script>
       <!-- Template  JS -->
-      <script src=".//user/assets/js/main.js?v=3.4"></script>
+      <script src="/user/assets/js/main.js?v=3.4"></script>
       
       <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+          const inputs = document.querySelectorAll('.otp-input');
+          
+          inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+              if (e.target.value.length >= 1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+              }
+            });
+            
+            input.addEventListener('keydown', (e) => {
+              if (e.key === 'Backspace' && index > 0 && !e.target.value) {
+                inputs[index - 1].focus();
+              }
+            });
+          });
+        });
+
         function validateAndSubmit(event) {
           event.preventDefault();
-          var otpInput = document.getElementById('otp').value;
+          var otpInputs = document.querySelectorAll('.otp-input');
           var otpError = document.getElementById('error-otp');
-  
-          if (otpInput.trim() === '') {
-              otpError.innerHTML = "Please enter OTP";
-              return;
-          } else if (otpInput.trim().length !== 4) {
+          var otp = '';
+
+          otpInputs.forEach(input => {
+            otp += input.value;
+          });
+
+          if (otp.trim().length !== 4) {
               otpError.innerHTML = "OTP must be exactly 4 characters long";
               return;
-          } else if (isNaN(otpInput)) {
+          } else if (isNaN(otp)) {
               otpError.innerHTML = "OTP must be a number";
               return;
           } else {
               otpError.innerHTML = "";
           }
-  
+
           if (!otpError.innerHTML) {
               document.getElementById('verify-otp-form').submit();
           }
         }
-  
+
         let resendLink = document.getElementById('resend');
-  
+
         function startTimer() {
           let isNewSignup = localStorage.getItem('isNewSignup');
           let seconds = (isNewSignup === 'true' || isNewSignup === null) ? 60 : getRemainingSeconds() || 60;
           const timerElement = document.getElementById('timer');
-  
+
           if (isNewSignup === 'true' || isNewSignup === null) {
             clearRemainingSeconds();
             localStorage.setItem('isNewSignup', 'false');  // Clear the flag after first use
           }
-  
+
           resendLink.style.display = 'none';
-  
+
           const timerInterval = setInterval(() => {
             seconds--;
-  
+
             if (seconds >= 0) {
               timerElement.textContent = `Resend OTP in ${seconds} seconds`;
               setRemainingSeconds(seconds);
@@ -132,19 +172,19 @@
             }
           }, 1000);
         }
-  
+
         function getRemainingSeconds() {
           return parseInt(localStorage.getItem('remainingSeconds'), 10);
         }
-  
+
         function setRemainingSeconds(seconds) {
           localStorage.setItem('remainingSeconds', seconds);
         }
-  
+
         function clearRemainingSeconds() {
           localStorage.removeItem('remainingSeconds');
         }
-  
+
         function resendOTP() {
           clearError();
           fetch('/resend-otp', {
@@ -165,21 +205,21 @@
             console.error('Error processing resend request:', error.message);
           });
         }
-  
+
         resendLink.addEventListener('click', function(event) {
           event.preventDefault();
           resendOTP();
         });
-  
+
         function clearError() {
+
           const errorElement = document.getElementById('error-message');
           if (errorElement) {
             errorElement.textContent = "";
           }
         }
-  
+
         startTimer();
       </script> 
     </body>
   </html>
-  

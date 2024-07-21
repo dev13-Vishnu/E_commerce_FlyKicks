@@ -11,6 +11,8 @@ userRoute.use(passport.initialize());
 userRoute.use(passport.session());
 
 
+
+const addressContoller = require("../controllers/addressController");
 const userController = require("../controllers/userController");
 const { isLoggedOut, isLoggedIn } = require("../middlewares/userAuthentication");
 
@@ -49,6 +51,9 @@ userRoute.get('/logout',isLoggedIn,userController.logout)
 //product details
 userRoute.get('/product/detail',isLoggedIn,userController.loadProductDetails)
 userRoute.get('/account',isLoggedIn,userController.loadAccount);
+
+//add address
+userRoute.post('/add-address',isLoggedIn,addressContoller.addAddress);
 
 module.exports = userRoute;
  

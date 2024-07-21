@@ -75,7 +75,7 @@ const loadProducts = async(req,res)=>{
         var page = 1;
         if(req.query.page){
           page = parseInt(req.query.page,10);
-        }
+        }  
 
         const limit = 6;
 

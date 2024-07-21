@@ -27,15 +27,16 @@
         <div class="container">
           <div class="header-wrap header-space-between position-relative">
             <div class="logo logo-width-1">
-              <a href="index.html"
-                ><img src="user/assets/imgs/theme/logo.svg" alt="logo"
+              <a href="/"
+                ><img src="/user/assets/imgs/theme/FLY_KICKS_gold_crropped.png"
+                 alt="logo"
               /></a>
             </div>
             <div
               class="main-menu main-menu-grow main-menu-padding-1 main-menu-lh-1 main-menu-mrg-1 hm3-menu-padding d-none d-lg-block hover-boder"
             >
               <nav>
-                <ul>
+                <!-- <ul>
                   <li>
                     <a class="active" href="index.html"
                       >Home <i class="fi-rs-angle-down"></i
@@ -274,7 +275,7 @@
                   <li>
                     <a href="page-contact.html">Contact</a>
                   </li>
-                </ul>
+                </ul> -->
               </nav>
             </div>
             <div class="header-action-right">
@@ -691,8 +692,9 @@
             <a href="index.html" rel="nofollow">Home</a>
             <span></span> Pages <span></span> Account
           </div>
-        </div>
+        </div>  
       </div>
+      
       <section class="pt-150 pb-150">
         <div class="container">
           <div class="row">
@@ -751,6 +753,7 @@
                           ><i class="fi-rs-marker mr-10"></i>My Address</a
                         >
                       </li>
+                      
                       <li class="nav-item">
                         <a
                           class="nav-link"
@@ -764,7 +767,7 @@
                         >
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" href="page-login-register.html"
+                        <a class="nav-link" href="/logout"
                           ><i class="fi-rs-sign-out mr-10"></i>Logout</a
                         >
                       </li>
@@ -772,6 +775,7 @@
                   </div>
                 </div>
                 <div class="col-md-8">
+                    
                   <div class="tab-content dashboard-content">
                     <div
                       class="tab-pane fade active show"
@@ -919,22 +923,38 @@
                       aria-labelledby="address-tab"
                     >
                       <div class="row">
-                        <div class="col-lg-6">
+                        <% if(Array.isArray(addressData)&& addressData.length > 0){ %>
+                            <%addressData.forEach(addressObject => {%>
+                                <%addressObject.address.forEach(address => {%>
+                            
+                            <div class="col-lg-6">
                           <div class="card mb-3 mb-lg-0">
                             <div class="card-header">
-                              <h5 class="mb-0">Billing Address</h5>
+                              <h5 class="mb-0"> Address</h5>
                             </div>
                             <div class="card-body">
                               <address>
-                                3522 Interstate<br />
-                                75 Business Spur,<br />
-                                Sault Ste. <br />Marie, MI 49783
+                                <%=address.name%>
+                                ,<br />
+                                <%=address.street %>,<br />
+                                <%=address.city %>,<br />
+                                <%=address.state %>,<br />
+                                <%=address.pincode %>,<br/>
+                                <%=address.country %>,<br/>
+                                <%=address.mobile %>,<br/>
                               </address>
-                              <p>New York</p>
+                              
                               <a href="#" class="btn-small">Edit</a>
                             </div>
                           </div>
                         </div>
+                                    
+                                <%});%>
+                            <%});%>
+
+                        <%} %>
+                        
+<!--                         
                         <div class="col-lg-6">
                           <div class="card">
                             <div class="card-header">
@@ -950,9 +970,62 @@
                               <a href="#" class="btn-small">Edit</a>
                             </div>
                           </div>
-                        </div>
+                        </div> -->
+                        <div class="pt-10 container ">
+                            <button type="button" class="btn  btn-sm rounded" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                              Add new Address
+                            </button>
+                          </div>
                       </div>
                     </div>
+                        <!-- Add Address Modal -->
+<div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post" action="/add-address">
+            <div class="row">
+              <div class="form-group col-md-12">
+                <label>Full Name<span class="required">*</span></label>
+                <input required class="form-control square" name="full_name" id="full_name" type="text"/>
+              </div>
+              <div class="form-group col-md-12">
+                <label>Country</label>
+                <input class="form-control square" name="country" id="country" type="text"/>
+              </div>
+              <div class="form-group col-md-12">
+                <label>State<span class="required">*</span></label>
+                <input required class="form-control square" name="state" id="state" type="text"/>
+              </div>
+              <div class="form-group col-md-12">
+                <label>City<span class="required">*</span></label>
+                <input required class="form-control square" id="city" name="city" type="text"/>
+              </div>
+              <div class="form-group col-md-12">
+                <label>Street<span class="required">*</span></label>
+                <input required class="form-control square" name="street" id="street" type="text"/>
+              </div>
+              <div class="form-group col-md-12">
+                <label>Pincode<span class="required">*</span></label>
+                <input required class="form-control square" name="pincode" id="pincode" type="number"/>
+              </div>
+              <div class="form-group col-md-12">
+                <label>Phone Number <span class="required">*</span></label>
+                <input required class="form-control square" name="mobile" id="mobile" type="number"/>
+              </div>
+              <div class="col-md-12">
+                <button type="submit" class="btn btn-fill-out submit" name="submit" value="Submit">Save</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
                     <div
                       class="tab-pane fade"
                       id="account-detail"
@@ -972,7 +1045,7 @@
                           </p>
                           <form method="post" name="enq">
                             <div class="row">
-                              <div class="form-group col-md-6">
+                              <div class="form-group col-md-12">
                                 <label
                                   >First Name
                                   <span class="required">*</span></label
@@ -982,9 +1055,10 @@
                                   class="form-control square"
                                   name="name"
                                   type="text"
+                                  value="<%=userData.username %>"
                                 />
                               </div>
-                              <div class="form-group col-md-6">
+                              <!-- <div class="form-group col-md-6">
                                 <label
                                   >Last Name
                                   <span class="required">*</span></label
@@ -994,17 +1068,18 @@
                                   class="form-control square"
                                   name="phone"
                                 />
-                              </div>
+                              </div> -->
                               <div class="form-group col-md-12">
                                 <label
-                                  >Display Name
+                                  >Phone number
                                   <span class="required">*</span></label
                                 >
                                 <input
                                   required=""
                                   class="form-control square"
-                                  name="dname"
+                                  name="mobile"
                                   type="text"
+                                  value="<%=userData.mobile %>"
                                 />
                               </div>
                               <div class="form-group col-md-12">
@@ -1017,9 +1092,10 @@
                                   class="form-control square"
                                   name="email"
                                   type="email"
+                                  value="<%=userData.email %>"
                                 />
                               </div>
-                              <div class="form-group col-md-12">
+                              <!-- <div class="form-group col-md-12">
                                 <label
                                   >Current Password
                                   <span class="required">*</span></label
@@ -1030,7 +1106,7 @@
                                   name="password"
                                   type="password"
                                 />
-                              </div>
+                              </div> -->
                               <div class="form-group col-md-12">
                                 <label
                                   >New Password
@@ -1040,7 +1116,7 @@
                                   required=""
                                   class="form-control square"
                                   name="npassword"
-                                  type="password"
+                                  type=""
                                 />
                               </div>
                               <div class="form-group col-md-12">
@@ -1052,7 +1128,7 @@
                                   required=""
                                   class="form-control square"
                                   name="cpassword"
-                                  type="password"
+                                  type=""
                                 />
                               </div>
                               <div class="col-md-12">
@@ -1262,6 +1338,9 @@
         </div>
       </div>
     </div>
+
+    <!-- logout clear local storage js -->
+    <script src="/user/assets/js/logoutClearStorage.js"></script>
     <!-- Vendor JS-->
     <script src="user/assets/js/vendor/modernizr-3.6.0.min.js"></script>
     <script src="user/assets/js/vendor/jquery-3.6.0.min.js"></script>
