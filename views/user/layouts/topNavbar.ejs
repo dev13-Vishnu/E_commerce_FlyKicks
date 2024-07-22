@@ -57,6 +57,7 @@
                       />Deutsch</a
                     >
                   </li> -->
+                    <% if(userData){ %>
                   <li>
                     <i class="fi-rs-user"></i>
                     <a href="/account"
@@ -65,9 +66,10 @@
                         src="/user/assets/imgs/theme/flag-ru.png"
                         alt=""
                       /> -->
-                      <%=name %>'s Profile</a
+                      <%=userData.username %>'s Profile</a
                     >
                   </li>
+                <% } %>
                 </ul>
               </li>
               <li>

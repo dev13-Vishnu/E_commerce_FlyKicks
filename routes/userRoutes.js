@@ -55,5 +55,7 @@ userRoute.get('/account',isLoggedIn,userController.loadAccount);
 //add address
 userRoute.post('/add-address',isLoggedIn,addressContoller.addAddress);
 
+//edit user profile
+userRoute.put('/update-account',isLoggedIn,userController.editAccount)
 module.exports = userRoute;
  

@@ -18,6 +18,14 @@
     />
     <!-- Template CSS -->
     <link rel="stylesheet" href="user/assets/css/main.css?v=3.4" />
+    <style>
+        .password-fields {
+            display: none;
+        }
+        .arrow {
+            cursor: pointer;
+        }
+    </style>
   </head>
 
   <body>
@@ -28,8 +36,9 @@
           <div class="header-wrap header-space-between position-relative">
             <div class="logo logo-width-1">
               <a href="/"
-                ><img src="/user/assets/imgs/theme/FLY_KICKS_gold_crropped.png"
-                 alt="logo"
+                ><img
+                  src="/user/assets/imgs/theme/FLY_KICKS_gold_crropped.png"
+                  alt="logo"
               /></a>
             </div>
             <div
@@ -673,10 +682,14 @@
               ><img src="user/assets/imgs/theme/icons/icon-twitter.svg" alt=""
             /></a>
             <a href="#"
-              ><img src="user/assets/imgs/theme/icons/icon-instagram.svg" alt=""
+              ><img
+                src="user/assets/imgs/theme/icons/icon-instagram.svg"
+                alt=""
             /></a>
             <a href="#"
-              ><img src="user/assets/imgs/theme/icons/icon-pinterest.svg" alt=""
+              ><img
+                src="user/assets/imgs/theme/icons/icon-pinterest.svg"
+                alt=""
             /></a>
             <a href="#"
               ><img src="user/assets/imgs/theme/icons/icon-youtube.svg" alt=""
@@ -692,9 +705,9 @@
             <a href="index.html" rel="nofollow">Home</a>
             <span></span> Pages <span></span> Account
           </div>
-        </div>  
+        </div>
       </div>
-      
+
       <section class="pt-150 pb-150">
         <div class="container">
           <div class="row">
@@ -753,7 +766,7 @@
                           ><i class="fi-rs-marker mr-10"></i>My Address</a
                         >
                       </li>
-                      
+
                       <li class="nav-item">
                         <a
                           class="nav-link"
@@ -775,7 +788,6 @@
                   </div>
                 </div>
                 <div class="col-md-8">
-                    
                   <div class="tab-content dashboard-content">
                     <div
                       class="tab-pane fade active show"
@@ -923,38 +935,34 @@
                       aria-labelledby="address-tab"
                     >
                       <div class="row">
-                        <% if(Array.isArray(addressData)&& addressData.length > 0){ %>
-                            <%addressData.forEach(addressObject => {%>
-                                <%addressObject.address.forEach(address => {%>
-                            
-                            <div class="col-lg-6">
+                        <% if(Array.isArray(addressData)&& addressData.length >
+                        0){ %> <%addressData.forEach(addressObject => {%>
+                        <%addressObject.address.forEach(address => {%>
+
+                        <div class="col-lg-6">
                           <div class="card mb-3 mb-lg-0">
                             <div class="card-header">
-                              <h5 class="mb-0"> Address</h5>
+                              <h5 class="mb-0">Address</h5>
                             </div>
                             <div class="card-body">
                               <address>
-                                <%=address.name%>
-                                ,<br />
+                                <%=address.name%> ,<br />
                                 <%=address.street %>,<br />
                                 <%=address.city %>,<br />
                                 <%=address.state %>,<br />
-                                <%=address.pincode %>,<br/>
-                                <%=address.country %>,<br/>
-                                <%=address.mobile %>,<br/>
+                                <%=address.pincode %>,<br />
+                                <%=address.country %>,<br />
+                                <%=address.mobile %>,<br />
                               </address>
-                              
+
                               <a href="#" class="btn-small">Edit</a>
                             </div>
                           </div>
                         </div>
-                                    
-                                <%});%>
-                            <%});%>
 
-                        <%} %>
-                        
-<!--                         
+                        <%});%> <%});%> <%} %>
+
+                        <!--                         
                         <div class="col-lg-6">
                           <div class="card">
                             <div class="card-header">
@@ -971,61 +979,146 @@
                             </div>
                           </div>
                         </div> -->
-                        <div class="pt-10 container ">
-                            <button type="button" class="btn  btn-sm rounded" data-bs-toggle="modal" data-bs-target="#addAddressModal">
-                              Add new Address
-                            </button>
-                          </div>
+                        <div class="pt-10 container">
+                          <button
+                            type="button"
+                            class="btn btn-sm rounded"
+                            data-bs-toggle="modal"
+                            data-bs-target="#addAddressModal"
+                          >
+                            Add new Address
+                          </button>
+                        </div>
                       </div>
                     </div>
-                        <!-- Add Address Modal -->
-<div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form method="post" action="/add-address">
-            <div class="row">
-              <div class="form-group col-md-12">
-                <label>Full Name<span class="required">*</span></label>
-                <input required class="form-control square" name="full_name" id="full_name" type="text"/>
-              </div>
-              <div class="form-group col-md-12">
-                <label>Country</label>
-                <input class="form-control square" name="country" id="country" type="text"/>
-              </div>
-              <div class="form-group col-md-12">
-                <label>State<span class="required">*</span></label>
-                <input required class="form-control square" name="state" id="state" type="text"/>
-              </div>
-              <div class="form-group col-md-12">
-                <label>City<span class="required">*</span></label>
-                <input required class="form-control square" id="city" name="city" type="text"/>
-              </div>
-              <div class="form-group col-md-12">
-                <label>Street<span class="required">*</span></label>
-                <input required class="form-control square" name="street" id="street" type="text"/>
-              </div>
-              <div class="form-group col-md-12">
-                <label>Pincode<span class="required">*</span></label>
-                <input required class="form-control square" name="pincode" id="pincode" type="number"/>
-              </div>
-              <div class="form-group col-md-12">
-                <label>Phone Number <span class="required">*</span></label>
-                <input required class="form-control square" name="mobile" id="mobile" type="number"/>
-              </div>
-              <div class="col-md-12">
-                <button type="submit" class="btn btn-fill-out submit" name="submit" value="Submit">Save</button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
+                    <!-- Add Address Modal -->
+                    <div
+                      class="modal fade"
+                      id="addAddressModal"
+                      tabindex="-1"
+                      aria-labelledby="addAddressModalLabel"
+                      aria-hidden="true"
+                    >
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="addAddressModalLabel">
+                              Add New Address
+                            </h5>
+                            <button
+                              type="button"
+                              class="btn-close"
+                              data-bs-dismiss="modal"
+                              aria-label="Close"
+                            ></button>
+                          </div>
+                          <div class="modal-body">
+                            <form method="post" action="/add-address">
+                              <div class="row">
+                                <div class="form-group col-md-12">
+                                  <label
+                                    >Full Name<span class="required"
+                                      >*</span
+                                    ></label
+                                  >
+                                  <input
+                                    required
+                                    class="form-control square"
+                                    name="full_name"
+                                    id="full_name"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label>Country</label>
+                                  <input
+                                    class="form-control square"
+                                    name="country"
+                                    id="country"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label
+                                    >State<span class="required">*</span></label
+                                  >
+                                  <input
+                                    required
+                                    class="form-control square"
+                                    name="state"
+                                    id="state"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label
+                                    >City<span class="required">*</span></label
+                                  >
+                                  <input
+                                    required
+                                    class="form-control square"
+                                    id="city"
+                                    name="city"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label
+                                    >Street<span class="required"
+                                      >*</span
+                                    ></label
+                                  >
+                                  <input
+                                    required
+                                    class="form-control square"
+                                    name="street"
+                                    id="street"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label
+                                    >Pincode<span class="required"
+                                      >*</span
+                                    ></label
+                                  >
+                                  <input
+                                    required
+                                    class="form-control square"
+                                    name="pincode"
+                                    id="pincode"
+                                    type="number"
+                                  />
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label
+                                    >Phone Number
+                                    <span class="required">*</span></label
+                                  >
+                                  <input
+                                    required
+                                    class="form-control square"
+                                    name="mobile"
+                                    id="mobile"
+                                    type="number"
+                                  />
+                                </div>
+                                <div class="col-md-12">
+                                  <button
+                                    type="submit"
+                                    class="btn btn-fill-out submit"
+                                    name="submit"
+                                    value="Submit"
+                                  >
+                                    Save
+                                  </button>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     <div
                       class="tab-pane fade"
                       id="account-detail"
@@ -1037,23 +1130,22 @@
                           <h5>Account Details</h5>
                         </div>
                         <div class="card-body">
-                          <p>
-                            Already have an account?
-                            <a href="page-login-register.html"
-                              >Log in instead!</a
-                            >
-                          </p>
-                          <form method="post" name="enq">
+                          
+                          <form
+                            name="enq"
+                            id="update-profile-form"
+                            onsubmit="submitForm(event)"
+                          >
                             <div class="row">
                               <div class="form-group col-md-12">
                                 <label
-                                  >First Name
+                                  >Username
                                   <span class="required">*</span></label
                                 >
                                 <input
                                   required=""
                                   class="form-control square"
-                                  name="name"
+                                  name="username"
                                   type="text"
                                   value="<%=userData.username %>"
                                 />
@@ -1085,7 +1177,7 @@
                               <div class="form-group col-md-12">
                                 <label
                                   >Email Address
-                                  <span class="required">*</span></label
+                                  <span class="required"></span></label
                                 >
                                 <input
                                   required=""
@@ -1093,9 +1185,10 @@
                                   name="email"
                                   type="email"
                                   value="<%=userData.email %>"
+                                  readonly
                                 />
                               </div>
-                              <!-- <div class="form-group col-md-12">
+                               <div class="form-group col-md-12">
                                 <label
                                   >Current Password
                                   <span class="required">*</span></label
@@ -1103,46 +1196,36 @@
                                 <input
                                   required=""
                                   class="form-control square"
-                                  name="password"
+                                  name="currentPassword"
                                   type="password"
                                 />
-                              </div> -->
-                              <div class="form-group col-md-12">
-                                <label
-                                  >New Password
-                                  <span class="required">*</span></label
-                                >
-                                <input
-                                  required=""
-                                  class="form-control square"
-                                  name="npassword"
-                                  type=""
-                                />
                               </div>
-                              <div class="form-group col-md-12">
-                                <label
-                                  >Confirm Password
-                                  <span class="required">*</span></label
-                                >
-                                <input
-                                  required=""
-                                  class="form-control square"
-                                  name="cpassword"
-                                  type=""
-                                />
-                              </div>
-                              <div class="col-md-12">
-                                <button
-                                  type="submit"
-                                  class="btn btn-fill-out submit"
-                                  name="submit"
-                                  value="Submit"
-                                >
-                                  Save
-                                </button>
-                              </div>
+                                <div class="form-group col-md-12 arrow">
+                                    <span>Change Password &#x25BC;</span>
+                                </div>
+                                <div class="password-fields">
+                                    <div class="form-group col-md-12">
+                                        <label>New Password 
+                                        <span class="required">*</span></label>
+                                        <input 
+                                        class="form-control square" 
+                                        name="newPassword" 
+                                        type="password"/>
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <label>Confirm Password 
+                                        <span class="required">*</span></label>
+                                        <input 
+                                        class="form-control square" 
+                                        name="confirmPassword" 
+                                        type="password"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-fill-out submit" name="submit" value="Submit">Save</button>
+                                </div>
                             </div>
-                          </form>
+                        </form>
                         </div>
                       </div>
                     </div>
@@ -1228,7 +1311,9 @@
                       alt=""
                   /></a>
                   <a href="#"
-                    ><img src="user/assets/imgs/theme/icons/icon-twitter.svg" alt=""
+                    ><img
+                      src="user/assets/imgs/theme/icons/icon-twitter.svg"
+                      alt=""
                   /></a>
                   <a href="#"
                     ><img
@@ -1241,7 +1326,9 @@
                       alt=""
                   /></a>
                   <a href="#"
-                    ><img src="user/assets/imgs/theme/icons/icon-youtube.svg" alt=""
+                    ><img
+                      src="user/assets/imgs/theme/icons/icon-youtube.svg"
+                      alt=""
                   /></a>
                 </div>
               </div>
@@ -1363,5 +1450,53 @@
     <script src="user/assets/js/plugins/jquery.theia.sticky.js"></script>
     <!-- Template  JS -->
     <script src="./user/assets/js/main.js?v=3.4"></script>
+
+    //update profile 
+    <script>
+        
+        function submitForm(event) {
+            event.preventDefault();
+
+            const form = document.getElementById('update-profile-form');
+            const formData = new FormData(form);
+
+            fetch('/update-account',{
+                method:'PUT',
+                body:formData,
+                headers:{
+                    'Content-Type': 'application/json',
+                },
+                body:JSON.stringify(Object.fromEntries(formData))
+            })
+            .then(response =>response.json())
+            .then(data => {
+                //Handle success response
+                if(data.success){
+                    //handle successfull update
+                    window.location.reload()
+                }else{
+                    console.error('error updating profile:',data.message);
+                }
+            })
+            .catch(error =>{
+                //handle error response
+                console.error('error:',error);
+            });
+        }
+        
+    </script>
+    // hide passwrod fields
+    <script>
+        document.querySelector('.arrow').addEventListener('click', function() {
+            var passwordFields = document.querySelector('.password-fields');
+            if (passwordFields.style.display === 'none' || passwordFields.style.display === '') {
+                passwordFields.style.display = 'block';
+                this.querySelector('span').innerHTML = 'Change Password &#x25B2;';
+            } else {
+                passwordFields.style.display = 'none';
+                this.querySelector('span').innerHTML = 'Change Password &#x25BC;';
+            }
+        });
+    </script>
   </body>
 </html>

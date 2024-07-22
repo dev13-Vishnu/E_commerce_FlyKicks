@@ -141,7 +141,15 @@
 
           if (!otpError.innerHTML) {
               document.getElementById('verify-otp-form').submit();
+              clearOtpFields();
           }
+        }
+
+        function clearOtpFields(){
+          const otpInputs = document.querySelectorAll('.otp-input');
+          otpInputs.forEach(input=>{
+            input.value='';
+          });
         }
 
         let resendLink = document.getElementById('resend');
@@ -184,6 +192,8 @@
         function clearRemainingSeconds() {
           localStorage.removeItem('remainingSeconds');
         }
+
+        
 
         function resendOTP() {
           clearError();

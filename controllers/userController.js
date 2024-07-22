@@ -155,12 +155,12 @@ const loadOtp = async (req, res) => {
 
 const verifyOtp = async (req, res) => {
   try {
-    const obj = req.body;
-    console.log('obj verifyOtp:',obj);
+    // const obj = req.body;
+    // console.log('obj verifyOtp:',obj);
 
-    const jsonString = JSON.stringify(obj);
+    // const jsonString = JSON.stringify(obj);
 
-    console.log("jsonstring" + jsonString);
+    // console.log("jsonstring" + jsonString);
 
     const data = req.body['otp-1']+req.body['otp-2']+req.body['otp-3']+req.body['otp-4'];
     // console.log('concatenated otp:',data);
@@ -227,7 +227,7 @@ const resendOTP = async (req, res) => {
 
       await otp.sendOtp(req.session.email, otpCode).then((result) => {
         res.redirect("/otp");
-        console.log(result);
+        console.log('resendOtp usercontroller result:',result);
       });
     }
   } catch (error) {
@@ -273,10 +273,12 @@ const loadHome = async(req,res)=>{
     try {
         let name ="";
         if(req.session.user){
-            name = req.session.user.username
+            name = req.session.user.username;
+
             console.log("username:",name);
         }
-
+        const userId = req.session.user._id;
+        const userData = await User.findById(userId);
         console.log("username:",name);
 
         console.log('load home:',req.session.user);
@@ -309,7 +311,7 @@ const loadHome = async(req,res)=>{
         totalPages:Math.ceil(count/limit),
         currentPage: page,
       currentUrl:req.query.page,
-        name
+        userData
       
     });
         
@@ -386,7 +388,6 @@ const loadAccount = async(req,res)=>{
   try {
     const sessionUserData = req.session.user;
     const userId = req.session.user._id;
-
     const userData = await User.findById(userId);
     const addressData = await Address.find({userId});
 
@@ -400,13 +401,54 @@ const loadAccount = async(req,res)=>{
     console.log('load account user:',req.session.user);
     res.render('user/userAccount',{
       userData,
-      addressData
+      addressData,
+      userData
     }
     )
   } catch (error) {
     console.log('error from userController.loadAccount',error);
   }
 }
+
+//edit account
+const editAccount = async(req,res) =>{
+    const {username, mobile, email,  currentPassword, newPassword, confirmPassword} = req.body;
+
+  try {
+
+    //find user by email
+    const user = await User.findOne({email});
+
+    if(!user){
+      return res.status(404).json({success: false, message: 'user not found'});
+    }
+
+    //check if the current passwrod matches
+    const isMatch = await bcrypt.compare(currentPassword,user.password);
+    if(!isMatch){
+      return res.status(400).json({success: false, message: 'Incorrect current passwrod'});
+    }
+    
+    // update user details
+    user.username = username;
+    user.mobile = mobile;
+
+    if(newPassword && confirmPassword) {
+      if(newPassword !== confirmPassword){
+        return res.status(400).json({success: false, message: 'Passwords do not match'});
+      }
+      user.password = await bcrypt.hash(newPassword,10);
+    }
+
+    await user.save();
+
+    res.status(200).json({success: true, message: 'Profile updated successfully'});
+
+
+  } catch (error) {
+    res.status(500).json({success: false, message: 'internal server error'});
+  }
+};
 
 
 module.exports = {
@@ -423,6 +465,7 @@ module.exports = {
   loadHome,
   logout,
   loadProductDetails,
-  loadAccount
+  loadAccount,
+  editAccount
 
 };
