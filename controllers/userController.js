@@ -391,14 +391,14 @@ const loadAccount = async(req,res)=>{
     const userData = await User.findById(userId);
     const addressData = await Address.find({userId});
 
-    console.log('userController. loadAccount,addressData:',addressData);
+    // console.log('userController. loadAccount,addressData:',addressData);
     
 
     
 
-    console.log('loadAccount userId:',userId);
-    console.log('loadAccount userData:',userData);
-    console.log('load account user:',req.session.user);
+    // console.log('loadAccount userId:',userId);
+    // console.log('loadAccount userData:',userData);
+    // console.log('load account user:',req.session.user);
     res.render('user/userAccount',{
       userData,
       addressData,
@@ -450,6 +450,89 @@ const editAccount = async(req,res) =>{
   }
 };
 
+//load edit address page
+
+const loadEditAddress = async(req,res) =>{
+  try {
+    const userId = req.session.user._id;
+    const userData = await User.findById(userId);
+
+    const addressId = req.query.addressId;
+    console.log('addressId userControl loadEditAddress:',addressId);
+
+    const addressDoc = await Address.findOne({userId});
+
+    if(addressDoc){
+      const addressDetails = addressDoc.address.find(addr => addr._id.toString() === addressId);
+      // console.log('addressDetails userControl loadEditAddress:',addressDetails);
+    res.render('user/editAddress',{
+      userData,
+      addressDetails
+    });
+    }
+    
+
+
+
+
+  } catch (error) {
+    console.log('error from userContorller loadEditAddress:',error)
+  }
+}
+
+//update address
+
+const updateAddress = async(req,res) =>{
+  try {
+    const userId = req.session.user._id;
+    const {addressId, name, country, state, city, mobile, street, pincode} = req.body;
+
+    //find the address document for the User
+    const addressDoc = await Address.findOne({userId});
+
+    // console.log('userController.updateAddress, addrsssDoc:',addressDoc);
+
+    
+    if (addressDoc) {
+      //Find the specific address within the address array
+      // const addressIndex = addressDoc.address.findIndex(addr => addr._id.toString() === addressId);
+      // if (addressIndex !== -1) {
+      //   // update the address details
+      //   addressDoc.address[addressIndex] = {
+      //     ...addressDoc.address[addressIndex],
+      //     name,
+      //     mobile,
+      //     country,
+      //     state,
+      //     city,
+      //     street,
+      //     pincode
+      const address = addressDoc.address.id(addressId);
+      if(address){
+        address.name = name;
+        address.mobile = mobile;
+        address.country = country;
+        address.state = state;
+        address.city = city;
+        address.street = street;
+        address.pincode = pincode;
+
+      
+        await addressDoc.save();
+
+        res.status(200).json({message:'Address updated successfully'});
+      } else {
+        res.status(404).json({message:'Address not found'});
+      }
+    } else {
+      res.status(404).json({message:'User addrss document not found'});
+    }
+  } catch (error) {
+    console.log('erro from userController.updateAddress:',error);
+    res.status(500).json({message:'Internal server Error'});
+  }
+};
+
 
 module.exports = {
   loadSignup,
@@ -466,6 +549,8 @@ module.exports = {
   logout,
   loadProductDetails,
   loadAccount,
-  editAccount
+  editAccount,
+  loadEditAddress,
+  updateAddress
 
 };
