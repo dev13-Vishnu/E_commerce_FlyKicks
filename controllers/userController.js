@@ -344,6 +344,8 @@ const loadProductDetails = async (req,res) =>{
   try {
     console.log('passed id:',req.query.id);
 
+    const userId = req.session.user._id;
+        const userData = await User.findById(userId);
     const id = req.query.id;
     const product = await Product.findById(id);
     if(!product){
@@ -372,6 +374,7 @@ const loadProductDetails = async (req,res) =>{
     console.log('stock:',product.stock);
     console.log('product data:',product)
     res.render('user/productDetails',{product,
+      userData,
       stock: product.stock,
       relatedProducts,
       breadcrumbs: [
