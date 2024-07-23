@@ -62,5 +62,14 @@ userRoute.put('/update-account',isLoggedIn,userController.editAccount)
 userRoute.get('/account/edit-address',isLoggedIn,userController.loadEditAddress)
 userRoute.put('/account/edit-address',isLoggedIn,userController.updateAddress);
 
+//forgot passwrod
+
+userRoute.get('/forgot-password',isLoggedOut,userController.loadForgotPassword);
+
+userRoute.post('/forgot-password',isLoggedOut,userController.forgotPassword);
+
+//reset password
+userRoute.get('/reset-password',isLoggedOut,userController.loadResetPassword);
+userRoute.post('/reset-password',isLoggedOut,userController.resetPassword);
 module.exports = userRoute;
  

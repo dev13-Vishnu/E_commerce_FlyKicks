@@ -35,4 +35,5 @@ adminRoutes.get('/products/edit/remove-image',productController.removeImage);
 adminRoutes.post('/products/edit',productController.editProduct);
 
 
+
 module.exports = adminRoutes;

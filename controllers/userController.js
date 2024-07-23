@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt');
 const Product = require("../models/productModel");
 const Category = require("../models/categoryModel");
 const Address = require("../models/addressModel");
+const randomstring = require('randomstring');
+const forgetPassword = require('../helpers/forgotPassword');
 
 
 
@@ -494,19 +496,7 @@ const updateAddress = async(req,res) =>{
 
     
     if (addressDoc) {
-      //Find the specific address within the address array
-      // const addressIndex = addressDoc.address.findIndex(addr => addr._id.toString() === addressId);
-      // if (addressIndex !== -1) {
-      //   // update the address details
-      //   addressDoc.address[addressIndex] = {
-      //     ...addressDoc.address[addressIndex],
-      //     name,
-      //     mobile,
-      //     country,
-      //     state,
-      //     city,
-      //     street,
-      //     pincode
+      
       const address = addressDoc.address.id(addressId);
       if(address){
         address.name = name;
@@ -533,6 +523,79 @@ const updateAddress = async(req,res) =>{
   }
 };
 
+//load forgot password
+const loadForgotPassword = async(req,res)=>{
+  try {
+    res.render('user/forgotPassword')
+  } catch (error) {
+    console.log('Error form userController.loadForgotPassword :',error)
+  }
+}
+
+const forgotPassword = async (req,res) =>{
+  try {
+    const email = req.body.email;
+    console.log('userControll.forgotPassword email:',email);
+    const userData = await User.findOne({email:email});
+
+
+    if(userData){
+
+    const randomString = randomstring.generate();
+
+    //setting token in user document in data base
+
+    const data = await User.updateOne({email:email},{$set:{token:randomString}});
+    
+    if (data) {
+      forgetPassword.sendResetPasswordMail(userData.username,userData.email,randomString)
+      res.render('user/forgotPassword',{sMessage:'check your mail inbox and reset your password'});
+    } 
+
+    }else {
+      res.render('user/forgotPassword',{fMessage:' Your email is not valid'});
+    }
+  } catch (error) {
+    console.log('error from usercontroll forgotpassword',error);
+  }
+}
+
+const loadResetPassword = async(req,res) =>{
+  try {
+    res.render('user/resetPassword');
+  } catch (error) {
+    console.log('error from user controel reset passwrod :',error);
+  }
+}
+
+const resetPassword = async(req,res) =>{
+  try {
+    const token = req.query.token;
+    // console.log('userController reset password token:',token);
+    const tokenData = await User.findOne({token:token})
+
+    if(tokenData) {
+    const password = req.body.newPassword;
+    // console.log('userController.resetPassword req.body.password:',password);
+
+    const Spassword = await securePassword.SecurePassword(password);
+
+    const userData = await User.findByIdAndUpdate(
+      {_id:tokenData._id},
+      {$set:{password:Spassword,token:""}},
+      {new:true}
+    )
+    res.redirect('/login');
+
+    console.log('userController.resetPassword userData.Password:',userData.password);
+    console.log('userControllr.resetPassword tokenData.password:',tokenData.password);
+
+    }
+
+  } catch (error) {
+    console.log('error from userController.resetPassword:',error);
+  }
+}
 
 module.exports = {
   loadSignup,
@@ -551,6 +614,11 @@ module.exports = {
   loadAccount,
   editAccount,
   loadEditAddress,
-  updateAddress
+  updateAddress,
+  loadForgotPassword,
+  forgotPassword,
+  loadResetPassword,
+  resetPassword
+
 
 };
