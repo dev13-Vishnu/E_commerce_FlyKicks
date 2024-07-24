@@ -16,6 +16,29 @@
     <!-- Template CSS -->
     <link rel="stylesheet" href="/user/assets/css/main.css?v=3.4">
     <style>
+
+        /* Highlight selected size */
+.size-option.selected {
+    border: 2px solid #000; /* Example of a highlight */
+    background-color: #f0f0f0;
+}
+
+/* Style for in-stock availability */
+#availability.in-stock {
+    color: green;
+}
+
+/* Style for out-of-stock availability */
+#availability.out-of-stock {
+    color: red;
+}
+
+/* Disable add to cart button */
+.button-add-to-cart:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
         
         .breadcrumb-item.active {
             display: inline-block;
@@ -150,6 +173,7 @@
                                     </div>
                                     <div class="product-extra-link2">
                                         <button type="submit" class="button button-add-to-cart">Add to cart</button>
+                                        
                                         <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
                                         <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
                                     </div>
@@ -443,7 +467,7 @@
                                               <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                                             </div>
                                             <div class="product-extra-link2">
-                                              <button type="submit" class="button button-add-to-cart">Add to cart</button>
+                                              <button type="button" id="add-to-cart-btn" class="button button-add-to-cart" disabled>Add to cart</button>
                                               <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
                                             </div>
                                           </div>
@@ -724,6 +748,8 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const sizeOptions = document.querySelectorAll('.size-option');
+        const addToCartButton = document.getElementById('add-to-cart-btn');
+
         const availabilityElement = document.getElementById('availability');
 
         sizeOptions.forEach(option => {
@@ -734,16 +760,58 @@
                 availabilityElement.textContent = `Sold Out`;
                 availabilityElement.classList.add('out-of-stock');
                 availabilityElement.classList.remove('in-stock');
+                addToCartButton.disabled = true;
+                addToCartButton.style.backgroundColor = '#ccc';
             } else {
                 availabilityElement.textContent = `${quantity} Items In Stock`;
                 availabilityElement.classList.remove('out-of-stock');
                 availabilityElement.classList.add('in-stock');
+                addToCartButton.disabled= false;
+                addToCartButton.style.backgroundColor = ''; // Reset to original style
             }
             
 
             // Optional: Highlight the selected size
             sizeOptions.forEach(opt => opt.classList.remove('selected'));
             this.classList.add('selected');
+
+        const selectedSize =  document.querySelector('.size-option.selected').textContent.trim();
+
+        addToCartButton. addEventListener('click',function(){
+            const productId = '<%= product._id%>';
+
+            if(!selectedSize){
+                alert('Please select a size.');
+                return;
+
+            }
+            fetch('/cart/add',{
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json',
+                },
+                body:JSON.stringify({
+                    productId,
+                    size: selectedSize,
+                    
+                }),
+            })
+            .then(response =>{
+                if(response.ok){
+                    window.location.reload();
+                    alert('Product added to the cart')
+
+                }else{
+                    return response.text().then(text =>{throw new Error(text)});
+                }
+            })
+            .catch(error =>{
+                console.error ('Error adding to cart:',error);
+                alert('Error adding to cart. Please try again.');
+            });
+        });
+
+            
         });
         });
     });

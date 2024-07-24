@@ -71,5 +71,12 @@ userRoute.post('/forgot-password',isLoggedOut,userController.forgotPassword);
 //reset password
 userRoute.get('/reset-password',isLoggedOut,userController.loadResetPassword);
 userRoute.post('/reset-password',isLoggedOut,userController.resetPassword);
+
+//add to cart
+userRoute.post('/cart/add',isLoggedIn,userController.addToCart);
+userRoute.get('/cart',isLoggedIn,userController.loadCart);
+
+
+
 module.exports = userRoute;
  
