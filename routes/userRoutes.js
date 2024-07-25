@@ -5,8 +5,6 @@ const passport = require('passport');
 require('../helpers/oAuth');
 
 
-
-
 userRoute.use(passport.initialize());
 userRoute.use(passport.session());
 
@@ -14,6 +12,8 @@ userRoute.use(passport.session());
 
 const addressContoller = require("../controllers/addressController");
 const userController = require("../controllers/userController");
+const cartController = require('../controllers/cartController')
+
 const { isLoggedOut, isLoggedIn } = require("../middlewares/userAuthentication");
 
 
@@ -73,9 +73,9 @@ userRoute.get('/reset-password',isLoggedOut,userController.loadResetPassword);
 userRoute.post('/reset-password',isLoggedOut,userController.resetPassword);
 
 //add to cart
-userRoute.post('/cart/add',isLoggedIn,userController.addToCart);
-userRoute.get('/cart',isLoggedIn,userController.loadCart);
-
+userRoute.post('/cart/add',isLoggedIn,cartController.addToCart);
+userRoute.get('/cart',isLoggedIn,cartController.loadCart);
+userRoute.delete('/cart/remove',isLoggedIn,cartController.removeItemsFromCart);
 
 
 module.exports = userRoute;

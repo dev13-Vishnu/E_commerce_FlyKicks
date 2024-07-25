@@ -7,7 +7,6 @@ const Category = require("../models/categoryModel");
 const Address = require("../models/addressModel");
 const randomstring = require('randomstring');
 const forgetPassword = require('../helpers/forgotPassword');
-const Cart = require ('../models/cartModel');
 
 
 
@@ -601,58 +600,6 @@ const resetPassword = async(req,res) =>{
   }
 }
 
-const addToCart= async(req,res) =>{
-  const { productId, size} = req.body;
-  const userId = req.session.user._id;
-  
-  if(!productId || !size) {
-    return res.status(400).send('Product ID and size are reauiresd.');
-
-  }
-  
-  try {
-    const product = await Product.findById(productId);
-
-    console.log('usecontroll.addToCart product:',product);
-    
-    if(!product) {
-      return res.status(404).send('Produt or size not found.');
-    }
-
-    await Cart.updateOne(
-      {userId},
-      {
-        $push: {
-          products: {
-            productId: product._id,
-            size,
-            quantity: 1,
-            total_price: product.promo_price,
-          },
-        },
-        $inc:{total: product.promo_price },
-      },
-      {upsert:true}
-    );
-    res.status(200).send('Product added to Cart.');
-
-
-  } catch (error) {
-    console.log('Error from userController.addToCart:',error);
-    res.status(500).send('Server error.');
-  }
-}
-
-const loadCart = async (req,res) =>{
-
-  try {
-    res.send('cart page');
-  } catch (error) {
-    console.log('Error from userController.loadCart',error);
-
-  }
-}
-
 module.exports = {
   loadSignup,
   loadLogin,
@@ -674,9 +621,7 @@ module.exports = {
   loadForgotPassword,
   forgotPassword,
   loadResetPassword,
-  resetPassword,
-  addToCart,
-  loadCart
+  resetPassword
 
 
 };
