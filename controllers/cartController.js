@@ -91,7 +91,7 @@ const addToCart= async(req,res) =>{
   
   
     } catch (error) {
-      console.log('Error from userController.addToCart:',error);
+      console.log('Error from cartController.addToCart:',error);
       res.status(500).send('Server error.');
     }
   }
@@ -103,13 +103,13 @@ const addToCart= async(req,res) =>{
       const userData = await User.findById(userId);
   
       const cart = await Cart.findOne({userId}).populate('products.productId');
-      console.log('userController loadCart cart:',cart);
+      console.log('cartController loadCart cart:',cart);
       res.render('user/cart',{
         userData,
         cart
       });
     } catch (error) {
-      console.log('Error from userController.loadCart',error);
+      console.log('Error from cartController.loadCart',error);
   
     }
   }
@@ -141,8 +141,24 @@ const addToCart= async(req,res) =>{
         }
   
     } catch (error) {
-      console.log('Error from userController.removeItemsFromCart:',error);
+      console.log('Error from cartController.removeItemsFromCart:',error);
       res.status(500).json({ success: false, message: 'Failed to update cart'});
+    }
+  };
+
+  const loadCheckout = async(req,res) =>{ 
+    try {
+
+      const userId = req.session.user._id;
+      const userData = await User.findById(userId);
+      const cart = await Cart.findOne({userId});
+      console.log('cartControl.loadCheckout cart:',cart);
+      res.render('user/checkout',{
+        userData
+      });
+    } catch (error) {
+      
+      console.log('Error from cartController.loadCheckout',error);
     }
   }
   
@@ -150,5 +166,6 @@ const addToCart= async(req,res) =>{
     
   addToCart,
   loadCart,
-  removeItemsFromCart
+  removeItemsFromCart,
+  loadCheckout
   }

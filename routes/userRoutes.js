@@ -76,6 +76,7 @@ userRoute.post('/reset-password',isLoggedOut,userController.resetPassword);
 userRoute.post('/cart/add',isLoggedIn,cartController.addToCart);
 userRoute.get('/cart',isLoggedIn,cartController.loadCart);
 userRoute.delete('/cart/remove',isLoggedIn,cartController.removeItemsFromCart);
+userRoute.get('/cart/checkout',isLoggedIn,cartController.loadCheckout)
 
 
 module.exports = userRoute;
