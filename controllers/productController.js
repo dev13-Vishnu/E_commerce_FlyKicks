@@ -203,9 +203,14 @@ const editProduct = async (req,res)  =>{try {
         if (imageFiles && imageFiles.length > 0) {
             images = imageFiles.map(file => path.join('uploads', path.basename(file.path)).replace(/\\/g, '/')); // Store the file paths in the images array
         }
+        console.log('productController editProduct productId',productId)
 
         const productData = await Product.findOne({_id:productId});
+
         const categoryData = await Category.find({});
+
+        console.log('productController editProduct productData',productData)
+        console.log('productController editProduct productData',productData)
 
         if (!productData) {
             return res.status(404).send('Product not found');

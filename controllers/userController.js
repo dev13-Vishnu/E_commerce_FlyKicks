@@ -277,13 +277,13 @@ const loadHome = async(req,res)=>{
         if(req.session.user){
             name = req.session.user.username;
 
-            console.log("username:",name);
+            // console.log("username:",name);
         }
         const userId = req.session.user._id;
         const userData = await User.findById(userId);
-        console.log("username:",name);
+        // console.log("username:",name);
 
-        console.log('load home:',req.session.user);
+        // console.log('load home:',req.session.user);
 
         //render home page
 
@@ -347,6 +347,7 @@ const loadProductDetails = async (req,res) =>{
     const userId = req.session.user._id;
         const userData = await User.findById(userId);
     const id = req.query.id;
+    
     const product = await Product.findById(id);
     if(!product){
       return res.status(404).send('product not found');

@@ -79,5 +79,7 @@ userRoute.delete('/cart/remove',isLoggedIn,cartController.removeItemsFromCart);
 userRoute.get('/cart-checkout',isLoggedIn,cartController.loadCheckout);
 userRoute.post('/place-orderCOD',isLoggedIn,cartController.placeOrderCOD);
 userRoute.get('/order-confirmation',isLoggedIn,cartController.loadOrderConfirmation)
+userRoute.put('/update-cart',isLoggedIn,cartController.updateQuantity);
+
 module.exports = userRoute;
  

@@ -733,106 +733,44 @@
                     <div class="col-md-6">
                         <div class="mb-25">
                             <h4>Billing Details</h4>
+                            <div class="row">
+                                <% if(Array.isArray(addressData)&& addressData.length >
+                                0){ %> <%addressData.forEach((addressObject,index) => {%>
+                                <%addressObject.address.forEach(address => {%>
+    
+                                <div class="col-lg-6 p-2">
+                                <div class="card mb-3 mb-lg-0">
+                                    <div class="card-header">
+                                    <h5 class="mb-0">Address</h5>
+                                        <input 
+                                        class="form-check-input" 
+                                        name="selectedAddress"
+                                        value="<%=address._id%>"
+                                        id="address<%=index%>"
+                                        type="radio">
+                                    </div>
+                                    <div class="card-body">
+                                    <address>
+                                        <%=address.name%> ,<br />
+                                        <%=address.street %>,<br />
+                                        <%=address.city %>,<br />
+                                        <%=address.state %>,<br />
+                                        <%=address.pincode %>,<br />
+                                        <%=address.country %>,<br />
+                                        <%=address.mobile %>,<br />
+                                    </address>
+    
+                                    <a href="/account/edit-address?addressId=<%=address._id%>" class="btn-small">Edit</a>
+                                    </div>
+                                </div>
+                                </div>
+    
+                                <%});%>
+                            <%});%>
+                        <%} %>
                         </div>
-                        <form method="post">
-                            <div class="form-group col-md-12">
-                                
-                            <label
-                                > Name<span class="required"
-                                >*</span
-                                ></label
-                            >
-                            <input
-                                required
-                                class="form-control square"
-                                name="name"
-                                id="addressName"
-                                type="text"
-                                value=""
-                            />
-                            </div>
-                            <div class="form-group col-md-12">
-                            <label>Country</label>
-                            <input
-                                class="form-control square"
-                                name="country"
-                                id="addressCountry"
-                                type="text"
-                                value=""
-                            />
-                            </div>
-                            <div class="form-group col-md-12">
-                            <label
-                                >State<span class="required">*</span></label
-                            >
-                            <input
-                                required
-                                class="form-control square"
-                                name="state"
-                                id="addrssState"
-                                type="text"
-                                value=""
-                            />
-                            </div>
-                            <div class="form-group col-md-12">
-                            <label
-                                >City<span class="required">*</span></label
-                            >
-                            <input
-                                required
-                                class="form-control square"
-                                id="addressCity"
-                                name="city"
-                                type="text"
-                                value=""
-                            />
-                            </div>
-                            <div class="form-group col-md-12">
-                            <label
-                                >Street<span class="required"
-                                >*</span
-                                ></label
-                            >
-                            <input
-                                required
-                                class="form-control square"
-                                name="street"
-                                id="addressStreet"
-                                type="text"
-                                value=""
-                            />
-                            </div>
-                            <div class="form-group col-md-12">
-                            <label
-                                >Pincode<span class="required"
-                                >*</span
-                                ></label
-                            >
-                            <input
-                                required
-                                class="form-control square"
-                                name="pincode"
-                                id="addresPincode"
-                                type="number"
-                                value=""
-                            />
-                            </div>
-                            <div class="form-group col-md-12">
-                            <label
-                                >Phone Number
-                                <span class="required">*</span></label
-                            >
-                            <input
-                                required
-                                class="form-control square"
-                                name="mobile"
-                                id="addressMobile"
-                                type="number"
-                                value=""
-                            />
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                        </div>
                     <div class="col-md-6">
                         <div class="order_review">
                             <div class="mb-20">
@@ -1014,9 +952,19 @@
             placeOrderButton.addEventListener('click',async(event) =>{
                 event.preventDefault();
 
+                const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
                 // const userId = '<%=userData._id%>';
 
                 const payment_method = document.querySelector('input[name="payment_option"]:checked').value;
+
+                if(!selectedAddress){
+                    alert('Please select a billling address before plaicng your order.');
+                    return;
+                }
+                const orderData = {
+                    selectedAddress : selectedAddress.value,
+                    payment_method
+                }
                 // const address = {
                 //     name: document.querySelector('#addressName').value,
                 //     mobile: document.querySelector('#addressMobile').value,
@@ -1030,12 +978,7 @@
                         headers: {
                             'Content-Type':'application/json'
                         },
-                        body: JSON.stringify({
-                            // userId,
-                            payment_method,
-                            // address
-
-                        })
+                        body: JSON.stringify(orderData)
                     });
                     const result = await response.json();
                     if (result.success) {

@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const Product = require("../models/productModel");
 const Cart = require("../models/cartModel");
 const Order = require("../models/orderModel");
+const Address = require('../models/addressModel');
 
 
 
@@ -104,7 +105,7 @@ const addToCart= async(req,res) =>{
       const userData = await User.findById(userId);
   
       const cart = await Cart.findOne({userId}).populate('products.productId');
-      console.log('cartController loadCart cart:',cart);
+      // console.log('cartController loadCart cart:',cart);
       res.render('user/cart',{
         userData,
         cart
@@ -151,6 +152,7 @@ const addToCart= async(req,res) =>{
     try {
 
       const userId = req.session.user._id;
+      const addressData = await Address.find({userId});
       const userData = await User.findById(userId);
       const cart = await Cart.findOne({userId}).populate('products.productId')
 
@@ -158,7 +160,8 @@ const addToCart= async(req,res) =>{
       console.log('cartControl.loadCheckout cart:',cart);
       res.render('user/checkout',{
         userData,
-        cart
+        cart,
+        addressData 
       });
     } catch (error) {
       
@@ -169,10 +172,15 @@ const addToCart= async(req,res) =>{
   const placeOrderCOD = async (req,res) =>{
     try {
       const userId = req.session.user._id;
-      const {payment_method}= req.body;
+      const {selectedAddress,payment_method,index}= req.body;
 
+      
+      // const user = User.findById(userId);
+      const addressDoc = await Address.findOne({userId,'address._id':selectedAddress},{'address.$': 1});
+      
+      const address = addressDoc.address[0]
+      console.log('cartControler place order address:',address)
       //Fetch the user's cart
-
       const cart = await Cart.findOne({userId}).populate('products.productId');
       if(!cart) {
         return res.status(404).send('Cart not found');
@@ -181,6 +189,7 @@ const addToCart= async(req,res) =>{
 
       const orderData = {
         userId,
+        address,
         products: cart.products.map(product => ({
           productId: product.productId._id,
           size: product.size,
@@ -221,6 +230,48 @@ const addToCart= async(req,res) =>{
       console.log('Error from cartCoroller.loadOrderConfirmation:',error);
     }
   }
+
+  const updateQuantity = async(req,res) =>{
+    const {productId, size, newQuantity} = req.body;
+
+    console.log('cartControllre. updateQuantity:',productId, size, newQuantity);
+    const userId = req.session.user._id;
+
+  console.log('cartController.updateQuantity userId',userId);
+    try {
+      const cart = await Cart.findOne({userId});
+      console.log('cartController.updateQuantity cart:',cart);
+
+
+      if(!cart){
+        return res.status(400).json({message:'Cart not found'});
+      }
+
+      //find the product in the cart
+      const product  = cart.products.find(p => p.productId.toString() === productId && p.size === size);
+      
+      if(!product) {
+        return res.status(400).json({message:'Product not found in cart'});
+      }
+
+      console.log('cartControll updateQuantity product:',product)
+
+      //Update the quantity and total price
+      product.quantity = newQuantity;
+      product.total_price = newQuantity * (await Product.findById(productId)).price;
+
+      //Update the cart total
+      cart.total = cart.products.reduce((acc,p) => + p.total_price, 0);
+
+      //save the cart
+      await cart.save();
+
+      //Respond with success
+      res.status(200).json({message:'Server Error'});
+    } catch (error) {
+      
+    }
+  }
   
   module.exports = {
     
@@ -229,5 +280,6 @@ const addToCart= async(req,res) =>{
   removeItemsFromCart,
   loadCheckout,
   placeOrderCOD,
-  loadOrderConfirmation
+  loadOrderConfirmation,
+  updateQuantity
   }

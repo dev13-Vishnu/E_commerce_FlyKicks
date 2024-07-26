@@ -605,9 +605,15 @@
                                         <td class="price" data-title="Price"><span>₹<%=product.productId.promo_price %>/- </span></td>
                                         <td class="text-center" data-title="Stock">
                                             <div class="detail-qty border radius  m-auto">
-                                                <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
+                                                <a href="#" class="qty-down"
+                                                data-product-id="<%=product.productId._id %>"
+                                                data-size="<%=product.size %>"
+                                                ><i class="fi-rs-angle-small-down"></i></a>
                                                 <span class="qty-val"><%=product.quantity %></span>
-                                                <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                                                <a href="#" class="qty-up"
+                                                data-product-id="<%=product.productId._id %>"
+                                                data-size="<%=product.size %>"
+                                                ><i class="fi-rs-angle-small-up"></i></a>
                                             </div>
                                         </td>
                                         <td class="text-right" data-title="Cart">
@@ -771,6 +777,74 @@
     <script src=".//user/assets/js/main.js?v=3.4"></script>
     <script src=".//user/assets/js/shop.js?v=3.4"></script>
     <script>
+        document.querySelectorAll('.qty-up').forEach(button => {
+            button.addEventListener('click',async function(event){
+                event.preventDefault();
+                const productId = this.dataset.productId;
+                const size = this.dataset.size;
+                console.log('size:',size);
+                const qtyValElement = this.closest('.detail-qty').querySelector('.qty-val');
+                let newQuantity = parseInt(qtyValElement.textContent,10) + 1;
+
+                try {
+                    const response = await fetch('/update-cart',{
+                        method:'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({productId,size,newQuantity})
+                    });
+
+                    if(response.ok) {
+                        window.location.reload();
+                    }else{
+                        const errorData = await response.json();
+                        alert(`Error: ${errorData.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error:',error);
+                    alert('An error occured while updataing the cart. Please try again.');
+                }
+            });
+        });
+
+
+        document.querySelectorAll('.qty-down').forEach(button =>{
+            button.addEventListener('click',async function(event){
+                event.preventDefault();
+                const productId = this.dataset.productId;
+                const size = this.dataset.size;
+                console.log('size:',size);
+                const qtyValElement = this.closest('.detail-qty').querySelector('.qty-val');
+                let newQuantity = parseInt(qtyValElement.textContent,10) - 1;
+
+                if (newQuantity < 1) {
+                    alert('Quantity cannot be less than 1.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/update-cart',{
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({productId,size,newQuantity})
+                    });
+                    if(response.ok){
+                        window.location.reload();
+
+                    }else{
+                        const errorData = await response.json();
+                        alert(`Error: $(errorData.message)`);
+                    }
+                } catch (error) {
+                    console.error('Error:',error);
+                    alert('An error occured while updating the cart. Please try again.');
+                }
+            });
+        });
+
         document.querySelectorAll('.remove-from-cart').forEach(button => {
             button.addEventListener('click',async() =>{
                 const productId = button.getAttribute('data-product-id');
@@ -795,8 +869,6 @@
                     } else {
                         alert(result.message);
                     }
-                    
-
                 } catch (error) {
                     console.error('Error removing product from the cart:',error);
                 }
