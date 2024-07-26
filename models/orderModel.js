@@ -1,4 +1,4 @@
-const mongoose = required ('mongoose');
+const mongoose = require ('mongoose');
 
 const orderSchema = new mongoose.Schema(
     {
@@ -21,7 +21,7 @@ const orderSchema = new mongoose.Schema(
                 quantity: {
                     type:Number,
                     required:true,
-                    defaullt: 1
+                    default: 1
                 },
                 productPrice: {
                     type: Number,
@@ -96,7 +96,7 @@ const orderSchema = new mongoose.Schema(
                 required: true
             },
             street:{
-                type:Number,
+                type:String,
                 required:true,
             },
             isDefault:{
@@ -108,7 +108,7 @@ const orderSchema = new mongoose.Schema(
             type: Number,
             required: true
         },
-        Wallet:{
+        wallet:{
             type:Number,
             default: 0
         },

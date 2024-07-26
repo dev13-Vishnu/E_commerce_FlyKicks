@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const Product = require("../models/productModel");
 const Cart = require("../models/cartModel");
+const Order = require("../models/orderModel");
 
 
 
@@ -151,14 +152,73 @@ const addToCart= async(req,res) =>{
 
       const userId = req.session.user._id;
       const userData = await User.findById(userId);
-      const cart = await Cart.findOne({userId});
+      const cart = await Cart.findOne({userId}).populate('products.productId')
+
+      
       console.log('cartControl.loadCheckout cart:',cart);
       res.render('user/checkout',{
-        userData
+        userData,
+        cart
       });
     } catch (error) {
       
       console.log('Error from cartController.loadCheckout',error);
+    }
+  }
+
+  const placeOrderCOD = async (req,res) =>{
+    try {
+      const userId = req.session.user._id;
+      const {payment_method}= req.body;
+
+      //Fetch the user's cart
+
+      const cart = await Cart.findOne({userId}).populate('products.productId');
+      if(!cart) {
+        return res.status(404).send('Cart not found');
+
+      }
+
+      const orderData = {
+        userId,
+        products: cart.products.map(product => ({
+          productId: product.productId._id,
+          size: product.size,
+          quantity: product.quantity,
+          productPrice: product.total_price,
+        })),
+        totalPrice: cart.total + 50,
+        payment_method,
+        payment_status: 'Failed',
+      };
+
+      
+      
+
+      const order = new Order(orderData);
+      await order.save();
+
+      for(const product of cart.products) {
+        const updateField = `stock.${product.size}`;
+        await Product.findByIdAndUpdate(product.productId._id,{
+          $inc:{[updateField]:-product.quantity},
+        });
+      }
+      await Cart.findOneAndDelete({userId});
+      res.status(200).json({ success: true, message: 'Order placed successfully', order });
+
+
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      res.status(500).json({ success: false, message: 'Failed to place order' });
+    }
+  }
+
+  const loadOrderConfirmation = async (req,res) => {
+    try {
+      res.send('order confirmation page');
+    } catch (error) {
+      console.log('Error from cartCoroller.loadOrderConfirmation:',error);
     }
   }
   
@@ -167,5 +227,7 @@ const addToCart= async(req,res) =>{
   addToCart,
   loadCart,
   removeItemsFromCart,
-  loadCheckout
+  loadCheckout,
+  placeOrderCOD,
+  loadOrderConfirmation
   }
