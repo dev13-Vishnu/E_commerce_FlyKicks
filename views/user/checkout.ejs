@@ -734,6 +734,7 @@
                         <div class="mb-25">
                             <h4>Billing Details</h4>
                             <div class="row">
+                                
                                 <% if(Array.isArray(addressData)&& addressData.length >
                                 0){ %> <%addressData.forEach((addressObject,index) => {%>
                                 <%addressObject.address.forEach(address => {%>
@@ -768,9 +769,150 @@
                                 <%});%>
                             <%});%>
                         <%} %>
+
+                        
+                        </div>
+                        <div class="pt-10 container">
+                            <button
+                                type="button"
+                                class="btn btn-sm rounded"
+                                data-bs-toggle="modal"
+                                data-bs-target="#addAddressModal"
+                            >
+                                Add new Address
+                            </button>
+                            </div>
+                        </div>
+                    
+                        <!-- Add Address Modal -->
+                        <div
+                        class="modal fade"
+                        id="addAddressModal"
+                        tabindex="-1"
+                        aria-labelledby="addAddressModalLabel"
+                        aria-hidden="true"
+                        >
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addAddressModalLabel">
+                                Add New Address
+                                </h5>
+                                <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                                ></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post" action="/add-address">
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                    <label
+                                        >Full Name<span class="required"
+                                        >*</span
+                                        ></label
+                                    >
+                                    <input
+                                        required
+                                        class="form-control square"
+                                        name="full_name"
+                                        id="full_name"
+                                        type="text"
+                                    />
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                    <label>Country</label>
+                                    <input
+                                        class="form-control square"
+                                        name="country"
+                                        id="country"
+                                        type="text"
+                                    />
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                    <label
+                                        >State<span class="required">*</span></label
+                                    >
+                                    <input
+                                        required
+                                        class="form-control square"
+                                        name="state"
+                                        id="state"
+                                        type="text"
+                                    />
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                    <label
+                                        >City<span class="required">*</span></label
+                                    >
+                                    <input
+                                        required
+                                        class="form-control square"
+                                        id="city"
+                                        name="city"
+                                        type="text"
+                                    />
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                    <label
+                                        >Street<span class="required"
+                                        >*</span
+                                        ></label
+                                    >
+                                    <input
+                                        required
+                                        class="form-control square"
+                                        name="street"
+                                        id="street"
+                                        type="text"
+                                    />
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                    <label
+                                        >Pincode<span class="required"
+                                        >*</span
+                                        ></label
+                                    >
+                                    <input
+                                        required
+                                        class="form-control square"
+                                        name="pincode"
+                                        id="pincode"
+                                        type="number"
+                                    />
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                    <label
+                                        >Phone Number
+                                        <span class="required">*</span></label
+                                    >
+                                    <input
+                                        required
+                                        class="form-control square"
+                                        name="mobile"
+                                        id="mobile"
+                                        type="number"
+                                    />
+                                    </div>
+                                    <div class="col-md-12">
+                                    <button
+                                        type="submit"
+                                        class="btn btn-fill-out submit"
+                                        name="submit"
+                                        value="Submit"
+                                    >
+                                        Save
+                                    </button>
+                                    </div>
+                                </div>
+                                </form>
+                            </div>
                         </div>
                         </div>
                         </div>
+                    </div>
                     <div class="col-md-6">
                         <div class="order_review">
                             <div class="mb-20">
@@ -946,6 +1088,8 @@
     <!-- Template  JS -->
     <script src="/user/assets/js/main.js?v=3.4"></script>
     <script src="/user/assets/js/shop.js?v=3.4"></script>
+    //add-address
+    //  
     <script>
         document.addEventListener('DOMContentLoaded',() => {
             const placeOrderButton = document.querySelector('.btn-place-order');

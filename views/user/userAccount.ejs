@@ -476,39 +476,35 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                    <td>#1357</td>
-                                    <td>March 45, 2020</td>
-                                    <td>Processing</td>
-                                    <td>$125.00 for 2 item</td>
+
+                                    <% if(orderData){ %>
+                                        <%orderData.forEach(orders=>{%>
+                                            
+                                    <tr id="order-row-<%=orders._id %>">
+                                    <td><%=orders.orderId %></td>
+                                    <td><%= orders.createdAt.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                                    <td id="order-status-<%=orders._id %>"><%=orders.products[0].product_orderStatus %></td>
+                                    <td> ₹<%=orders.totalPrice %> /-for <%=orders.products.length %> item</td>
                                     <td>
-                                        <a href="#" class="btn-small d-block"
-                                        >View</a
-                                        >
+                                        <% if(orders.products[0].product_orderStatus === 'Pending'){ %>
+                                        <a href="#" onclick="cancelOrder('<%=orders._id%>')" class="btn-small d-block"
+                                        >Cancel</a>
+                                        <% }else{ %>
+                                            <span class ="text-muted">Cannot Cancel</span>
+                                            <% } %>
+                                        
                                     </td>
                                     </tr>
-                                    <tr>
-                                    <td>#2468</td>
-                                    <td>June 29, 2020</td>
-                                    <td>Completed</td>
-                                    <td>$364.00 for 5 item</td>
-                                    <td>
-                                        <a href="#" class="btn-small d-block"
-                                        >View</a
-                                        >
-                                    </td>
-                                    </tr>
-                                    <tr>
-                                    <td>#2366</td>
-                                    <td>August 02, 2020</td>
-                                    <td>Completed</td>
-                                    <td>$280.00 for 3 item</td>
-                                    <td>
-                                        <a href="#" class="btn-small d-block"
-                                        >View</a
-                                        >
-                                    </td>
-                                    </tr>
+
+                                        <% }) %>
+                                        <%} else {%>
+
+                                            <h4 class="text-danger">
+                                            No orders yet!
+                                            </h4>
+                                            
+                                    <%    } %>
+                                    
                                 </tbody>
                                 </table>
                             </div>
@@ -1095,10 +1091,37 @@
         <!-- Template  JS -->
         <script src="./user/assets/js/main.js?v=3.4"></script>
 
+        //cancel order
+        <script>
+        
+            async function cancelOrder(orderId){
+                try {
+                    const response = await fetch(`/cancel-order/${orderId}`,{
+                        method:'POST',
+                        headers: {
+                            'Content-Type' : 'application/json'
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        window.location.reload()
+                    } else {
+                        alert('Failed to cancel the order:' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Error cancelling order:',error);
+                    alert('An error occured while cancelling the order');
+                }
+            }
+            
+        </script>
+
         //update profile 
         <script>
             
-            function submitForm(event) {
+            function submitForm(event) { 
                 event.preventDefault();
 
                 const form = document.getElementById('update-profile-form');

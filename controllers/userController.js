@@ -7,7 +7,7 @@ const Category = require("../models/categoryModel");
 const Address = require("../models/addressModel");
 const randomstring = require('randomstring');
 const forgetPassword = require('../helpers/forgotPassword');
-
+const Order = require('../models/orderModel');
 
 
 const loadSuccessGoogle = async (req, res) => {
@@ -392,10 +392,13 @@ const loadProductDetails = async (req,res) =>{
 //load account
 const loadAccount = async(req,res)=>{
   try {
-    const sessionUserData = req.session.user;
+    // const sessionUserData = req.session.user;
     const userId = req.session.user._id;
     const userData = await User.findById(userId);
     const addressData = await Address.find({userId});
+    const orderData = await Order.find({userId});
+
+
 
     // console.log('userController. loadAccount,addressData:',addressData);
     
@@ -408,7 +411,8 @@ const loadAccount = async(req,res)=>{
     res.render('user/userAccount',{
       userData,
       addressData,
-      userData
+      userData,
+      orderData
     }
     )
   } catch (error) {

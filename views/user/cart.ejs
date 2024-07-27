@@ -594,11 +594,12 @@
                                 <tbody>
                                         <% cart.products.forEach(product => {%>
 
-                                            <div class="cart-item" id="cart-item-<%=product.productId._id %>-<%=product.size%>">
+                                            <div class="cart-item" id="cart-item-<%=product.productId._id %>-<%=product.size%>"
+                                            data-stock="<%=product.productId.stock[product.size] %>">
                                                 <tr>
                                         <td class="image product-thumbnail"><img src="<%=product.productId.image[1].replace(/\\/g, '/') %>" alt="#"></td>
                                         <td class="product-des product-name">
-                                            <h5 class="product-name"><a href="shop-product-right.html"><%=product.productId.name %></a></h5>
+                                            <h5 class="product-name"><a href="/product/detail?id=<%= product.productId._id %>"><%=product.productId.name %></a></h5>
                                             <p class="font-xs">Size : <%=product.size%>
                                             </p>
                                         </td>
@@ -782,9 +783,15 @@
                 event.preventDefault();
                 const productId = this.dataset.productId;
                 const size = this.dataset.size;
-                console.log('size:',size);
+                const cartItemElement = this.closest('cart-item');
+                const stock = parseInt(cartItemElement.dataset.stock,10);
                 const qtyValElement = this.closest('.detail-qty').querySelector('.qty-val');
                 let newQuantity = parseInt(qtyValElement.textContent,10) + 1;
+
+                if(newQuantity >stock) {
+                    alert('Cannot increase quantity beyond available stock.');
+                    return;
+                }
 
                 try {
                     const response = await fetch('/update-cart',{
@@ -814,7 +821,7 @@
                 event.preventDefault();
                 const productId = this.dataset.productId;
                 const size = this.dataset.size;
-                console.log('size:',size);
+                const cartItemElement = this.closest('.cart-item');
                 const qtyValElement = this.closest('.detail-qty').querySelector('.qty-val');
                 let newQuantity = parseInt(qtyValElement.textContent,10) - 1;
 

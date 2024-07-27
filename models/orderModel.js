@@ -7,6 +7,13 @@ const orderSchema = new mongoose.Schema(
             ref:'user',
             required:true
         },
+        orderId: {
+          type: String,
+          default: () => {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+          },
+          unique: true,
+        },
         products:[
             {
                 productId: {
@@ -80,28 +87,36 @@ const orderSchema = new mongoose.Schema(
         ],
         address:[{
             name:{
-                type: String,
-                required: true
+                type:String,
+                required:true
             },
             mobile:{
                 type:Number,
-                required: true
+                required:true
             },
             country:{
-                type : String,
+                type:String,
+                required:true
+            },
+            state:{
+                type:String,
                 required:true
             },
             city:{
-                type: String,
-                required: true
+                type:String,
+                required:true
             },
             street:{
                 type:String,
-                required:true,
+                required:true
+            },
+            pincode:{
+                type:Number,
+                required:true
             },
             isDefault:{
-                type: Boolean,
-                default:false,
+                type:Boolean,
+                default:false
             }
         }],
         totalPrice : {
@@ -118,4 +133,4 @@ const orderSchema = new mongoose.Schema(
     }
 )
 
-module.exports = mongoose.model("orde",orderSchema)
+module.exports = mongoose.model("order",orderSchema)

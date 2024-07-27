@@ -13,6 +13,7 @@ userRoute.use(passport.session());
 const addressContoller = require("../controllers/addressController");
 const userController = require("../controllers/userController");
 const cartController = require('../controllers/cartController')
+const orderController = require('../controllers/orderController');
 
 const { isLoggedOut, isLoggedIn } = require("../middlewares/userAuthentication");
 
@@ -80,6 +81,9 @@ userRoute.get('/cart-checkout',isLoggedIn,cartController.loadCheckout);
 userRoute.post('/place-orderCOD',isLoggedIn,cartController.placeOrderCOD);
 userRoute.get('/order-confirmation',isLoggedIn,cartController.loadOrderConfirmation)
 userRoute.put('/update-cart',isLoggedIn,cartController.updateQuantity);
+
+//cancel order
+userRoute.post('/cancel-order/:orderId',isLoggedIn,orderController.cancelOrder)
 
 module.exports = userRoute;
  
