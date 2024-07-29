@@ -594,9 +594,9 @@
                                 <tbody>
                                         <% cart.products.forEach(product => {%>
 
-                                            <div class="cart-item" id="cart-item-<%=product.productId._id %>-<%=product.size%>"
-                                            data-stock="<%=product.productId.stock[product.size] %>">
-                                                <tr>
+                                                <tr class="cart-item" id="cart-item-<%=product.productId._id %>-<%=product.size%>"
+                                                data-stock="<%=product.productId.stock[product.size] %>">
+                                            
                                         <td class="image product-thumbnail"><img src="<%=product.productId.image[1].replace(/\\/g, '/') %>" alt="#"></td>
                                         <td class="product-des product-name">
                                             <h5 class="product-name"><a href="/product/detail?id=<%= product.productId._id %>"><%=product.productId.name %></a></h5>
@@ -615,7 +615,9 @@
                                                 data-product-id="<%=product.productId._id %>"
                                                 data-size="<%=product.size %>"
                                                 ><i class="fi-rs-angle-small-up"></i></a>
+                                                
                                             </div>
+                                            <div class="qty-error-message text-danger " ></div>
                                         </td>
                                         <td class="text-right" data-title="Cart">
                                             <span>₹<%=product.total_price%>/-</span>
@@ -625,9 +627,9 @@
                                             data-product-id="<%=product.productId._id    %>"
                                             data-size="<%=product.size %>"
                                             href="#" class="text-muted"><i class="fi-rs-trash"></i></button></td>
+                                            
                                     </tr>
                                     
-                                            </div>
                                             
                                     <%  }); %>   
                                         
@@ -783,14 +785,22 @@
                 event.preventDefault();
                 const productId = this.dataset.productId;
                 const size = this.dataset.size;
-                const cartItemElement = this.closest('cart-item');
-                const stock = parseInt(cartItemElement.dataset.stock,10);
+                // console.log('size',size);
+                const cartItemElement = this.closest('.cart-item');
+                // console.log('cartItemElement',cartItemElement);
+                const stock = parseInt(cartItemElement.dataset.stock,10); 
+                // console.log('stock',stock);
                 const qtyValElement = this.closest('.detail-qty').querySelector('.qty-val');
+                    console.log(qtyValElement.textContent  );
+                const errorMessage = cartItemElement.querySelector('.qty-error-message');
+                const qtyUpButton = document.querySelector('.qty-up')
                 let newQuantity = parseInt(qtyValElement.textContent,10) + 1;
 
-                if(newQuantity >stock) {
-                    alert('Cannot increase quantity beyond available stock.');
-                    return;
+                if(newQuantity >stock || newQuantity > 10) {
+                    // alert('Cannot increase quantity beyond available stock.');
+                    errorMessage.textContent = `Reached purchasing limit` ;
+                    
+                    return;   
                 }
 
                 try {
