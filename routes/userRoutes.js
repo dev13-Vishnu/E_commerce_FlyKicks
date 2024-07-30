@@ -49,6 +49,9 @@ userRoute.get('/failure',userController.loadFailureGoogle);
 userRoute.post('/login',isLoggedOut,userController.verifyLogin);
 userRoute.get('/logout',isLoggedIn,userController.logout)
 
+//search
+userRoute.get('/search',isLoggedIn,userController.serchQueries);
+
 //product details
 userRoute.get('/product/detail',isLoggedIn,userController.loadProductDetails)
 userRoute.get('/account',isLoggedIn,userController.loadAccount);

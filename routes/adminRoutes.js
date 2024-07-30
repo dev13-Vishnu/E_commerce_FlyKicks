@@ -5,6 +5,7 @@ const auth = require('../middlewares/adminAuthentication');
 const adminController = require('../controllers/adminController');
 const productController = require('../controllers/productController');
 const categoryController = require('../controllers/categoryController');
+const ordersListcontroller = require('../controllers/orderListController');
 
 adminRoutes.get('/',auth.isLogout,adminController.login);
 adminRoutes.post('/',auth.isLogout,adminController.verifyLogin);
@@ -33,6 +34,9 @@ adminRoutes.get('/products/add',auth.isLogin,productController.pushToUserSide)
 adminRoutes.get('/products/delete',auth.isLogin,productController.deleteProduct);
 adminRoutes.get('/products/edit/remove-image',productController.removeImage);
 adminRoutes.post('/products/edit',productController.editProduct);
+
+//order-lists
+adminRoutes.get('/orders-list',auth.isLogin,ordersListcontroller.loadOrdersList)
 
 
 

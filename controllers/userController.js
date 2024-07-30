@@ -8,6 +8,7 @@ const Address = require("../models/addressModel");
 const randomstring = require('randomstring');
 const forgetPassword = require('../helpers/forgotPassword');
 const Order = require('../models/orderModel');
+const productModel = require("../models/productModel");
 
 
 const loadSuccessGoogle = async (req, res) => {
@@ -273,6 +274,10 @@ const verifyLogin = async (req, res) => {
 
 const loadHome = async(req,res)=>{
     try {
+      
+      const searchQuery = req.query.q;
+      let products =[];
+      // console.log('userController loadHome query:',searchQuery);
         let name ="";
         if(req.session.user){
             name = req.session.user.username;
@@ -284,36 +289,55 @@ const loadHome = async(req,res)=>{
         // console.log("username:",name);
 
         // console.log('load home:',req.session.user);
-
-        //render home page
-
-
         //pagination
         var page = 1;
         if(req.query.page){
           page = req.query.page;
         }
 
-        const limit = 6;
+        const limit = 2;
+        let count;
 
-
-        const products = await Product.find({delete:false})
-        .limit(limit * 1)
-        .skip((page -1) * limit)
-        .exec();
-
-        const count = await Product.find({delete:false})
+        //render home page
+        if (searchQuery) {
+          products = await productModel.find({
+            name:{$regex: searchQuery,$options:'i'},
+            delete:false
+          })
+          .limit(limit * 1)
+          .skip((page -1) * limit)
+          .exec();
+          
+          count = await Product.find ({
+            name:{$regex:searchQuery,$options:'i'},
+            delete:false,
+          }).countDocuments();
+        } else {
+          
+         products = await Product.find({delete:false})
+         .limit(limit * 1)
+         .skip((page -1) * limit)
+         .exec();
+         count = await Product.find({delete:false})
         .countDocuments();
+        }
+
+
+
+
+
 
         products.forEach(product => {
             product.image = product.image.map(img => img.replace(/\\/g, '/'));
         });
-        console.log('products url', req.url)
+
+        console.log('usercontroller.loadhome products:',products)
       res.render('user/home',{products,
         totalPages:Math.ceil(count/limit),
         currentPage: page,
       currentUrl:req.query.page,
-        userData
+        userData,
+        searchQuery
       
     });
         
@@ -605,6 +629,14 @@ const resetPassword = async(req,res) =>{
   }
 }
 
+const serchQueries = async (req,res) =>{
+  try {
+    search
+  } catch (error) {
+    
+  }
+}
+
 module.exports = {
   loadSignup,
   loadLogin,
@@ -626,7 +658,8 @@ module.exports = {
   loadForgotPassword,
   forgotPassword,
   loadResetPassword,
-  resetPassword
+  resetPassword,
+  serchQueries
 
 
 };
