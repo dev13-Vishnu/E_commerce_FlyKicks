@@ -31,7 +31,9 @@
             placeholder="Search for items..."
             id="searchInput"
             name="q"
-            value="<%= searchQuery || '' %>"
+            <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
+              value="<%= searchQuery %>"
+          <% } %>
              
             />
           </form>
