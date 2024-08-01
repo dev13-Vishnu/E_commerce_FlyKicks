@@ -79,7 +79,13 @@
                                     <td><span class="badge rounded-pill alert-<%= order.products[0].product_orderStatus === 'Pending' ? 'warning' : 'success' %>"><%= order.products[0].product_orderStatus %></span></td>
                                     <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
                                     <td class="text-end">
-                                        <a href="orders-list/order-details?orderObjectId=<%=order._id %>" class="btn btn-md rounded font-sm">Detail</a>
+                                        <a href="order-details?orderObjectId=<%=order._id %>" class="btn btn-md rounded font-sm">Detail</a>
+                                        <% if(order.products[0].product_orderStatus === 'Pending'){ %>
+                                            <a href="#"  class="btn btn-md bg-danger rounded font-sm cancel-order-btn" data-order-id="<%= order._id %>"
+                                            >Cancel</a>
+                                            <% }else{ %>
+                                                <span class ="text-muted">Cannot Cancel</span>
+                                                <% } %>
                                         <div class="dropdown">
                                             <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
                                             <div class="dropdown-menu">
@@ -133,6 +139,37 @@
     <script src="/admin/assets/js/vendors/jquery.fullscreen.min.js"></script>
     <!-- Main Script -->
     <script src="/admin/assets/js/main.js" type="text/javascript"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.cancel-order-btn').forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const orderId = button.getAttribute('data-order-id');
+
+                fetch('/admin/cancel-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ orderId: orderId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Order canceled successfully');
+                        location.reload();
+                    } else {
+                        alert('Failed to cancel order: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while canceling the order');
+                });
+            });
+        });
+    });
+    </script>
 </body>
 
 </html>

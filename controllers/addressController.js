@@ -35,8 +35,7 @@ const addAddress = async(req,res) =>{
         //save the address document
         await addressDoc.save();
 
-        res.redirect('/account');
-
+        res.status(200).json({success:true,message:'Address added successfully'});
     } catch (error) {
         console.log('error from addressController.js addAddress',error);
     }

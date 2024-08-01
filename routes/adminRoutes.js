@@ -37,8 +37,8 @@ adminRoutes.post('/products/edit',productController.editProduct);
 
 //order-lists
 adminRoutes.get('/orders-list',auth.isLogin,ordersListcontroller.loadOrdersList)
-adminRoutes.get('/orders-list/order-details',auth.isLogin,ordersListcontroller.loadOrderDetails)
-
+adminRoutes.get('/order-details',auth.isLogin,ordersListcontroller.loadOrderDetails)
+adminRoutes.post('/cancel-order',auth.isLogin,ordersListcontroller.cancelOrder)
 
 
 module.exports = adminRoutes;

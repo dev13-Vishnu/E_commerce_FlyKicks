@@ -79,7 +79,7 @@
             <div class="content-header">
                 <div>
                     <h2 class="content-title card-title">Order detail</h2>
-                    <p>Details for Order ID: 3453012</p>
+                    <p>Details for Order ID: <%= order.orderId %></p>
                 </div>
             </div>
             <div class="card">
@@ -87,17 +87,17 @@
                     <div class="row align-items-center">
                         <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
                             <span>
-                                <i class="material-icons md-calendar_today"></i> <b>Wed, Aug 13, 2022, 4:34PM</b>
+                                <i class="material-icons md-calendar_today"></i> <b<%= order.date %></b>
                             </span> <br>
-                            <small class="text-muted">Order ID: 3453012</small>
+                            <small class="text-muted">Order ID:  <%= order.orderId %></small>
                         </div>
                         <div class="col-lg-6 col-md-6 ms-auto text-md-end">
                             <select class="form-select d-inline-block mb-lg-0 mb-15 mw-200">
                                 <option>Change status</option>
-                                <option>Awaiting payment</option>
-                                <option>Confirmed</option>
-                                <option>Shipped</option>
-                                <option>Delivered</option>
+                                <option<%= order.products[0].product_orderStatus === 'Awaiting payment' ? ' selected' : '' %>>Awaiting payment</option>
+                                <option<%= order.products[0].product_orderStatus === 'Confirmed' ? ' selected' : '' %>>Confirmed</option>
+                                <option<%= order.products[0].product_orderStatus === 'Shipped' ? ' selected' : '' %>>Shipped</option>
+                                <option<%= order.products[0].product_orderStatus === 'Delivered' ? ' selected' : '' %>>Delivered</option>
                             </select>
                             <a class="btn btn-primary" href="#">Save</a>
                             <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a>
@@ -114,7 +114,7 @@
                                 <div class="text">
                                     <h6 class="mb-1">Customer</h6>
                                     <p class="mb-1">
-                                        John Alexander <br> alex@example.com <br> +998 99 22123456
+                                        <%= order.address[0].name %> <br> <%= order.address[0].city %> <br> <%= order.address[0].mobile %>
                                     </p>
                                     <a href="#">View profile</a>
                                 </div>
@@ -128,9 +128,15 @@
                                 <div class="text">
                                     <h6 class="mb-1">Order info</h6>
                                     <p class="mb-1">
-                                        Shipping: Fargo express <br> Pay method: card <br> Status: new
+                                        <%=order.address[0].name%> ,<br />
+                                        <%=order.address[0].street %>,<br />
+                                        <%=order.address[0].city %>,<br />
+                                        <%=order.address[0].state %>,<br />
+                                        <%=order.address[0].pincode %>,<br />
+                                        <%=order.address[0].country %>,<br />
+                                        <%=order.address[0].mobile %>,<br />
                                     </p>
-                                    <a href="#">Download info</a>
+                                    <!-- <a href="#">Download info</a> -->
                                 </div>
                             </article>
                         </div> <!-- col// -->
@@ -142,7 +148,7 @@
                                 <div class="text">
                                     <h6 class="mb-1">Deliver to</h6>
                                     <p class="mb-1">
-                                        City: Tashkent, Uzbekistan <br>Block A, House 123, Floor 2 <br> Po Box 10000
+                                        City: <%= order.address[0].city %>, <%= order.address[0].country %> <br> <%= order.address[0].street %>, <%= order.address[0].state %> <br> Po Box <%= order.address[0].pincode %>
                                     </p>
                                     <a href="#">View profile</a>
                                 </div>
@@ -162,77 +168,40 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <% order.products.forEach(product => { %>
                                         <tr>
                                             <td>
                                                 <a class="itemside" href="#">
                                                     <div class="left">
-                                                        <img src="/admin/assets/imgs/items/1.jpg" width="40" height="40" class="img-xs" alt="Item">
+                                                        <img src="/<%=product.productId.image[1].replace(/\\/g, '/') %>" width="40" height="40" class="img-xs" alt="Item">
                                                     </div>
-                                                    <div class="info"> T-shirt blue, XXL size </div>
+                                                    <div class="info"> <%= product.productId.name %> </div>
                                                 </a>
                                             </td>
-                                            <td> $44.25 </td>
-                                            <td> 2 </td>
-                                            <td class="text-end"> $99.50 </td>
+                                            <td> ₹<%= (product.productPrice).toFixed(2) %> </td>
+                                            <td> <%= product.quantity %> </td>
+                                            <td class="text-end">₹<%= (product.productPrice * product.quantity).toFixed(2) %> </td>
                                         </tr>
-                                        <tr>
-                                            <td>
-                                                <a class="itemside" href="#">
-                                                    <div class="left">
-                                                        <img src="/admin/assets/imgs/items/2.jpg" width="40" height="40" class="img-xs" alt="Item">
-                                                    </div>
-                                                    <div class="info"> Winter jacket for men </div>
-                                                </a>
-                                            </td>
-                                            <td> $7.50 </td>
-                                            <td> 2 </td>
-                                            <td class="text-end"> $15.00 </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <a class="itemside" href="#">
-                                                    <div class="left">
-                                                        <img src="/admin/assets/imgs/items/3.jpg" width="40" height="40" class="img-xs" alt="Item">
-                                                    </div>
-                                                    <div class="info"> Jeans wear for men </div>
-                                                </a>
-                                            </td>
-                                            <td> $43.50 </td>
-                                            <td> 2 </td>
-                                            <td class="text-end"> $102.04 </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <a class="itemside" href="#">
-                                                    <div class="left">
-                                                        <img src="/admin/assets/imgs/items/4.jpg" width="40" height="40" class="img-xs" alt="Item">
-                                                    </div>
-                                                    <div class="info"> Product name color and size </div>
-                                                </a>
-                                            </td>
-                                            <td> $99.00 </td>
-                                            <td> 3 </td>
-                                            <td class="text-end"> $297.00 </td>
-                                        </tr>
+                                        <% }) %>
                                         <tr>
                                             <td colspan="4">
                                                 <article class="float-end">
                                                     <dl class="dlist">
                                                         <dt>Subtotal:</dt>
-                                                        <dd>$973.35</dd>
+                                                        <dd>₹<%= (order.totalPrice-50).toFixed(2) %></dd>
                                                     </dl>
                                                     <dl class="dlist">
                                                         <dt>Shipping cost:</dt>
-                                                        <dd>$10.00</dd>
+                                                        <dd>₹<%= (order.products[0].delivery).toFixed(2) %></dd>
                                                     </dl>
                                                     <dl class="dlist">
                                                         <dt>Grand total:</dt>
-                                                        <dd> <b class="h5">$983.00</b> </dd>
+                                                        <dd> <b class="h5">₹<%= ((order.totalPrice + order.products[0].delivery)).toFixed(2) %></b> </dd>
                                                     </dl>
                                                     <dl class="dlist">
                                                         <dt class="text-muted">Status:</dt>
                                                         <dd>
-                                                            <span class="badge rounded-pill alert-success text-success">Payment done</span>
+                                                            <span class="badge rounded-pill alert-success text-success"><%= order.products[0].payment_status === 'Failed' ? 'Payment Failed' : 'Payment done' %></span>
                                                         </dd>
                                                     </dl>
                                                 </article>
@@ -241,11 +210,11 @@
                                     </tbody>
                                 </table>
                             </div> <!-- table-responsive// -->
-                            <a class="btn btn-primary" href="page-orders-tracking.html">View Order Tracking</a>
+                            <!-- <a class="btn btn-primary" href="page-orders-tracking.html">View Order Tracking</a> -->
                         </div> <!-- col// -->
                         <div class="col-lg-1"></div>
                         <div class="col-lg-4">
-                            <div class="box shadow-sm bg-light">
+                            <!-- <div class="box shadow-sm bg-light">
                                 <h6 class="mb-15">Payment info</h6>
                                 <p>
                                     <img src="/admin/assets/imgs/card-brands/2.png" class="border" height="20"> Master Card **** **** 4768 <br>
@@ -260,7 +229,7 @@
                                 </div>
                                 <button class="btn btn-primary">Save note</button>
                             </div>
-                        </div> <!-- col// -->
+                        </div> col// -->
                     </div>
                 </div> <!-- card-body end// -->
             </div> <!-- card end// -->

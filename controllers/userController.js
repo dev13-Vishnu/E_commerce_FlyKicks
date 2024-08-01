@@ -295,7 +295,7 @@ const loadHome = async(req,res)=>{
           page = req.query.page;
         }
 
-        const limit = 2;
+        const limit = 3;
         let count;
 
         //render home page
