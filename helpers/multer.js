@@ -1,4 +1,4 @@
-const multer= require('multer');
+const multer = require('multer');
 const path = require('path');
 
 const storage = multer.diskStorage({
@@ -10,6 +10,9 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage: storage }).array('images', 4); // Accept up to 4 files
+const upload = multer({ storage: storage }).fields([
+    { name: 'images', maxCount: 4 },
+    { name: 'croppedImage', maxCount: 1 }
+]);
 
 module.exports = upload;

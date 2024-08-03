@@ -101,6 +101,8 @@ const addToCart= async(req,res) =>{
   const loadCart = async (req,res) =>{
   
     try {
+      const searchQuery = req.query.q;
+      const sortQuery = req.query.sort;
       const userId = req.session.user._id;
       const userData = await User.findById(userId);
   
@@ -108,7 +110,9 @@ const addToCart= async(req,res) =>{
       // console.log('cartController loadCart cart:',cart);
       res.render('user/cart',{
         userData,
-        cart
+        cart,
+        searchQuery,
+        sortQuery
       });
     } catch (error) {
       console.log('Error from cartController.loadCart',error);
@@ -150,6 +154,8 @@ const addToCart= async(req,res) =>{
 
   const loadCheckout = async(req,res) =>{ 
     try {
+      const searchQuery = req.query.q;
+      const sortQuery = req.query.sort;
 
       const userId = req.session.user._id;
       const addressData = await Address.find({userId});
@@ -161,7 +167,9 @@ const addToCart= async(req,res) =>{
       res.render('user/checkout',{
         userData,
         cart,
-        addressData 
+        addressData,
+        searchQuery,
+        sortQuery
       });
     } catch (error) {
       

@@ -271,79 +271,94 @@ const verifyLogin = async (req, res) => {
     console.log('error from userController verify login',error);
   }
 };
-
-const loadHome = async(req,res)=>{
-    try {
-      
+const loadHome = async (req, res) => {
+  try {
       const searchQuery = req.query.q;
-      let products =[];
-      // console.log('userController loadHome query:',searchQuery);
-        let name ="";
-        if(req.session.user){
-            name = req.session.user.username;
-
-            // console.log("username:",name);
-        }
-        const userId = req.session.user._id;
-        const userData = await User.findById(userId);
-        // console.log("username:",name);
-
-        // console.log('load home:',req.session.user);
-        //pagination
-        var page = 1;
-        if(req.query.page){
-          page = req.query.page;
-        }
-
-        const limit = 3;
-        let count;
-
-        //render home page
-        if (searchQuery) {
-          products = await productModel.find({
-            name:{$regex: searchQuery,$options:'i'},
-            delete:false
-          })
-          .limit(limit * 1)
-          .skip((page -1) * limit)
-          .exec();
-          
-          count = await Product.find ({
-            name:{$regex:searchQuery,$options:'i'},
-            delete:false,
-          }).countDocuments();
-        } else {
-          
-         products = await Product.find({delete:false})
-         .limit(limit * 1)
-         .skip((page -1) * limit)
-         .exec();
-         count = await Product.find({delete:false})
-        .countDocuments();
-        }
-
-
-
-
-
-
-        products.forEach(product => {
-            product.image = product.image.map(img => img.replace(/\\/g, '/'));
-        });
-
-        console.log('usercontroller.loadhome products:',products)
-      res.render('user/home',{products,
-        totalPages:Math.ceil(count/limit),
-        currentPage: page,
-      currentUrl:req.query.page,
-        userData,
-        searchQuery
+      const sortQuery = req.query.sort;
+      let products = [];
+      let name = "";
       
-    });
-        
-    } catch (error) {
-        console.log("error from userController.loadHome",error);
-    }
+      if (req.session.user) {
+          name = req.session.user.username;
+      }
+      
+      const userId = req.session.user._id;
+      const userData = await User.findById(userId);
+
+      // Pagination
+      let page = 1;
+      if (req.query.page) {
+          page = req.query.page;
+      }
+
+      const limit = 3;
+      let count;
+
+      // Sorting
+      let sortCriteria = {};
+      if (sortQuery) {
+          if (sortQuery === 'price-asc') {
+              sortCriteria = { price: 1 };
+          } else if (sortQuery === 'price-desc') {
+              sortCriteria = { price: -1 };
+          } else if (sortQuery === 'rating') {
+              sortCriteria = { rating: -1 };
+          } else if (sortQuery === 'name-asc') {
+            sortCriteria = { name: 1 };
+          }
+      }
+
+
+      console.log("userController loadhome Sort Query:", sortQuery);
+      console.log("userController loadhome Sort Criteria:", sortCriteria);
+
+      // Search and pagination
+      if (searchQuery) {
+          products = await Product.find({
+              name: { $regex: searchQuery, $options: 'i' },
+              delete: false
+          })
+          .sort(sortCriteria)
+          .limit(limit * 1)
+          .skip((page - 1) * limit)
+          .exec();
+
+          count = await Product.find({
+              name: { $regex: searchQuery, $options: 'i' },
+              delete: false
+          }).countDocuments();
+      } else {
+          products = await Product.find({ delete: false })
+          .sort(sortCriteria)
+          .limit(limit * 1)
+          .skip((page - 1) * limit)
+          .exec();
+
+          count = await Product.find({ delete: false })
+          .countDocuments();
+      }
+
+      console.log("userController loadhome Sorted Products:", products);
+
+    
+
+      products.forEach(product => {
+          product.image = product.image.map(img => img.replace(/\\/g, '/'));
+      });
+
+      // console.log('usercontroller.loadhome products:', products);
+      res.render('user/home', {
+          products,
+          totalPages: Math.ceil(count / limit),
+          currentPage: page,
+          currentUrl: req.url,
+          userData,
+          searchQuery,
+          sortQuery
+      });
+  } catch (error) {
+      console.log("error from userController.loadHome", error);
+  }
 }
 
 
@@ -366,6 +381,8 @@ const logout = async(req,res)=> {
 
 const loadProductDetails = async (req,res) =>{
   try {
+    const searchQuery = req.query.q;
+    const sortQuery = req.query.sort;
     console.log('passed id:',req.query.id);
 
     const userId = req.session.user._id;
@@ -399,6 +416,8 @@ const loadProductDetails = async (req,res) =>{
     console.log('stock:',product.stock);
     console.log('product data:',product)
     res.render('user/productDetails',{product,
+      searchQuery,
+      sortQuery,
       userData,
       stock: product.stock,
       relatedProducts,
@@ -416,6 +435,8 @@ const loadProductDetails = async (req,res) =>{
 //load account
 const loadAccount = async(req,res)=>{
   try {
+    const searchQuery = req.query.q;
+    const sortQuery = req.query.sort;
     // const sessionUserData = req.session.user;
     const userId = req.session.user._id;
     const userData = await User.findById(userId);
@@ -436,7 +457,9 @@ const loadAccount = async(req,res)=>{
       userData,
       addressData,
       userData,
-      orderData
+      orderData,
+      searchQuery,
+      sortQuery
     }
     )
   } catch (error) {

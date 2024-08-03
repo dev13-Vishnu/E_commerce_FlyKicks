@@ -7,6 +7,9 @@ const upload = require('../helpers/multer')
 
 
 // Controller function to handle the form submission
+
+
+
 const addProduct = async (req, res) => {
     try {
 

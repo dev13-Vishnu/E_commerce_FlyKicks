@@ -654,7 +654,7 @@
                                 ></button>
                             </div>
                             <div class="modal-body">
-                                <form id="addAddressForm" method="post" action="/add-address">
+                                <form id="addAddressForm" method="post" action="/add-address" onsubmit=" return formValidation()">
                                 <div class="row">
                                     <div class="form-group col-md-12">
                                     <label
@@ -663,12 +663,13 @@
                                         ></label
                                     >
                                     <input
-                                        required
+                                        
                                         class="form-control square"
                                         name="full_name"
                                         id="full_name"
                                         type="text"
                                     />
+                                    <div class="error text-danger" id="fullNameError"></div>
                                     </div>
                                     <div class="form-group col-md-12">
                                     <label>Country</label>
@@ -678,30 +679,33 @@
                                         id="country"
                                         type="text"
                                     />
+                                    <div class="error text-danger" id="countryError"></div>
                                     </div>
                                     <div class="form-group col-md-12">
                                     <label
                                         >State<span class="required">*</span></label
                                     >
                                     <input
-                                        required
+                                        
                                         class="form-control square"
                                         name="state"
                                         id="state"
                                         type="text"
                                     />
+                                    <div class="error text-danger" id="stateError"></div>
                                     </div>
                                     <div class="form-group col-md-12">
                                     <label
                                         >City<span class="required">*</span></label
                                     >
                                     <input
-                                        required
+                                        
                                         class="form-control square"
                                         id="city"
                                         name="city"
                                         type="text"
                                     />
+                                    <div class="error text-danger" id="cityError"></div>
                                     </div>
                                     <div class="form-group col-md-12">
                                     <label
@@ -710,12 +714,13 @@
                                         ></label
                                     >
                                     <input
-                                        required
+                                        
                                         class="form-control square"
                                         name="street"
                                         id="street"
                                         type="text"
                                     />
+                                    <div class="error text-danger" id="streetError"></div>
                                     </div>
                                     <div class="form-group col-md-12">
                                     <label
@@ -724,12 +729,13 @@
                                         ></label
                                     >
                                     <input
-                                        required
+                                        
                                         class="form-control square"
                                         name="pincode"
                                         id="pincode"
                                         type="number"
                                     />
+                                    <div class="error text-danger" id="pincodeError"></div>
                                     </div>
                                     <div class="form-group col-md-12">
                                     <label
@@ -737,12 +743,13 @@
                                         <span class="required">*</span></label
                                     >
                                     <input
-                                        required
+                                        
                                         class="form-control square"
                                         name="mobile"
                                         id="mobile"
                                         type="number"
                                     />
+                                    <div class="error text-danger" id="mobileError"></div>
                                     </div>
                                     <div class="col-md-12">
                                     <button
@@ -1093,6 +1100,85 @@
         <!-- Template  JS -->
         <script src="./user/assets/js/main.js?v=3.4"></script>
 
+        <script>
+        
+            function formValidation() {
+    let valid = true;
+
+    // Clear previous errors
+    document.querySelectorAll('.error').forEach(error => error.textContent = '');
+
+    // Validation rules
+    const rules = [
+        {
+            field: 'full_name',
+            errorElement: 'fullNameError',
+            validations: [
+                { rule: value => value !== '', errorMsg: 'Name is required' }
+            ]
+        },
+        {
+            field: 'country',
+            errorElement: 'countryError',
+            validations: [
+                { rule: value => value !== '', errorMsg: 'Country is required' }
+            ]
+        },
+        {
+            field: 'state',
+            errorElement: 'stateError',
+            validations: [
+                { rule: value => value !== '', errorMsg: 'State is required' }
+            ]
+        },
+        {
+            field: 'city',
+            errorElement: 'cityError',
+            validations: [
+                { rule: value => value !== '', errorMsg: 'City is required' }
+            ]
+        },
+        {
+            field: 'street',
+            errorElement: 'streetError',
+            validations: [
+                { rule: value => value !== '', errorMsg: 'Street is required' }
+            ]
+        },
+        {
+            field: 'pincode',
+            errorElement: 'pincodeError',
+            validations: [
+                { rule: value => value !== '', errorMsg: 'Pincode number is required' },
+                { rule: value => /^\d{6}$/.test(value), errorMsg: 'Invalid phone number format' }
+            ]
+        },
+        {
+            field: 'mobile',
+            errorElement: 'mobileError',
+            validations: [
+                { rule: value => value !== '', errorMsg: 'Phone number is required' },
+                { rule: value => /^\d{10}$/.test(value), errorMsg: 'Invalid phone number format' }
+            ]
+        },
+    ];
+
+    // Apply validations
+    rules.forEach(({ field, errorElement, validations }) => {
+        const value = document.getElementById(field).value.trim();
+        validations.forEach(({ rule, errorMsg }) => {
+            if (!rule(value)) {
+                document.getElementById(errorElement).textContent = errorMsg;
+                valid = false;
+            }
+        });
+    });
+
+    return valid;
+}
+            
+        </script>
+
         //cancel order
         <script>
         
@@ -1197,7 +1283,8 @@
                         return;
                     }
                 } catch (error) {
-                    
+                    console.error('Error:',error);
+                    alert('An error occured'); 
                 }
             })
         </script>

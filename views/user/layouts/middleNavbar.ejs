@@ -38,15 +38,20 @@
             />
           </form>
         </div>
-        <!-- <div>
-            <select name="" id="sortSelect">
-              <option value="name_asc">Name (A-Z)</option>
-              <option value="name_desc">Name (Z-A)</option>
-              <option value="price_asc">Price (Low to High)</option>
-              <option value="price_desc">Price*(High to Low) </option>
-            </select>
-          
-        </div> -->
+        
+    <!-- Sort Dropdown --><!-- Sort Dropdown -->
+    <form id="sortForm" method="GET" action="/">
+      <% if (searchQuery || sortQuery) { %>
+          <input type="hidden" name="q" value="<%= searchQuery %>">
+      <% } %>
+      <select name="sort" id="sortSelect" onchange="document.getElementById('sortForm').submit();">
+          <option value="">Sort By</option>
+          <option value="name-asc" <%= sortQuery === 'name-asc' ? 'selected' : '' %>>Name: A to Z</option>
+          <option value="price-asc" <%= sortQuery === 'price-asc' ? 'selected' : '' %>>Price: Low to High</option>
+          <option value="price-desc" <%= sortQuery === 'price-desc' ? 'selected' : '' %>>Price: High to Low</option>
+          <option value="rating" <%= sortQuery === 'rating' ? 'selected' : '' %>>Rating</option>
+      </select>
+  </form>
         <div class="header-action-right">
           <div class="header-action-2">
             <div class="header-action-icon-2">
