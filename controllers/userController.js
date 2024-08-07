@@ -338,7 +338,7 @@ const loadHome = async (req, res) => {
           .countDocuments();
       }
 
-      console.log("userController loadhome Sorted Products:", products);
+      // console.log("userController loadhome Sorted Products:", products);
 
     
 

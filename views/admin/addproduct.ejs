@@ -1,6 +1,5 @@
 <!DOCTYPE HTML>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <title>Evara Dashboard</title>
@@ -11,64 +10,77 @@
     <meta property="og:type" content="">
     <meta property="og:url" content="">
     <meta property="og:image" content="">
-    <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="/admin/assets/imgs/theme/favicon.svg">
-    <!-- Template CSS -->
     <link href="/admin/assets/css/main.css" rel="stylesheet" type="text/css" />
-
-                
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        #imageContainer {
-            width: 400px;
-            height: 400px;
-            margin: auto;
+        #cropModal {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-        #croppedImage {
-            display: block;
-            margin: 20px auto;
-            max-width: 100%;
+
+        #cropModalContent {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            max-height: 80%;
+            overflow: auto;
+            text-align: center;
+        }
+
+        #cropButton {
+            margin-top: 10px;
+        }
+
+        #previewContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        #previewContainer img {
+            max-width: calc(50% - 10px);
+            margin-bottom: 10px;
+            height: auto;
         }
     </style>
 </head>
-
 <body>
     <div class="screen-overlay"></div>
-
-    <%-include('./layouts/sidemenu.ejs') %>
-
+    <%- include('./layouts/sidemenu.ejs') %>
     <main class="main-wrap">
-        <%-include('./layouts/navbar.ejs')%>
-
+        <%- include('./layouts/navbar.ejs') %>
         <section class="content-main">
             <div class="row">
                 <div class="col-9">
                     <div class="content-header">
                         <h2 class="content-title">Add New Product</h2>
-                        
-                    <% if(typeof Smessage != "undefined"){ %>
+                        <% if (typeof Smessage != "undefined") { %>
                         <h4 class="text-success"><%= Smessage %></h4>
                         <% } %>
-
-                
-                        
-                        <!-- <div>
-                            <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
-                            <button class="btn btn-md rounded font-sm hover-up">Publich</button>
-                        </div> -->
                     </div>
                 </div>
-                <% if(typeof message != "undefined"){ %>
-                    <h4 class="text-danger"><%= message %></h4>
-                    <% } %>
+                <% if (typeof message != "undefined") { %>
+                <h4 class="text-danger"><%= message %></h4>
+                <% } %>
                 <div class="col-lg-6">
                     <div class="card mb-4">
                         <div class="card-header">
                             <h4>Basic</h4>
                         </div>
                         <div class="card-body">
-                            <form method="post" form id="imageForm" enctype="multipart/form-data"  >
+                            <form method="post" action="/admin/addproduct" id="imageForm" enctype="multipart/form-data">
                                 <div class="mb-4">
                                     <label for="product_name" class="form-label">Product title</label>
                                     <input type="text" name="product_name" placeholder="Type here" class="form-control" id="product_name">
@@ -97,188 +109,141 @@
                                     <div class="col-sm-6 mb-3">
                                         <label class="form-label">Category</label>
                                         <select name="product_category" id="product_category" class="form-select">
-                                            <% for(let i=0 ; i < data.length ; i++ ) { %>
-                                                <% if(!data[i].delete) { %>
+                                            <% for (let i = 0; i < data.length; i++) { %>
+                                            <% if (!data[i].delete) { %>
                                             <option value="<%= data[i]._id %>"><%= data[i].name %></option>
-                                                <% } %>
+                                            <% } %>
                                             <% } %>
                                         </select>
                                     </div>
-                                    <!-- <div class="col-lg-4">
-                                        <label class="form-label">Currency</label>
-                                        <select class="form-select">
-                                            <option> USD </option>
-                                            <option> EUR </option>
-                                            <option> RUBL </option>
-                                        </select>
-                                    </div> -->
                                 </div>
-                                <!-- <div class="mb-4">
-                                    <label class="form-label">Tax rate</label>
-                                    <input type="text" placeholder="%" class="form-control" id="product_name">
-                                </div>
-                                <label class="form-check mb-4">
-                                    <input class="form-check-input" type="checkbox" value="">
-                                    <span class="form-check-label"> Make a template </span>
-                                </label> -->
                                 <div>
                                     <button class="btn btn-md rounded font-sm hover-up" type="submit">Upload</button>
                                 </div>
-                            
                         </div>
-                    </div> card end//
+                    </div>
+                    
+                    <div class="container">
+                        <div id="previewContainer"></div>
+                    </div>
 
-                    <!-- <div class="card mb-4">
-                        <div class="card-header">
-                            <h4>Shipping</h4>
-                        </div>
-                        <div class="card-body">
-                            <form>
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="mb-4">
-                                            <label for="product_name" [class="form-label">Width</label>
-                                            <input type="text" placeholder="inch" class="form-control" id="product_name">
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="mb-4">
-                                            <label for="product_name" class="form-label">Height</label>
-                                            <input type="text" placeholder="inch" class="form-control" id="product_name">
-                                        </div>
-                                    </div>
-                                </div>
-                            
-                                <div class="mb-4">
-                                    <label for="product_name" class="form-label">Weight</label>
-                                    <input type="text" placeholder="gam" class="form-control" id="product_name">
-                                </div>
-                                <div class="mb-4">
-                                    <label for="product_name" class="form-label">Shipping fees</label>
-                                    <input type="text" placeholder="$" class="form-control" id="product_name">
-                                </div>
-                            </form>
-                        </div>
-                    </div> <!-- card end// -->
                 </div>
+                
+                
                 <div class="col-lg-6">
                     <div class="card mb-4">
                         <div class="card-header">
                             <h4>Media</h4>
                         </div>
                         <div class="card-body">
-
-                            
-
                             <div class="mb-4">
-                                <label for="image1" class="form-label">Image 1</label>
-                                <input type="file" class="form-control" id="image1" name="images" accept="image/*" required>
+                                <label for="images" class="form-label">Select Image</label>
+                                <input type="file" class="form-control" id="images" name="images" accept="image/*" multiple required>
+                                <div id="previewContainer"></div>
                             </div>
-                            <div class="mb-4">
-                                <label for="image2" class="form-label">Image 2</label>
-                                <input type="file" class="form-control" id="image2" name="images" accept="image/*" required>
-                            </div>
-                            <div class="mb-4">
-                                <label for="image3" class="form-label">Image 3</label>
-                                <input type="file" class="form-control" id="image3" name="images" accept="image/*">
-                            </div>
-                            <div class="mb-4">
-                                <label for="image4" class="form-label">Image 4</label>
-                                <input type="file" class="form-control" id="image4" name="images" accept="image/*">
-                            </div>
-                            
-
                         </div>
-                    </div> 
+                    </div>
                     <div class="card mb-4">
                         <div class="card-header">
                             <h4>Stock</h4>
                         </div>
                         <div class="card-body">
-
-                            <!-- stock Data -->
-                             <label for="7">7 Stock:</label>
-                             <input type="number" class="form-control" id="7" name="stock[7]" min="0">
-                             <br>
-                             <label for="8">8 Stock:</label>
-                             <input type="number" min="0" name="stock[8]" class="form-control" id="8">
-                             <br>
-                             <label for="9">9 Stock:</label>
-                             <input type="number" name="stock[9]" min="0" class="form-control" id="9">
-                             <br>
-                             <label for="10">10 Stock:</label>
-                              <input type="number" class="form-control" name="stock[10]" id="10" min="0">
-                           
-                              <br>
-                            <label for="11">11 Stock: </label>
-                            <input type="number" class="form-control" id="11" name="stock[11]" min="0">
+                            <label for="7">7 Stock:</label>
+                            <input type="number" class="form-control" id="7" name="stock[7]" min="0">
+                            <br>
+                            <label for="8">8 Stock:</label>
+                            <input type="number" min="0" name="stock[8]" class="form-control" id="8">
+                            <br>
+                            <label for="9">9 Stock:</label>
+                            <input type="number" min="0" name="stock[9]" class="form-control" id="9">
+                            <br>
+                            <label for="10">10 Stock:</label>
+                            <input type="number" min="0" name="stock[10]" class="form-control" id="10">
+                            <br>
+                            <label for="11">11 Stock:</label>
+                            <input type="number" min="0" name="stock[11]" class="form-control" id="11">
                             <br>
                             <label for="12">12 Stock:</label>
-                            <input type="number" class="form-control" id="12" name="stock[12]" min="0">
-                            <br>
+                            <input type="number" min="0" name="stock[12]" class="form-control" id="12">
                         </div>
                     </div>
+                </div>
                 </form>
-                    <!-- card end// -->
-                    <!-- <div class="card mb-4">
-                        <div class="card-header">
-                            <h4>Stock</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="row gx-2">
-                                <div class="col-sm-6 mb-3">
-                                    <label class="form-label">Category</label>
-                                    <select class="form-select">
-                                        <option> Automobiles </option>
-                                        <option> Home items </option>
-                                        <option> Electronics </option>
-                                        <option> Smartphones </option>
-                                        <option> Sport items </option>
-                                        <option> Baby and Tous </option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-6 mb-3">
-                                    <label class="form-label">Sub-category</label>
-                                    <select class="form-select">
-                                        <option> Nissan </option>
-                                        <option> Honda </option>
-                                        <option> Mercedes </option>
-                                        <option> Chevrolet </option>
-                                    </select>
-                                </div>
-                                <div class="mb-4">
-                                    <label for="product_name" class="form-label">Tags</label>
-                                    <input type="text" class="form-control">
-                                </div>
-                            </div> <!-- row.// -->
-                        <!-- </div> -->
-                    <!-- </div> card end// --> 
-                </div>
             </div>
-        </section> <!-- content-main end// -->
-        <!-- <footer class="main-footer font-xs">
-            <div class="row pb-30 pt-15">
-                <div class="col-sm-6">
-                    <script>
-                    document.write(new Date().getFullYear())
-                    </script> ©, Evara - HTML Ecommerce Template .
-                </div>
-                <div class="col-sm-6">
-                    <div class="text-sm-end">
-                        All rights reserved
-                    </div>
-                </div>
+        </section>
+        <div id="cropModal">
+            <div id="cropModalContent">
+                <img id="imageToCrop" src="" alt="Image to crop" style="max-width: 100%;">
+                <button id="cropButton">Crop</button>
             </div>
-        </footer> -->
+        </div>
     </main>
-    <script src="/admin/assets/js/vendors/jquery-3.6.0.min.js"></script>
-    <script src="/admin/assets/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="/admin/assets/js/vendors/select2.min.js"></script>
-    <script src="/admin/assets/js/vendors/perfect-scrollbar.js"></script>
-    <script src="/admin/assets/js/vendors/jquery.fullscreen.min.js"></script>
-    <!-- Main Script -->
-    <script src="/admin/assets/js/main.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        let cropper;
+        let currentImageInput;
 
+        $(document).on('change', 'input[type="file"]', function (e) {
+            currentImageInput = this;
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    $('#imageToCrop').attr('src', event.target.result);
+                    $('#cropModal').css('display', 'flex');
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    cropper = new Cropper(document.getElementById('imageToCrop'), {
+                        aspectRatio: 1,
+                        viewMode: 1
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        $('#cropButton').on('click', function () {
+            const canvas = cropper.getCroppedCanvas();
+            canvas.toBlob(function (blob) {
+                const url = URL.createObjectURL(blob);
+                const img = document.createElement('img');
+                img.src = url;
+                $('#previewContainer').append(img);
+
+                const croppedFile = new File([blob], currentImageInput.files[0].name, { type: 'image/jpeg', lastModified: Date.now() });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(croppedFile);
+                currentImageInput.files = dataTransfer.files;
+
+                $('#cropModal').css('display', 'none');
+            }, 'image/jpeg');
+        });
+
+        $('#imageForm').on('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        $('input[type="file"]').each(function () {
+            const files = $(this).prop('files');
+            for (let i = 0; i < files.length; i++) {
+                formData.append('images', files[i]);
+            }
+        });
+        $.ajax({
+            url: '/admin/addproduct',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                alert('Product added successfully');
+            },
+            error: function (err) {
+                alert('Error adding product: ' + err.responseText);
+            }
+        });
+    });
+
+    </script>
 </body>
-
 </html>

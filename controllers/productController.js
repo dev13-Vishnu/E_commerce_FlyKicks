@@ -9,34 +9,36 @@ const upload = require('../helpers/multer')
 // Controller function to handle the form submission
 
 
-
 const addProduct = async (req, res) => {
     try {
+        const categoryData = await Category.find({});
 
-        const categoryData = await Category.find({})
         upload(req, res, async (err) => {
             if (err) {
+                console.error('Upload error:', err);
                 return res.status(500).send(err.message);
             }
 
+            console.log('Request body:', req.body);
+            console.log('Uploaded files:', req.files);
 
-            const { product_name, description, product_Aprice, product_Pprice, product_category,stock } = req.body;
-            const imageFiles = req.files;
+            const { product_name, description, product_Aprice, product_Pprice, product_category, stock } = req.body;
 
-            console.log('stock data',stock);
-        if (!imageFiles || imageFiles.length === 0) {
+            // Validate file uploads
+            if (!req.files || req.files.length === 0) {
                 return res.status(400).send('No files uploaded.');
             }
 
-            const images = imageFiles.map(file => path.join('uploads', path.basename(file.path)).replace(/\\/g, '/'));
-            // Store the file paths in the images array
+            // Extract file URLs
+            const imageUrls = req.files.map(file => path.join('uploads', path.basename(file.path)).replace(/\\/g, '/'));
+            console.log('Image URLs:', imageUrls); // Added logging
 
             const newProduct = new Product({
-                name : product_name,
-                description:description,
-                image: images,
-                price:product_Aprice,
-                promo_price:product_Pprice,
+                name: product_name,
+                description: description,
+                images: imageUrls, // Use an array for images
+                price: product_Aprice,
+                promo_price: product_Pprice,
                 category: new mongoose.Types.ObjectId(product_category),
                 stock: {
                     7: Number(stock[7]) || 0,
@@ -45,19 +47,25 @@ const addProduct = async (req, res) => {
                     10: Number(stock[10]) || 0,
                     11: Number(stock[11]) || 0,
                     12: Number(stock[12]) || 0
-                } // Use 'new' with ObjectId
+                }
             });
 
-            console.log('new product:',newProduct);
+            console.log('New product:', newProduct);
             await newProduct.save();
-            console.log('new product added');
+            console.log('New product added');
 
-            res.render('admin/addproduct',{Smessage:'Products added Successfully!',data:categoryData,currentUrl:req.url});
+            res.render('admin/addproduct', {
+                Smessage: 'Products added successfully!',
+                data: categoryData,
+                currentUrl: req.url
+            });
         });
     } catch (error) {
+        console.error('Error adding product:', error);
         res.status(500).send(error.message);
     }
-}; 
+};
+
 
 
 

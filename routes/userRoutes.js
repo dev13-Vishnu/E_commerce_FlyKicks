@@ -5,6 +5,7 @@ const passport = require('passport');
 require('../helpers/oAuth');
 
 
+
 userRoute.use(passport.initialize());
 userRoute.use(passport.session());
 
@@ -14,6 +15,7 @@ const addressContoller = require("../controllers/addressController");
 const userController = require("../controllers/userController");
 const cartController = require('../controllers/cartController')
 const orderController = require('../controllers/orderController');
+const wishlistController = require('../controllers/whishlistController');
 
 const { isLoggedOut, isLoggedIn } = require("../middlewares/userAuthentication");
 
@@ -87,6 +89,10 @@ userRoute.put('/update-cart',isLoggedIn,cartController.updateQuantity);
 
 //cancel order
 userRoute.post('/cancel-order/:orderId',isLoggedIn,orderController.cancelOrder)
+
+//wishlist
+userRoute.get('/wishlist',isLoggedIn,wishlistController.loadWishlist)
+userRoute.get('/product/add-to-wishlist',isLoggedIn,wishlistController.addToWishlist);
 
 module.exports = userRoute;
  
