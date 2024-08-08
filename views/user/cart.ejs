@@ -597,7 +597,7 @@
                                                 <tr class="cart-item" id="cart-item-<%=product.productId._id %>-<%=product.size%>"
                                                 data-stock="<%=product.productId.stock[product.size] %>">
                                             
-                                        <td class="image product-thumbnail"><img src="<%=product.productId.image[1].replace(/\\/g, '/') %>" alt="#"></td>
+                                        <td class="image product-thumbnail"><img src="<%=product.productId.image[0].replace(/\\/g, '/') %>" alt="#"></td>
                                         <td class="product-des product-name">
                                             <h5 class="product-name"><a href="/product/detail?id=<%= product.productId._id %>"><%=product.productId.name %></a></h5>
                                             <p class="font-xs">Size : <%=product.size%>

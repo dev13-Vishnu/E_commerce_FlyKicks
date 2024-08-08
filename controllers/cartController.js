@@ -6,97 +6,76 @@ const Address = require('../models/addressModel');
 
 
 
+const addToCart = async (req, res) => {
+  const { productId, size, quantity } = req.body;
+  const userId = req.session.user._id;
 
-const addToCart= async(req,res) =>{
-    const { productId, size, quantity} = req.body;
-    const userId = req.session.user._id;
-    
-    if(!productId || !size) {
-      return res.status(400).send('Product ID and size are reauiresd.');
-  
-    }
-    
-    try {
-      const product = await Product.findById(productId);
-  
-      console.log('usecontroll.addToCart product:',product);
-      
-      if(!product) {
-        return res.status(404).send('Produt or size not found.');
-      }
-      
-      const productTotalPrice = product.promo_price*quantity;
-  
-       const cart = await Cart.findOne({ userId });
-  
-       if (cart) {
-        const existingProductIndex = cart.products.findIndex(
-        (p) => p.productId.toString() === productId && p.size === size
-        );
-  
-        if (existingProductIndex !== -1) {
-          cart.products[existingProductIndex].quantity += parseInt(quantity);
-          cart.products[existingProductIndex].total_price += productTotalPrice;
-        } else {
-          cart.products.push({
-            productId : product._id,
-            size,
-            quantity,
-            total_price: productTotalPrice
-          });
-        }
-  
-        const newTotal = cart.products.reduce((sum,product) => sum +product.total_price,0);
-        cart.total= newTotal;
-  
-        await cart.save();
-  
-  
-       } else {
-        await Cart.create({
-          userId,
-          products:[
-            {
-              productId: product._id,
-              size,
-              quantity,
-              total_price: productTotalPrice,
-            },
-          ],
-          total: productTotalPrice,
-        });
-       }
-      
-  
-      // await Cart.updateOne(
-      //   {userId},
-      //   {
-      //     $push: {
-      //       products: {
-      //         productId: product._id,
-      //         size,
-      //         quantity,
-      //         total_price: product.promo_price*quantity,
-      //       },
-      //     },
-      //   },
-      //   {upsert:true}
-      // );
-      //  // Recalculate the total sum of total_price for all products in the cart
-      //  const newTotal = cart.products.reduce((sum, product) => sum + product.total_price, 0);
-   
-      //  await Cart.updateOne(
-      //    { userId },
-      //    { $set: { total: newTotal } }
-      //  );
-      res.status(200).send('Product added to Cart.');
-  
-  
-    } catch (error) {
-      console.log('Error from cartController.addToCart:',error);
-      res.status(500).send('Server error.');
-    }
+  if (!productId || !size) {
+      return res.status(400).send('Product ID and size are required.');
   }
+
+  try {
+      const product = await Product.findById(productId);
+
+      if (!product) {
+          return res.status(404).send('Product or size not found.');
+      }
+
+      const productTotalPrice = product.promo_price * quantity;
+
+      const cart = await Cart.findOne({ userId });
+
+      if (cart) {
+        // console.log ('cart controller add to cart Current cart products;',cart.products.map(p => ({
+        //   productId : p.productId.toString(),
+        //   size: p.size
+          
+        // })))
+          const existingProductIndex = cart.products.findIndex(
+              (p) => p.productId.toString() === productId.toString() && p.size.toString() === size.toString()
+            
+          );
+          
+          // console.log('cart controllerl addToCart Current cart products:', cart.products);
+
+          if (existingProductIndex !== -1) {
+              cart.products[existingProductIndex].quantity += parseInt(quantity);
+              cart.products[existingProductIndex].total_price += productTotalPrice;
+          } else {
+              cart.products.push({
+                  productId: product._id,
+                  size,
+                  quantity,
+                  total_price: productTotalPrice
+              });
+          }
+
+          const newTotal = cart.products.reduce((sum, product) => sum + product.total_price, 0);
+          cart.total = newTotal;
+
+          await cart.save();
+      } else {
+          await Cart.create({
+              userId,
+              products: [
+                  {
+                      productId: product._id,
+                      size,
+                      quantity,
+                      total_price: productTotalPrice,
+                  },
+              ],
+              total: productTotalPrice,
+          });
+      }
+
+      res.status(200).send('Product added to Cart.');
+  } catch (error) {
+      console.log('Error from cartController.addToCart:', error);
+      res.status(500).send('Server error.');
+  }
+};
+
   
   const loadCart = async (req,res) =>{
   

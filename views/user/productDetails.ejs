@@ -473,7 +473,8 @@
                                             </div>
                                             <div class="product-extra-link2">
                                               <button type="button" id="add-to-cart-btn" class="button button-add-to-cart" >Add to cart</button>
-                                              <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                                              <a aria-label="Add To Wishlist" class="action-btn hover-up add-to-wishlist" 
+                                              data-product-id = "<%=product._id %>"><i class="fi-rs-heart"></i></a>
                                             </div>
                                           </div>
                                           <ul class="product-meta font-xs color-grey mt-50">
@@ -670,7 +671,8 @@
                                                         <div class="product-action-1">
                                                             <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal
     "><i class="fi-rs-search"></i></a>
-                                                            <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
+                                                            <a aria-label="Add To Wishlist" class="action-btn hover-up add-to-wishlist" 
+                                                            data-product-id = "<%=product._id %>" tabindex="0"><i class="fi-rs-heart"></i></a>
                                                             <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
                                                         </div>
                                                         <div class="product-badges product-badges-position product-badges-mrg">
@@ -854,6 +856,36 @@
 });
 
 </script>
+//add to wishlist
+    <script>
+      document.addEventListener('DOMContentLoaded',() => {
+        const wishlistButtons = document.querySelectorAll('.add-to-wishlist');
+
+        wishlistButtons.forEach(button => {
+          button.addEventListener('click',async (event) => {
+            event.preventDefault();
+            const productId = event.target.closest('.add-to-wishlist').dataset.productId;
+            try {
+              const response = await fetch('/wishlist/add',{
+                method : 'POST',
+                headers : {
+                  'Content-Type' : 'application/json'
+                },
+                body: JSON.stringify({productId})
+              });
+              if (response) {
+                alert('Product added to wishlist');
+              } else {
+                alert('Failed to add product to wishlist');
+              }
+            } catch (error) {
+              console.error('Error:',error);
+              alert('An error occured');
+            }
+          })
+        })
+      })
+    </script>
 
 
 

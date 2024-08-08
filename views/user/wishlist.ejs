@@ -674,71 +674,46 @@
                                     <tr class="main-heading">
                                         <th scope="col" colspan="2">Product</th>
                                         <th scope="col">Price</th>
-                                        <th scope="col">Stock Status</th>
                                         <th scope="col">Action</th>
                                         <th scope="col">Remove</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td class="image product-thumbnail"><img src="/user/assets/imgs/shop/product-1-1.jpg"
-                                                alt="#"></td>
-                                        <td class="product-des product-name">
-                                            <h5 class="product-name"><a href="shop-product-right.html">J.Crew Mercantile
-                                                    Women's Short-Sleeve</a></h5>
-                                            <p class="font-xs">Maboriosam in a tonto nesciung eget<br> distingy
-                                                magndapibus.
-                                            </p>
-                                        </td>
-                                        <td class="price" data-title="Price"><span>$65.00 </span></td>
-                                        <td class="text-center" data-title="Stock">
-                                            <span class="color3 font-weight-bold">In Stock</span>
-                                        </td>
-                                        <td class="text-right" data-title="Cart">
-                                            <button class="btn btn-sm"><i class="fi-rs-shopping-bag mr-5"></i>Add to
-                                                cart</button>
-                                        </td>
-                                        <td class="action" data-title="Remove"><a href="#"><i
-                                                    class="fi-rs-trash"></i></a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="image"><img src="/user/assets/imgs/shop/product-2-1.jpg" alt="#"></td>
-                                        <td class="product-des">
-                                            <h5 class="product-name"><a href="shop-product-right.html">Amazon Essentials
-                                                    Women's Tank</a></h5>
-                                            <p class="font-xs">Sit at ipsum amet clita no est,<br> sed amet sadipscing
-                                                et gubergren</p>
-                                        </td>
-                                        <td class="price" data-title="Price"><span>$75.00 </span></td>
-                                        <td class="text-center" data-title="Stock">
-                                            <span class="color3 font-weight-bold">In Stock</span>
-                                        </td>
-                                        <td class="text-right" data-title="Cart">
-                                            <button class="btn btn-sm"><i class="fi-rs-shopping-bag mr-5"></i>Add to
-                                                cart</button>
-                                        </td>
-                                        <td class="action" data-title="Remove"><a href="#"><i
-                                                    class="fi-rs-trash"></i></a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="image"><img src="/user/assets/imgs/shop/product-3-1.jpg" alt="#"></td>
-                                        <td class="product-des">
-                                            <h5 class="product-name"><a href="shop-product-right.html">Amazon Brand -
-                                                    Daily Ritual Women's Jersey </a></h5>
-                                            <p class="font-xs">Erat amet et et amet diam et et.<br> Justo amet at dolore
-                                            </p>
-                                        </td>
-                                        <td class="price" data-title="Price"><span>$62.00 </span></td>
-                                        <td class="text-center" data-title="Stock">
-                                            <span class="text-danger font-weight-bold">Out of stock</span>
-                                        </td>
-                                        <td class="text-right" data-title="Cart">
-                                            <button class="btn btn-sm btn-secondary"><i
-                                                    class="fi-rs-headset mr-5"></i>Contact Us</button>
-                                        </td>
-                                        <td class="action" data-title="Remove"><a href="#"><i
-                                                    class="fi-rs-trash"></i></a></td>
-                                    </tr>
+                                    <% if (wishlist.length > 0) { %>
+                                        <% wishlist.forEach(item => { %>
+                                            <tr>
+                                                <td class="image product-thumbnail">
+                                                    <img src="/<%= item.productId.image[0].replace(/\\/g, '/') %>" alt="#">
+                                                </td>
+                                                <td class="product-des product-name">
+                                                    <h5 class="product-name">
+                                                        <a href="/product/detail?id=<%= item.productId._id %>">
+                                                            <%= item.productId.name %>
+                                                        </a>
+                                                    </h5>
+                                                    
+                                                </td>
+                                                <td class="price" data-title="Price">
+                                                    <span>₹<%= item.productId.promo_price %>/-</span>
+                                                </td>
+                                                
+                                                <td class="text-right" data-title="Cart">
+                                                    <button class="btn btn-sm" onclick="addToCart('<%= item.productId._id %>')">
+                                                        <i class="fi-rs-shopping-bag mr-5"></i>Add to cart
+                                                    </button>
+                                                </td>
+                                                <td class="action" data-title="Remove">
+                                                    <a href="#" onclick="removeFromWishlist('<%= item.productId._id %>')">
+                                                        <i class="fi-rs-trash"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="6">No items in wishlist</td>
+                                        </tr>
+                                    <% } %>
                                 </tbody>
                             </table>
                         </div>
@@ -747,7 +722,8 @@
             </div>
         </section>
     </main>
-    <footer class="main">
+    <%-include('./layouts/footer.ejs') %>
+    <!-- <footer class="main">
         <section class="newsletter p-30 text-white wow fadeIn animated">
             <div class="container">
                 <div class="row align-items-center">
@@ -764,12 +740,12 @@
                         </div>
                     </div>
                     <div class="col-lg-5">
-                        <!-- Subscribe Form -->
+                        <!-- Subscribe Form 
                         <form class="form-subcriber d-flex wow fadeIn animated">
                             <input type="email" class="form-control bg-white font-small" placeholder="Enter your email">
                             <button class="btn bg-dark text-white" type="submit">Subscribe</button>
                         </form>
-                        <!-- End Subscribe Form -->
+                        <!-- End Subscribe Form 
                     </div>
                 </div>
             </div>
@@ -862,7 +838,7 @@
                 </div>
             </div>
         </div>
-    </footer>
+    </footer> -->
     <!-- Preloader Start -->
     <div id="preloader-active">
         <div class="preloader d-flex align-items-center justify-content-center">
@@ -900,6 +876,50 @@
     <!-- Template  JS -->
     <script src=".//user/assets/js/main.js?v=3.4"></script>
     <script src=".//user/assets/js/shop.js?v=3.4"></script>
+    <script>
+        function removeFromWishlist(productId) {
+            fetch('/wishlist/remove',{
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({productId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.message === 'Item removed from wishlist') {
+                    window.location.reload();
+                }else{
+                    alert('Failed to remove item from wishlist');
+                }
+            })
+            .catch(error => console.error('Error:',error));
+        }
+    </script>
+    //add to cart
+    <script>
+        function addToCart(productId) {
+            const size = 8;//specify the size you want to add to the cart
+            const quantity = 1;
+
+            fetch('/cart/add',{
+                method:'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({productId,size,quantity})
+            })
+            .then(response => {
+                if (response.ok) {
+                window.location.href = '/cart';
+
+            } else {
+                return response.text().then(text => { throw new Error(text) });
+            }
+            })
+            .catch(error => console.error('Error:'.error));
+        }
+    </script>
 </body>
 
 </html>

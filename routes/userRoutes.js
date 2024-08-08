@@ -15,7 +15,7 @@ const addressContoller = require("../controllers/addressController");
 const userController = require("../controllers/userController");
 const cartController = require('../controllers/cartController')
 const orderController = require('../controllers/orderController');
-const wishlistController = require('../controllers/whishlistController');
+const wishlistController = require('../controllers/wishlistController');
 
 const { isLoggedOut, isLoggedIn } = require("../middlewares/userAuthentication");
 
@@ -93,6 +93,7 @@ userRoute.post('/cancel-order/:orderId',isLoggedIn,orderController.cancelOrder)
 //wishlist
 userRoute.get('/wishlist',isLoggedIn,wishlistController.loadWishlist)
 userRoute.post('/wishlist/add',isLoggedIn,wishlistController.addToWishlist);
+userRoute.delete('/wishlist/remove',isLoggedIn,wishlistController.removeFromWishlist);
 
 module.exports = userRoute;
  

@@ -678,8 +678,7 @@
                               ></a>
                               <a
                                 aria-label="Add To Wishlist"
-                                class="action-btn hover-up add-to-wishlist"
-                                href="/product/add-to-wishlist?productId=<%=product._id %>"
+                                class="action-btn hover-up add-to-wishlist" 
                                 data-product-id = "<%=product._id %>"
                                 ><i class="fi-rs-heart"></i
                               ></a>
@@ -719,7 +718,7 @@
                               <a
                                 aria-label="Add To Cart"
                                 class="action-btn hover-up"
-                                href="shop-cart.html"
+                                onclick="addToCart('<%= product._id %>')"
                                 ><i class="fi-rs-shopping-bag-add"></i
                               ></a>
                             </div>
@@ -1984,6 +1983,7 @@
         // Persist the selected sort option
         document.getElementById('sortSelect').value = '<%= sortQuery %>';
     </script>
+    //add to wishlist
     <script>
       document.addEventListener('DOMContentLoaded',() => {
         const wishlistButtons = document.querySelectorAll('.add-to-wishlist');
@@ -1993,7 +1993,7 @@
             event.preventDefault();
             const productId = event.target.closest('.add-to-wishlist').dataset.productId;
             try {
-              const response = await fetch('/wishlist/add'{
+              const response = await fetch('/wishlist/add',{
                 method : 'POST',
                 headers : {
                   'Content-Type' : 'application/json'
@@ -2012,6 +2012,30 @@
           })
         })
       })
+    </script>
+    //add to cart
+    <script>
+        function addToCart(productId) {
+            const size = 8;//specify the size you want to add to the cart
+            const quantity = 1;
+
+            fetch('/cart/add',{
+                method:'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({productId,size,quantity})
+            })
+            .then(response => {
+                if (response.ok) {
+                window.location.href = '/cart';
+
+            } else {
+                return response.text().then(text => { throw new Error(text) });
+            }
+            })
+            .catch(error => console.error('Error:'.error));
+        }
     </script>
 
     </body>
