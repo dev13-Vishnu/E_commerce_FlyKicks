@@ -1,7 +1,7 @@
 const User = require('../models/userModel');
 const Product = require('../models/productModel');
 const Cart = require('../models/cartModel');
-const Whishlist = require('../models/whishlistModel');
+const Wishlist = require('../models/whishlistModel');
 
 const loadWishlist = async (req,res) => {
     try {
@@ -22,9 +22,10 @@ const loadWishlist = async (req,res) => {
 
 const addToWishlist = async(req,res) => {
     try {
-        console.log('add to wishlist Contorller');
-        console.log('wishlistcontreller addtoWishlist req.query.productId',req.query.productId);
-        res.send('added to wishlist')
+        const {productId} = req.body;
+        const userId = req.session.user._id;
+
+        let wishlist = await Wishlist.findOne({userId})
     } catch (error) {
         console.log('Error from WishlistController addToWishlist',error);
     }

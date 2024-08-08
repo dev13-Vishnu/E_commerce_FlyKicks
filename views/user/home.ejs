@@ -678,8 +678,9 @@
                               ></a>
                               <a
                                 aria-label="Add To Wishlist"
-                                class="action-btn hover-up"
+                                class="action-btn hover-up add-to-wishlist"
                                 href="/product/add-to-wishlist?productId=<%=product._id %>"
+                                data-product-id = "<%=product._id %>"
                                 ><i class="fi-rs-heart"></i
                               ></a>
                               <a
@@ -1982,6 +1983,35 @@
       <script>
         // Persist the selected sort option
         document.getElementById('sortSelect').value = '<%= sortQuery %>';
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded',() => {
+        const wishlistButtons = document.querySelectorAll('.add-to-wishlist');
+
+        wishlistButtons.forEach(button => {
+          button.addEventListener('click',async (event) => {
+            event.preventDefault();
+            const productId = event.target.closest('.add-to-wishlist').dataset.productId;
+            try {
+              const response = await fetch('/wishlist/add'{
+                method : 'POST',
+                headers : {
+                  'Content-Type' : 'application/json'
+                },
+                body: JSON.stringify({productId})
+              });
+              if (response) {
+                alert('Product added to wishlist');
+              } else {
+                alert('Failed to add product to wishlist');
+              }
+            } catch (error) {
+              console.error('Error:',error);
+              alert('An error occured');
+            }
+          })
+        })
+      })
     </script>
 
     </body>

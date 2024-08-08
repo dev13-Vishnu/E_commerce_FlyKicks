@@ -92,7 +92,7 @@ userRoute.post('/cancel-order/:orderId',isLoggedIn,orderController.cancelOrder)
 
 //wishlist
 userRoute.get('/wishlist',isLoggedIn,wishlistController.loadWishlist)
-userRoute.get('/product/add-to-wishlist',isLoggedIn,wishlistController.addToWishlist);
+userRoute.post('/wishlist/add',isLoggedIn,wishlistController.addToWishlist);
 
 module.exports = userRoute;
  
