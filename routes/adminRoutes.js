@@ -6,6 +6,7 @@ const adminController = require('../controllers/adminController');
 const productController = require('../controllers/productController');
 const categoryController = require('../controllers/categoryController');
 const ordersListcontroller = require('../controllers/orderListController');
+const couponController = require('../controllers/couponController');
 
 adminRoutes.get('/',auth.isLogout,adminController.login);
 adminRoutes.post('/',auth.isLogout,adminController.verifyLogin);
@@ -40,5 +41,7 @@ adminRoutes.get('/orders-list',auth.isLogin,ordersListcontroller.loadOrdersList)
 adminRoutes.get('/order-details',auth.isLogin,ordersListcontroller.loadOrderDetails)
 adminRoutes.post('/cancel-order',auth.isLogin,ordersListcontroller.cancelOrder)
 
-
+//coupons
+adminRoutes.get('/coupons',auth.isLogin,couponController.loadCouponsPage)
+adminRoutes.get('/addcoupons',auth.isLogin,couponController.loadAddcouponPage);
 module.exports = adminRoutes;
