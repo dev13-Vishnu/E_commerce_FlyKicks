@@ -131,85 +131,7 @@ const addToCart = async (req, res) => {
     }
   };
 
-  const loadCheckout = async(req,res) =>{ 
-    try {
-      const searchQuery = req.query.q;
-      const sortQuery = req.query.sort;
-
-      const userId = req.session.user._id;
-      const addressData = await Address.find({userId});
-      const userData = await User.findById(userId);
-      const cart = await Cart.findOne({userId}).populate('products.productId')
-
-      
-      console.log('cartControl.loadCheckout cart:',cart);
-      res.render('user/checkout',{
-        userData,
-        cart,
-        addressData,
-        searchQuery,
-        sortQuery
-      });
-    } catch (error) {
-      
-      console.log('Error from cartController.loadCheckout',error);
-    }
-  }
-
-  const placeOrderCOD = async (req,res) =>{
-    try {
-      const userId = req.session.user._id;
-      const {selectedAddress,payment_method,index}= req.body;
-
-      
-      // const user = User.findById(userId);
-      const addressDoc = await Address.findOne({userId,'address._id':selectedAddress},{'address.$': 1});
-      
-      const address = addressDoc.address[0]
-      console.log('cartControler place order address:',address)
-      //Fetch the user's cart
-      const cart = await Cart.findOne({userId}).populate('products.productId');
-      if(!cart) {
-        return res.status(404).send('Cart not found');
-
-      }
-
-      const orderData = {
-        userId,
-        address,
-        products: cart.products.map(product => ({
-          productId: product.productId._id,
-          size: product.size,
-          quantity: product.quantity,
-          productPrice: product.total_price,
-        })),
-        totalPrice: cart.total + 50,
-        payment_method,
-        payment_status: 'Failed',
-      };
-
-      
-      
-
-      const order = new Order(orderData);
-      await order.save();
-
-      for(const product of cart.products) {
-        const updateField = `stock.${product.size}`;
-        await Product.findByIdAndUpdate(product.productId._id,{
-          $inc:{[updateField]:-product.quantity},
-        });
-      }
-      await Cart.findOneAndDelete({userId});
-      res.status(200).json({ success: true, message: 'Order placed successfully', order });
-
-
-    } catch (error) {
-      console.error('Error during checkout:', error);
-      res.status(500).json({ success: false, message: 'Failed to place order' });
-    }
-  }
-
+  
   const loadOrderConfirmation = async (req,res) => {
     try {
       res.send('order confirmation page');
@@ -265,8 +187,6 @@ const addToCart = async (req, res) => {
   addToCart,
   loadCart,
   removeItemsFromCart,
-  loadCheckout,
-  placeOrderCOD,
   loadOrderConfirmation,
   updateQuantity
   }

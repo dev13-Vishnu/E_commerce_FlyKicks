@@ -950,7 +950,7 @@
                                         
                                         <tr>
                                             <th>SubTotal</th>
-                                            <td class="product-subtotal" colspan="2">₹<%=cart.total %>/-</td>
+                                            <td class="product-subtotal" colspan="2">₹c/-</td>
                                         </tr>
                                         <tr>
                                             <th>Shipping</th>
@@ -992,16 +992,18 @@
                                             <p class="text-muted mt-5">Please send your cheque to Store Name, Store
                                                 Street, Store Town, Store State / County, Store Postcode. </p>
                                         </div>
-                                    </div>
+                                    </div>-->
                                     <div class="custome-radio">
                                         <input class="form-check-input" required="" type="radio" name="payment_option"
-                                            id="exampleRadios5" checked="">
+                                            id="exampleRadios5"
+                                            value="Razor Pay" 
+                                            checked="">
                                         <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse"
-                                            data-target="#paypal" aria-controls="paypal">Paypal</label>
+                                            data-target="#paypal" aria-controls="paypal">Razor Pay</label>
                                         <div class="form-group collapse in" id="paypal">
                                             <p class="text-muted mt-5">Pay via PayPal; you can pay with your credit card
                                                 if you don't have a PayPal account.</p>
-                                        </div> -->
+                                        </div> 
                                     </div>
                                 </div>
                             </div>
@@ -1190,9 +1192,11 @@ return valid;
                     alert('Please select a billling address before plaicng your order.');
                     return;
                 }
+                
                 const orderData = {
                     selectedAddress : selectedAddress.value,
-                    payment_method
+                    payment_method,
+                    total_amount : '<%=cart.total+50 %>'
                 }
                 // const address = {
                 //     name: document.querySelector('#addressName').value,
@@ -1201,8 +1205,14 @@ return valid;
                 //     city: document.querySelector('#addressCity').value,
                 //     street: document.querySelector('#addressStreet').value
                 // };
+
+                let endpoint  = '/place-order-cod';
+                if(payment_method === 'Razor Pay') {
+                    endpoint = '/place-order-razorpay'
+                }
                 try {
-                    const response = await fetch(`/place-order${payment_method}`,{
+                    console.log('orderData:',orderData)
+                    const response = await fetch(endpoint,{
                         method:'POST',
                         headers: {
                             'Content-Type':'application/json'
@@ -1210,10 +1220,17 @@ return valid;
                         body: JSON.stringify(orderData)
                     });
                     const result = await response.json();
+                    console.log('result:',result);
                     if (result.success) {
+                        if (payment_method === 'Razor pay' && result.paymentUrl) {
+                            //Redirect to the Razorpay payment page if provided in the response
+                            window.location.href = result.paymentUrl;
+                        } else {
                         alert('Order placed successfully!');
                         // Update the UI to reflect the placed order, e.g., redirect to an order confirmation page
                         window.location.href = '/account';
+                        
+                        }
                     } else {
                         alert('Failed to place order: ' + result.message);
                     }

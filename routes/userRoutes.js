@@ -82,8 +82,7 @@ userRoute.post('/reset-password',isLoggedOut,userController.resetPassword);
 userRoute.post('/cart/add',isLoggedIn,cartController.addToCart);
 userRoute.get('/cart',isLoggedIn,cartController.loadCart);
 userRoute.delete('/cart/remove',isLoggedIn,cartController.removeItemsFromCart);
-userRoute.get('/cart-checkout',isLoggedIn,cartController.loadCheckout);
-userRoute.post('/place-orderCOD',isLoggedIn,cartController.placeOrderCOD);
+userRoute.get('/cart-checkout',isLoggedIn,orderController.loadCheckout);
 userRoute.get('/order-confirmation',isLoggedIn,cartController.loadOrderConfirmation)
 userRoute.put('/update-cart',isLoggedIn,cartController.updateQuantity);
 
@@ -94,6 +93,10 @@ userRoute.post('/cancel-order/:orderId',isLoggedIn,orderController.cancelOrder)
 userRoute.get('/wishlist',isLoggedIn,wishlistController.loadWishlist)
 userRoute.post('/wishlist/add',isLoggedIn,wishlistController.addToWishlist);
 userRoute.delete('/wishlist/remove',isLoggedIn,wishlistController.removeFromWishlist);
+
+//order routes
+userRoute.post('/place-order-cod',isLoggedIn,orderController.placeOrderCOD);
+userRoute.post('/place-order-razorpay',isLoggedIn,orderController.placeOrderRazorPay)
 
 module.exports = userRoute;
  
