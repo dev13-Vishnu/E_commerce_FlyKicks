@@ -31,8 +31,8 @@ adminRoutes.get('/user/unblock',auth.isLogin,adminController.userUnblock);
 adminRoutes.post('/addproduct',auth.isLogin,productController.addProduct);
 adminRoutes.get('/products',auth.isLogin,productController.loadProducts);
 adminRoutes.get('/products/edit',auth.isLogin,productController.loadEditProduct);
-adminRoutes.get('/products/add',auth.isLogin,productController.pushToUserSide)
-adminRoutes.get('/products/delete',auth.isLogin,productController.deleteProduct);
+adminRoutes.put('/products/add',auth.isLogin,productController.pushToUserSide)
+adminRoutes.delete('/products/delete',auth.isLogin,productController.deleteProduct);
 adminRoutes.get('/products/edit/remove-image',productController.removeImage);
 adminRoutes.post('/products/edit',productController.editProduct);
 

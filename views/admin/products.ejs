@@ -77,13 +77,13 @@
                             <div class="d-flex px-5 justify-content-between">
                                 <a class="btn btn-sm btn-brand mr-3 rounded" href="products/edit?productId=<%=product._id %>">Edit info</a>
                                 <% if(product.delete){ %>
-                                <a class="btn btn-sm ml-2 btn-success  rounded" href="products/add?productId=<%=product._id %>">Add</a>
+                                <a class="btn btn-sm ml-2 btn-success  rounded" onclick="addProduct('<%=product._id%>')">Add</a>
 
                                     <% }else{ %>
-                                <a class="btn btn-sm ml-2 btn-danger rounded" href="products/delete?productId=<%=product._id %>">Delete</a>
+                                <a class="btn btn-sm ml-2 btn-danger rounded" onclick="deleteProduct('<%=product._id%>')">Delete</a>
                                 <% } %>
                             </div>
-                            </div>
+                            </div>  
                         </div> <!-- card-product  end// -->
                     </div> <!-- col.// -->
                     
@@ -122,6 +122,77 @@
     <script src="/admin/assets/js/vendors/jquery.fullscreen.min.js"></script>
     <!-- Main Script -->
     <script src="/admin/assets/js/main.js" type="text/javascript"></script>
+
+    <!-- sweetalert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- delete and push to userSide -->
+     <script>
+        async function addProduct(productId) {
+    try {
+        const response = await fetch(`products/add?productId=${productId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            // Successfully added product, reload the page or update the UI as needed
+            // window.location.reload();
+            Swal.fire({
+                icon:'success',
+                title: 'Product Added',
+                text: 'The product has been added successfully',
+                confirmButtonText:'OK'
+            }).then(() => {
+                window.location.reload(); //Refresh the page after sweet alert
+            })
+        } else {
+            // const errorData = await response.json();
+            // alert(`Failed to add product: ${errorData.message}`);
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to Add',
+                text: result.message,
+                confirmButtonText:'OK'
+            });
+        }
+    } catch (error) {
+        console.error('Error adding product:', error);
+        Swal.fire({
+            icon: 'error',
+            title:'Error',
+            text: 'An error occured while the product. Please try again',
+            confirmButtonText: 'OK'
+        });
+    }
+}
+
+async function deleteProduct(productId) {
+    try {
+        const response = await fetch(`products/delete?productId=${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            // Successfully deleted product, reload the page or update the UI as needed
+            window.location.reload();
+        } else {
+            const errorData = await response.json();
+            alert(`Failed to delete product: ${errorData.message}`);
+        }
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('An error occurred while deleting the product.');
+    }
+}
+
+     </script>
 </body>
 
 </html>

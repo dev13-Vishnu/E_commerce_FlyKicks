@@ -140,44 +140,40 @@ const loadEditProduct = async (req, res) => {
     }
 };
 
-
-const deleteProduct = async (req,res)=>{
+const deleteProduct = async (req, res) => {
     try {
-        console.log(req.query.productId);
         const saved = await Product.findByIdAndUpdate(
             { _id: req.query.productId },
             { $set: { delete: true } },
             { new: true }
-          )      // user.isBlocked = true;
-        // const saved = await user.save();
-        // console.log(saved); 
-        console.log(saved);
-        if(saved){
-            res.redirect('/admin/products')
+        );
+
+        if (saved) {
+            res.status(200).json({ success: true, message: 'Product deleted successfully' });
         }
     } catch (error) {
-        console.log('error from productController.deleteProduct',error);
+        console.error('Error deleting product:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete product' });
     }
-}
+};
 
-const pushToUserSide = async(req,res)=>{
+const pushToUserSide = async (req, res) => {
     try {
-        console.log(req.query.id);
         const saved = await Product.findByIdAndUpdate(
             { _id: req.query.productId },
             { $set: { delete: false } },
             { new: true }
-          )      // user.isBlocked = true;
-        // const saved = await user.save();
-        // console.log(saved); 
-        console.log(saved);
-        if(saved){
-            res.redirect('/admin/products')
+        );
+
+        if (saved) {
+            res.status(200).json({ success: true, message: 'Product added successfully' });
         }
     } catch (error) {
-        console.log('error from productController.addProduct',error);
+        console.error('Error adding product:', error);
+        res.status(500).json({ success: false, message: 'Failed to add product' });
     }
-}
+};
+
 
 const removeImage = async(req,res) =>{
     try {
