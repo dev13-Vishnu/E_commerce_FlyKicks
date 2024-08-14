@@ -21,7 +21,7 @@ const couponSchema = mongoose.Schema({
         type: Number,
         required: true
     },
-    maximum_order_order: {
+    maximum_order_amount: {
         type: Number,
         required: true
     },

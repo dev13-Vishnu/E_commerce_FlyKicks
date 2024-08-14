@@ -18,6 +18,8 @@
     />
     <!-- Template CSS -->
     <link rel="stylesheet" href="/user/assets/css/main.css?v=3.4" />
+   <!-- sweetalert   -->
+    <!-- <link rel="stylesheet" type="text/css" href="https://common.olemiss.edu/_js/sweet-alert/sweet-alert.css"> -->
     <style>
       .item-name {
             display: inline-block;
@@ -1964,6 +1966,10 @@
       <!-- Template  JS -->
       <script src=".//user/assets/js/main.js?v=3.4"></script>
       <script src=".//user/assets/js/shop.js?v=3.4"></script>
+      <!-- sweetalert -->
+      <!-- <script src="https://common.olemiss.edu/_js/sweet-alert/sweet-alert.min.js"></script> -->
+
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
       //search
       <script>
@@ -1985,33 +1991,51 @@
     </script>
     //add to wishlist
     <script>
-      document.addEventListener('DOMContentLoaded',() => {
-        const wishlistButtons = document.querySelectorAll('.add-to-wishlist');
+      document.addEventListener('DOMContentLoaded', () => {
+    const wishlistButtons = document.querySelectorAll('.add-to-wishlist');
 
-        wishlistButtons.forEach(button => {
-          button.addEventListener('click',async (event) => {
+    wishlistButtons.forEach(button => {
+        button.addEventListener('click', async (event) => {
             event.preventDefault();
             const productId = event.target.closest('.add-to-wishlist').dataset.productId;
             try {
-              const response = await fetch('/wishlist/add',{
-                method : 'POST',
-                headers : {
-                  'Content-Type' : 'application/json'
-                },
-                body: JSON.stringify({productId})
-              });
-              if (response) {
-                alert('Product added to wishlist');
-              } else {
-                alert('Failed to add product to wishlist');
-              }
+                const response = await fetch('/wishlist/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ productId })
+                });
+
+                const result = await response.text();
+
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Added!',
+                        text: result,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Failed to add product to wishlist',
+                    });
+                }
             } catch (error) {
-              console.error('Error:',error);
-              alert('An error occured');
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'An error occurred',
+                });
             }
-          })
-        })
-      })
+        });
+    });
+});
+
     </script>
     //add to cart
     <script>

@@ -32,34 +32,37 @@ const loadWishlist = async (req,res) => {
     }
 }
 
-const addToWishlist = async(req,res) => {
+const addToWishlist = async (req, res) => {
     try {
-        const {productId} = req.body;
+        const { productId } = req.body;
         const userId = req.session.user._id;
-        console.log('wishlistControlle addto wishlist userId',userId);
+        console.log('wishlistController addToWishlist userId', userId);
 
-        let wishlist = await Wishlist.findOne({userId});
-        console.log('wishlistControlle addto wishlist wishlist',wishlist);
+        let wishlist = await Wishlist.findOne({ userId });
+        console.log('wishlistController addToWishlist wishlist', wishlist);
 
-
-        if(!wishlist) {
-            wishlist = new Wishlist({ userId , products: []});
-            
+        if (!wishlist) {
+            wishlist = new Wishlist({ userId, products: [] });
         }
-        //check if the product already exists in the wishlist
+
+        // Check if the product already exists in the wishlist
         const productExists = wishlist.products.some(
-            product => product.productId.toString() ===productId
+            product => product.productId.toString() === productId
         );
-        if(!productExists ){
-            wishlist.products.push({productId: new mongoose.Types.ObjectId(productId)});
+
+        if (productExists) {
+            res.status(200).send('Product already in wishlist');
+        } else {
+            wishlist.products.push({ productId: new mongoose.Types.ObjectId(productId) });
             await wishlist.save();
+            res.status(200).send('Product added to wishlist');
         }
-        res.status(200).send('Product added to wishlist');
     } catch (error) {
-        console.log('Error from WishlistController addToWishlist',error);
+        console.log('Error from WishlistController addToWishlist', error);
         res.status(500).send('Server error');
     }
-}
+};
+
 
 const removeFromWishlist = async (req, res) => {
     try {

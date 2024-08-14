@@ -44,4 +44,5 @@ adminRoutes.post('/cancel-order',auth.isLogin,ordersListcontroller.cancelOrder)
 //coupons
 adminRoutes.get('/coupons',auth.isLogin,couponController.loadCouponsPage)
 adminRoutes.get('/addcoupons',auth.isLogin,couponController.loadAddcouponPage);
+adminRoutes.post('/addcoupons',auth.isLogin,couponController.addCoupon);
 module.exports = adminRoutes;

@@ -101,10 +101,7 @@ const loadCheckout = async(req,res) =>{
           $inc:{[updateField]:-product.quantity},
         });
       }
-
-      //clear the cart here
       await Cart.findOneAndDelete({userId});
-      
       res.status(200).json({ success: true, message: 'Order placed successfully', order });
 
 

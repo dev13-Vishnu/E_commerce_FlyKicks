@@ -973,7 +973,7 @@
                                 <div class="payment_option">
                                     <div class="custome-radio">
                                         <input class="form-check-input" required="" type="radio" name="payment_option"
-                                        value="COD"
+                                        value="cod"
                                             id="exampleRadios3" checked="">
                                         <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse"
                                             data-target="#bankTranfer" aria-controls="bankTranfer">Cash on Delivery</label>
@@ -996,7 +996,7 @@
                                     <div class="custome-radio">
                                         <input class="form-check-input" required="" type="radio" name="payment_option"
                                             id="exampleRadios5"
-                                            value="Razor Pay" 
+                                            value="razorpay" 
                                             checked="">
                                         <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse"
                                             data-target="#paypal" aria-controls="paypal">Razor Pay</label>
@@ -1178,6 +1178,7 @@ return valid;
         
     </script>
     <script>
+        var cartId = '<%=cart._id%>'
         document.addEventListener('DOMContentLoaded',() => {
             const placeOrderButton = document.querySelector('.btn-place-order');
             placeOrderButton.addEventListener('click',async(event) =>{
@@ -1186,17 +1187,19 @@ return valid;
                 const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
                 // const userId = '<%=userData._id%>';
 
+                const totalPrice = document.getElementById('subtotal').textContent();
+
                 const payment_method = document.querySelector('input[name="payment_option"]:checked').value;
 
                 if(!selectedAddress){
                     alert('Please select a billling address before plaicng your order.');
                     return;
                 }
-                
                 const orderData = {
+                    cartId,
                     selectedAddress : selectedAddress.value,
                     payment_method,
-                    total_amount : '<%=cart.total+50 %>'
+                    totalPrice
                 }
                 // const address = {
                 //     name: document.querySelector('#addressName').value,
@@ -1205,14 +1208,9 @@ return valid;
                 //     city: document.querySelector('#addressCity').value,
                 //     street: document.querySelector('#addressStreet').value
                 // };
-
-                let endpoint  = '/place-order-cod';
-                if(payment_method === 'Razor Pay') {
-                    endpoint = '/place-order-razorpay'
-                }
+                if(payment_method ==='cod') {
                 try {
-                    console.log('orderData:',orderData)
-                    const response = await fetch(endpoint,{
+                    const response = await fetch(`/place-order-cod`,{
                         method:'POST',
                         headers: {
                             'Content-Type':'application/json'
@@ -1220,17 +1218,10 @@ return valid;
                         body: JSON.stringify(orderData)
                     });
                     const result = await response.json();
-                    console.log('result:',result);
                     if (result.success) {
-                        if (payment_method === 'Razor pay' && result.paymentUrl) {
-                            //Redirect to the Razorpay payment page if provided in the response
-                            window.location.href = result.paymentUrl;
-                        } else {
                         alert('Order placed successfully!');
                         // Update the UI to reflect the placed order, e.g., redirect to an order confirmation page
                         window.location.href = '/account';
-                        
-                        }
                     } else {
                         alert('Failed to place order: ' + result.message);
                     }
@@ -1238,6 +1229,57 @@ return valid;
                     console.error('Error placing order:', error);
                     alert('An error occurred while placing the order. Please try again.');
                     
+                }
+                }
+                if(payment_method === "razorpay") {
+                    try {
+                        const rezorpayResponse = await fetch('/place-order-razorpay',{
+                            method:'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body:JSON.stringify({
+                                amount: orderData.totalPrice * 100,
+                            })
+                        });
+                        if(razorpayResponse.ok) {
+                            const rezorpayData = await razorpayrResponse.json();
+                            var orderId = razorpadData.orderId;
+                            
+                            //Construct options for razorpay payment
+                            var options = {
+                                "key" :"rzp_test_PzzQcMyTJaFFpy",
+                                "amount":orderData.totalPride *100,
+                                "currency":"INR",
+                                "name": "Fly_kickz",
+                                "description": "Test Transaction",
+                                "image":"/user/assets/imgs/theme/FLY_KICKS_gold_crropped.png",
+                                "order_id": orderId,
+                                "handler":function(response) {
+                                    verifyPayment(response,razorpayData)
+                                },
+                                "prefill": {
+                                    "name": "Gaurav Kumar",
+                                    "email": "gaurav.kumar@example.com",
+                                    "contact": "9000090000"
+                                },
+                                "notes": {
+                                    "address": "Razorpay Corporate Office"
+                                },
+                                "theme": {
+                                    "color": "#3399cc" // Customize the color scheme
+                                },
+                                "modal": {
+                                    "ondismiss":function() {
+
+                                    }
+                                }
+                                
+                            }
+                        }
+                    } catch (error) {
+                        
+                    }
                 }
             });
         });
