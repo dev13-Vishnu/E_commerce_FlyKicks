@@ -2039,27 +2039,40 @@
     </script>
     //add to cart
     <script>
-        function addToCart(productId) {
-            const size = 8;//specify the size you want to add to the cart
-            const quantity = 1;
-
-            fetch('/cart/add',{
-                method:'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({productId,size,quantity})
-            })
-            .then(response => {
-                if (response.ok) {
-                window.location.href = '/cart';
-
-            } else {
-                return response.text().then(text => { throw new Error(text) });
-            }
-            })
-            .catch(error => console.error('Error:'.error));
-        }
+    function addToCart(productId) {
+      const size = 8; // Specify the size you want to add to the cart
+      const quantity = 1;
+  
+      fetch('/cart/add', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ productId, size, quantity })
+      })
+      .then(response => {
+          if (response.ok) {
+              Swal.fire({
+                  title: 'Success!',
+                  text: 'Product has been added to your cart.',
+                  icon: 'success',
+                  showConfirmButton: false
+              });
+          } else {
+              return response.text().then(text => { throw new Error(text) });
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          Swal.fire({
+              title: 'Error!',
+              text: 'There was an error adding the product to your cart. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'Close'
+          });
+      });
+  }
+  
     </script>
 
     </body>

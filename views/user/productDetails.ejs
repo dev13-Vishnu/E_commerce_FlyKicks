@@ -763,7 +763,6 @@
     const qtyDown = document.getElementById("qty-down");
     const qtyValElement = document.getElementById('qty-val');
     const availabilityElement = document.getElementById('availability');
-    const qtyMessageElement = document.getElementById('qty-message');
     let selectedSizeQuantity = 0;
 
     addToCartButton.style.display = 'none';
@@ -773,7 +772,7 @@
         option.addEventListener('click', function (event) {
             event.preventDefault();
             selectedSizeQuantity = parseInt(this.getAttribute('data-quantity'), 10);
-            if (selectedSizeQuantity == 0) {
+            if (selectedSizeQuantity === 0) {
                 availabilityElement.textContent = `Sold Out`;
                 availabilityElement.classList.add('out-of-stock');
                 availabilityElement.classList.remove('in-stock');
@@ -800,9 +799,23 @@
         let currentQuantity = parseInt(qtyValElement.textContent, 10);
         if (currentQuantity < 10 && currentQuantity < selectedSizeQuantity) {
             qtyValElement.textContent = currentQuantity + 1;
-            qtyMessageElement.textContent = '';
+            Swal.fire({
+                icon: 'success',
+                title: 'Quantity updated',
+                text: `Added one more item to your selection.`,
+                toast: true,
+                position: 'top-end',
+                timer: 1500,
+                showConfirmButton: false
+            });
         } else {
-            qtyMessageElement.textContent = `You can only add up to ${Math.min(10, selectedSizeQuantity)} items.`;
+            const maxQuantity = Math.min(10, selectedSizeQuantity);
+            qtyValElement.textContent = maxQuantity;
+            Swal.fire({
+                icon: 'warning',
+                title: 'Limit reached',
+                text: `Quantity cannot exceed ${maxQuantity}. It has been adjusted to the maximum allowed.`,
+            });
         }
     });
 
@@ -811,24 +824,42 @@
         let currentQuantity = parseInt(qtyValElement.textContent, 10);
         if (currentQuantity > 1) {
             qtyValElement.textContent = currentQuantity - 1;
-            qtyMessageElement.textContent = '';
+            Swal.fire({
+                icon: 'success',
+                title: 'Quantity updated',
+                text: `Removed one item from your selection.`,
+                toast: true,
+                position: 'top-end',
+                timer: 1500,
+                showConfirmButton: false
+            });
         } else {
-            qtyMessageElement.textContent = 'Quantity cannot be less than 1.';
+            Swal.fire({
+                icon: 'warning',
+                title: 'Minimum quantity',
+                text: 'Quantity cannot be less than 1.',
+            });
         }
     });
 
     addToCartButton.addEventListener('click', function () {
         const productId = '<%= product._id %>';
         const selectedSize = document.querySelector('.size-option.selected').textContent.trim();
-        const chosenQuantity = qtyValElement.textContent.trim();
+        const chosenQuantity = parseInt(qtyValElement.textContent.trim(), 10);
 
         if (!selectedSize) {
-            alert('Please select a size.');
+            Swal.fire('Please select a size.');
             return;
         }
-        
-        if (chosenQuantity > 10 || chosenQuantity > selectedSizeQuantity) {
-            qtyMessageElement.textContent = `Quantity cannot exceed ${Math.min(10, selectedSizeQuantity)}.`;
+
+        const maxQuantity = Math.min(10, selectedSizeQuantity);
+        if (chosenQuantity > maxQuantity) {
+            qtyValElement.textContent = maxQuantity;
+            Swal.fire({
+                icon: 'warning',
+                title: 'Quantity limit exceeded',
+                text: `Quantity cannot exceed ${maxQuantity}. It has been adjusted to the maximum allowed.`,
+            });
             return;
         }
 
@@ -845,17 +876,29 @@
         })
         .then(response => {
             if (response.ok) {
-                window.location.href = '/cart';
+                Swal.fire({
+                    title: 'Success!',  
+                    text: 'Product added to cart.',
+                    icon: 'success',
+                    showConfirmButton:false,
+                    timer:1500
+                });
             } else {
                 return response.text().then(text => { throw new Error(text) });
             }
         })
         .catch(error => {
             console.error('Error adding to cart:', error);
-            alert('Error adding to cart. Please try again.');
+            Swal.fire({
+                title: 'Error!',
+                text: 'Error adding to cart. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'Close'
+            });
         });
     });
 });
+
 
 </script>
 //add to wishlist

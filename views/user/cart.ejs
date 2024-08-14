@@ -779,118 +779,168 @@
     <!-- Template  JS -->
     <script src=".//user/assets/js/main.js?v=3.4"></script>
     <script src=".//user/assets/js/shop.js?v=3.4"></script>
+      
+    <!-- sweetalert -->
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
-        document.querySelectorAll('.qty-up').forEach(button => {
-            button.addEventListener('click',async function(event){
-                event.preventDefault();
-                const productId = this.dataset.productId;
-                const size = this.dataset.size;
-                // console.log('size',size);
-                const cartItemElement = this.closest('.cart-item');
-                // console.log('cartItemElement',cartItemElement);
-                const stock = parseInt(cartItemElement.dataset.stock,10); 
-                // console.log('stock',stock);
-                const qtyValElement = this.closest('.detail-qty').querySelector('.qty-val');
-                    console.log(qtyValElement.textContent  );
-                const errorMessage = cartItemElement.querySelector('.qty-error-message');
-                const qtyUpButton = document.querySelector('.qty-up')
-                let newQuantity = parseInt(qtyValElement.textContent,10) + 1;
-
-                if(newQuantity >stock || newQuantity > 10) {
-                    // alert('Cannot increase quantity beyond available stock.');
-                    errorMessage.textContent = `Reached purchasing limit` ;
-                    
-                    return;   
-                }
-
-                try {
-                    const response = await fetch('/update-cart',{
-                        method:'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({productId,size,newQuantity})
+    document.querySelectorAll('.qty-up').forEach(button => {
+        button.addEventListener('click', async function (event) {
+            event.preventDefault();
+            const productId = this.dataset.productId;
+            const size = this.dataset.size;
+            const cartItemElement = this.closest('.cart-item');
+            const stock = parseInt(cartItemElement.dataset.stock, 10);
+            const qtyValElement = this.closest('.detail-qty').querySelector('.qty-val');
+            const errorMessage = cartItemElement.querySelector('.qty-error-message');
+            let newQuantity = parseInt(qtyValElement.textContent, 10) + 1;
+    
+            if (newQuantity > stock || newQuantity > 10) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Limit Reached',
+                    text: 'Cannot increase quantity beyond available stock or purchasing limit.',
+                }).then(()=>{
+                    window.location.reload();
+                });
+                return;
+            }
+    
+            try {
+                const response = await fetch('/update-cart', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ productId, size, newQuantity })
+                });
+    
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    const errorData = await response.json();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: `Error: ${errorData.message}`,
                     });
-
-                    if(response.ok) {
-                        window.location.reload();
-                    }else{
-                        const errorData = await response.json();
-                        alert(`Error: ${errorData.message}`);
-                    }
-                } catch (error) {
-                    console.error('Error:',error);
-                    alert('An error occured while updataing the cart. Please try again.');
                 }
-            });
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while updating the cart. Please try again.',
+                });
+            }
         });
-
-
-        document.querySelectorAll('.qty-down').forEach(button =>{
-            button.addEventListener('click',async function(event){
-                event.preventDefault();
-                const productId = this.dataset.productId;
-                const size = this.dataset.size;
-                const cartItemElement = this.closest('.cart-item');
-                const qtyValElement = this.closest('.detail-qty').querySelector('.qty-val');
-                let newQuantity = parseInt(qtyValElement.textContent,10) - 1;
-
-                if (newQuantity < 1) {
-                    alert('Quantity cannot be less than 1.');
-                    return;
-                }
-
-                try {
-                    const response = await fetch('/update-cart',{
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({productId,size,newQuantity})
+    });
+    
+    document.querySelectorAll('.qty-down').forEach(button => {
+        button.addEventListener('click', async function (event) {
+            event.preventDefault();
+            const productId = this.dataset.productId;
+            const size = this.dataset.size;
+            const cartItemElement = this.closest('.cart-item');
+            const qtyValElement = this.closest('.detail-qty').querySelector('.qty-val');
+            let newQuantity = parseInt(qtyValElement.textContent, 10) - 1;
+    
+            if (newQuantity < 1) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Quantity',
+                    text: 'Quantity cannot be less than 1.',
+                });
+                return;
+            }
+    
+            try {
+                const response = await fetch('/update-cart', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ productId, size, newQuantity })
+                });
+    
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    const errorData = await response.json();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: `Error: ${errorData.message}`,
                     });
-                    if(response.ok){
-                        window.location.reload();
-
-                    }else{
-                        const errorData = await response.json();
-                        alert(`Error: $(errorData.message)`);
-                    }
-                } catch (error) {
-                    console.error('Error:',error);
-                    alert('An error occured while updating the cart. Please try again.');
                 }
-            });
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while updating the cart. Please try again.',
+                });
+            }
         });
+    });
+    
 
         document.querySelectorAll('.remove-from-cart').forEach(button => {
-            button.addEventListener('click',async() =>{
-                const productId = button.getAttribute('data-product-id');
-                const size= button.getAttribute('data-size');
+    button.addEventListener('click', async () => {
+        const productId = button.getAttribute('data-product-id');
+        const size = button.getAttribute('data-size');
 
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to remove this item from your cart?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!',
+            cancelButtonText: 'Cancel'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
                 try {
-                    const response = await fetch(`/cart/remove`,{
+                    const response = await fetch(`/cart/remove`, {
                         method: 'DELETE',
                         headers: {
-                            'Content-Type' : 'application/json'
+                            'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({productId,size})
+                        body: JSON.stringify({ productId, size })
                     });
                     const result = await response.json();
 
                     if (result.success) {
                         const cartItemElement = document.getElementById(`cart-item-${productId}-${size}`);
-                        
-                            cartItemElement.remove();
-                        window.location.reload();
-
+                        cartItemElement.remove();
+                        Swal.fire(
+                            'Removed!',
+                            'The item has been removed from your cart.',
+                            'success'
+                        ).then(() => {
+                            window.location.reload();
+                        });
                     } else {
-                        alert(result.message);
+                        Swal.fire(
+                            'Failed!',
+                            result.message,
+                            'error'
+                        );
                     }
                 } catch (error) {
-                    console.error('Error removing product from the cart:',error);
+                    console.error('Error removing product from the cart:', error);
+                    Swal.fire(
+                        'Error!',
+                        'An error occurred while removing the item.',
+                        'error'
+                    );
                 }
-            });
+            }
         });
+    });
+});
+
     </script>
 </body>
 

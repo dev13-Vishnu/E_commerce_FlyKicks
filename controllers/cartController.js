@@ -26,17 +26,9 @@ const addToCart = async (req, res) => {
       const cart = await Cart.findOne({ userId });
 
       if (cart) {
-        // console.log ('cart controller add to cart Current cart products;',cart.products.map(p => ({
-        //   productId : p.productId.toString(),
-        //   size: p.size
-          
-        // })))
           const existingProductIndex = cart.products.findIndex(
               (p) => p.productId.toString() === productId.toString() && p.size.toString() === size.toString()
-            
           );
-          
-          // console.log('cart controllerl addToCart Current cart products:', cart.products);
 
           if (existingProductIndex !== -1) {
               cart.products[existingProductIndex].quantity += parseInt(quantity);
@@ -75,6 +67,7 @@ const addToCart = async (req, res) => {
       res.status(500).send('Server error.');
   }
 };
+
 
   
   const loadCart = async (req,res) =>{
