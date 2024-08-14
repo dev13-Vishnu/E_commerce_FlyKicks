@@ -102,7 +102,7 @@ const loadProducts = async(req,res)=>{
         products.forEach(product => {
             product.image = product.image.map(img => img.replace(/\\/g, '/'));
         });
-        console.log('products url', req.url)
+        // console.log('products url', req.url)
       res.render('admin/products',{products,
         totalPages:Math.ceil(count/limit),
         currentPage: page,

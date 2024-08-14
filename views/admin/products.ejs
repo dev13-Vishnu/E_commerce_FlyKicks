@@ -171,6 +171,17 @@
 }
 
 async function deleteProduct(productId) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText:'Yes, delete it!',
+        cancelButtonText: 'No, cancel',
+        reverseButtons:true
+    }).then(async (result) => {
+        if(result.isConfirmed) {
+            
     try {
         const response = await fetch(`products/delete?productId=${productId}`, {
             method: 'DELETE',
@@ -178,18 +189,40 @@ async function deleteProduct(productId) {
                 'Content-Type': 'application/json'
             }
         });
+         
+        const result = await response.json();
 
-        if (response.ok) {
+        if (result.success) {
             // Successfully deleted product, reload the page or update the UI as needed
-            window.location.reload();
+            // window.location.reload();
+            Swal.fire({
+                icon:'success',
+                title: 'Deleted!',
+                text: 'The product has been deleted.',
+                confirmButtonText:'OK'
+            }).then(() => {
+                window.location.reload();
+            })
         } else {
             const errorData = await response.json();
-            alert(`Failed to delete product: ${errorData.message}`);
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to Delete',
+                text: result.message,
+                confirmButtonText: 'OK'
+            });
         }
     } catch (error) {
         console.error('Error deleting product:', error);
-        alert('An error occurred while deleting the product.');
+        Swal.fire({
+            icon:'error',
+            title: 'Error',
+            text:'An error occured while deleting the product please try again.',
+            confirmButtonText:'OK'
+        });
     }
+        }
+    })
 }
 
      </script>
