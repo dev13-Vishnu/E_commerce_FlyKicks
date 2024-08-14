@@ -1038,26 +1038,7 @@
             </div>
         </section>-->
         <%-include('./layouts/footer.ejs')%> 
-        <div class="container pb-20 wow fadeIn animated">
-            <div class="row">
-            <div class="col-12 mb-20">
-                <div class="footer-bottom"></div>
-            </div>
-            <div class="col-lg-6">
-                <p class="float-md-left font-sm text-muted mb-0">
-                &copy; 2022, <strong class="text-brand">Evara</strong> - HTML
-                Ecommerce Template
-                </p>
-            </div>
-            <div class="col-lg-6">
-                <p class="text-lg-end text-start font-sm text-muted mb-0">
-                Designed by
-                <a href="http://alithemes.com" target="_blank">Alithemes.com</a>.
-                All rights reserved
-                </p>
-            </div>
-            </div>
-        </div>
+        
         </footer>
         <!-- Preloader Start -->
         <div id="preloader-active">
@@ -1099,6 +1080,9 @@
         <script src="user/assets/js/plugins/jquery.theia.sticky.js"></script>
         <!-- Template  JS -->
         <script src="./user/assets/js/main.js?v=3.4"></script>
+        <!-- sweetalert -->
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
 
         <script>
         
@@ -1179,114 +1163,186 @@
             
         </script>
 
-        //cancel order
-        <script>
-        
-            async function cancelOrder(orderId){
-                try {
-                    const response = await fetch(`/cancel-order/${orderId}`,{
-                        method:'POST',
-                        headers: {
-                            'Content-Type' : 'application/json'
-                        }
-                    });
-
-                    const result = await response.json();
-
-                    if (result.success) {
-                        window.location.reload()
-                    } else {
-                        alert('Failed to cancel the order:' + result.message);
-                    }
-                } catch (error) {
-                    console.error('Error cancelling order:',error);
-                    alert('An error occured while cancelling the order');
-                }
-            }
-            
-        </script>
-
-        //update profile 
-        <script>
-            
-            function submitForm(event) { 
-                event.preventDefault();
-
-                const form = document.getElementById('update-profile-form');
-                const formData = new FormData(form);
-
-                fetch('/update-account',{
-                    method:'PUT',
-                    body:formData,
-                    headers:{
-                        'Content-Type': 'application/json',
-                    },
-                    body:JSON.stringify(Object.fromEntries(formData))
-                })
-                .then(response =>response.json())
-                .then(data => {
-                    //Handle success response
-                    if(data.success){
-                        //handle successfull update
-                        window.location.reload()
-                    }else{
-                        console.error('error updating profile:',data.message);
-                    }
-                })
-                .catch(error =>{
-                    //handle error response
-                    console.error('error:',error);
-                });
-            }
-            
-        </script>
-        // hide passwrod fields
-        <script>
-            document.querySelector('.arrow').addEventListener('click', function() {
-                var passwordFields = document.querySelector('.password-fields');
-                if (passwordFields.style.display === 'none' || passwordFields.style.display === '') {
-                    passwordFields.style.display = 'block';
-                    this.querySelector('span').innerHTML = 'Change Password &#x25B2;';
-                } else {
-                    passwordFields.style.display = 'none';
-                    this.querySelector('span').innerHTML = 'Change Password &#x25BC;';
+        //cance<script>
+    // Function to cancel the order and handle the response
+    async function cancelOrder(orderId) {
+        try {
+            const response = await fetch(`/cancel-order/${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
                 }
             });
-        </script>
 
-        //add address
+            const result = await response.json();
+
+            if (result.success) {
+                // Set a flag in localStorage
+                localStorage.setItem('orderCancelled', 'true');
+                window.location.reload();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to cancel the order: ' + result.message,
+                    confirmButtonText: 'OK'
+                });
+            }
+        } catch (error) {
+            console.error('Error cancelling order:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while cancelling the order. Please try again.',
+                confirmButtonText: 'OK'
+            });
+        }
+    }
+
+    // Check for the flag in localStorage after the page reloads
+    document.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('orderCancelled')) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Order Cancelled',
+                text: 'Your order has been successfully cancelled.',
+                confirmButtonText: 'OK'
+            });
+
+            // Remove the flag from localStorage
+            localStorage.removeItem('orderCancelled');
+        }
+    });
+</script>
+
+
         <script>
+    // Function to submit the form and update the profile
+    function submitForm(event) {
+        event.preventDefault();
 
-            const sMessageElement = document.getElementById('sMessageElement');
-            const fMessageElement = document.getElementById('fMessageElement');
-            document.getElementById('addAddressForm').addEventListener('submit',async function(event) {
-                
-                event.preventDefault();
-                const formData = new FormData(this);
-                const data =Object.fromEntries(formData.entries());
-                try {
-                    const response = await fetch('/add-address',{
-                        method: 'POST',
-                        headers: {
-                            'Content-Type':'application/json',
-                        },
-                        body:JSON.stringify(data),
-                    });
-                    
-                    const result = await response.json();
+        const form = document.getElementById('update-profile-form');
+        const formData = new FormData(form);
 
-                    if(result.success){
-                        window.location.reload();
-                    sMessageElement.textContent = 'Added address succellfully!';
-                    }else{
-                        fMessageElement.textContent = 'Failed!';
-                        return;
-                    }
-                } catch (error) {
-                    console.error('Error:',error);
-                    alert('An error occured'); 
-                }
-            })
+        fetch('/update-account', {
+            method: 'PUT',
+            body: JSON.stringify(Object.fromEntries(formData)),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Set a flag in localStorage
+                localStorage.setItem('profileUpdated', 'true');
+                window.location.reload();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Failed to update profile. Please try again.',
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An unexpected error occurred. Please try again.',
+            });
+        });
+    }
+
+    // Check for the flag in localStorage after the page reloads
+    document.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('profileUpdated')) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Profile Updated',
+                text: 'Your profile has been successfully updated!',
+                confirmButtonText: 'OK'
+            });
+
+            // Remove the flag from localStorage
+            localStorage.removeItem('profileUpdated');
+        }
+    });
+
+    // Script to toggle password fields (unchanged)
+    document.querySelector('.arrow').addEventListener('click', function() {
+        var passwordFields = document.querySelector('.password-fields');
+        if (passwordFields.style.display === 'none' || passwordFields.style.display === '') {
+            passwordFields.style.display = 'block';
+            this.querySelector('span').innerHTML = 'Change Password &#x25B2;';
+        } else {
+            passwordFields.style.display = 'none';
+            this.querySelector('span').innerHTML = 'Change Password &#x25BC;';
+        }
+    });
+</script>
+
+
+        <script>
+        
+            document.getElementById('addAddressForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        const response = await fetch('/add-address', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Store a flag in localStorage before reloading the page
+            localStorage.setItem('addressAdded', 'true');
+            window.location.reload();  // Refresh the page
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to Add Address',
+                text: 'An error occurred while adding the address. Please try again.',
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An unexpected error occurred. Please try again.',
+        });
+    }
+});
+
+
         </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+    // Check if the flag is set in localStorage
+    if (localStorage.getItem('addressAdded')) {
+        // Show SweetAlert if the flag is present
+        Swal.fire({
+            icon: 'success',
+            title: 'Address Added',
+            text: 'Your address has been successfully added!',
+        });
+
+        // Clear the flag so it doesn't show the alert again
+        localStorage.removeItem('addressAdded');
+    }
+});
+
+            
+        </script>
+        
     </body>
     </html>

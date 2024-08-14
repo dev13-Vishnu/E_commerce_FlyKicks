@@ -1097,6 +1097,10 @@
     <!-- Template  JS -->
     <script src="/user/assets/js/main.js?v=3.4"></script>
     <script src="/user/assets/js/shop.js?v=3.4"></script>
+
+    <!-- sweetalert -->
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     //add-address
   
     <script>
@@ -1287,33 +1291,61 @@ return valid;
 
     //add address
         <script>
+            document.getElementById('addAddressForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
 
-            document.getElementById('addAddressForm').addEventListener('submit',async function(event) {
-                
-                event.preventDefault();
-                const formData = new FormData(this);
-                const data =Object.fromEntries(formData.entries());
-                try {
-                    const response = await fetch('/add-address',{
-                        method: 'POST',
-                        headers: {
-                            'Content-Type':'application/json',
-                        },
-                        body:JSON.stringify(data),
-                    });
-                    
-                    const result = await response.json();
+    try {
+        const response = await fetch('/add-address', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
 
-                    if(result.success){
-                        window.location.reload();
-                    }else{
-                        return;
-                    }
-                } catch (error) {
-                    console.error('Error:',error);
-                    alert('An error occured'); 
-                }
-            })
+        const result = await response.json();
+
+        if (result.success) {
+            // Store a flag in localStorage before reloading the page
+            localStorage.setItem('addressAdded', 'true');
+            window.location.reload();  // Refresh the page
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to Add Address',
+                text: 'An error occurred while adding the address. Please try again.',
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An unexpected error occurred. Please try again.',
+        });
+    }
+});
+
+
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+    // Check if the flag is set in localStorage
+    if (localStorage.getItem('addressAdded')) {
+        // Show SweetAlert if the flag is present
+        Swal.fire({
+            icon: 'success',
+            title: 'Address Added',
+            text: 'Your address has been successfully added!',
+        });
+
+        // Clear the flag so it doesn't show the alert again
+        localStorage.removeItem('addressAdded');
+    }
+});
+
         </script>
 
 </body>
