@@ -6,6 +6,8 @@ const loadCategory = async(req,res) =>{
 
         
             const categoryData = await Category.find()
+
+            console.log('categoryController loadCategory categoryData:',categoryData)
         res.render('admin/categories',{
             categoryData,
             currentUrl:req.url
@@ -100,14 +102,15 @@ const deleteCategory = async (req, res) => {
     try {
         const categoryId = req.body.id;
 
+
         const deletedCategory = await Category.findByIdAndUpdate(
-            categoryId,
-            { delete: true }, // Or you could delete it permanently using `findByIdAndDelete`
+            { _id: categoryId },
+            { $set: { delete: true } },
             { new: true }
         );
 
         if (deletedCategory) {
-            return res.status(200).json({ success: true });
+            res.status(200).json({ success: true});
         } else {
             return res.status(400).json({ success: false, message: 'Category not found.' });
         }

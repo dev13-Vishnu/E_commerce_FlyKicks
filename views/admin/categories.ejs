@@ -100,7 +100,7 @@
                                     <tbody>
                                         <% let slno = 1 %>
                                         <% for(let i = 0; i<categoryData.length; i++){ %>
-                                            <% if(categoryData[i].delete === false){ %>
+                                            
                                                 <tr id="category-<%= categoryData[i]._id %>">
                                                     <td><%- slno %></td>
                                                     <td><b><%= categoryData[i].name %></b></td>
@@ -113,13 +113,13 @@
                                                             </a>
                                                             <div class="dropdown-menu">
                                                                 <a class="dropdown-item" href="edit-category?id=<%= categoryData[i]._id %>">Edit info</a>
-                                                                <% if(categoryData.delete) { %>
+                                                                <% if(categoryData[i].delete) { %>
                                                                     <a class="dropdown-item text-success" 
-                                                                    onclick="confirmAdd('<%= categoryData._id %>', '<%= categoryData.name %>')">
+                                                                    onclick="confirmAdd('<%= categoryData[i]._id %>', '<%= categoryData[i].name %>')">
                                                                     Add</a>
                                                                 <% } else { %>
                                                                     <a class="dropdown-item text-danger" 
-                                                                    onclick="confirmDelete('<%= categoryData._id %>')">
+                                                                    onclick="confirmDelete  ('<%= categoryData[i]._id %>')">
                                                                     Delete</a>
                                                                 <% } %>
                                                             </div>
@@ -127,7 +127,7 @@
                                                     </td>
                                                 </tr>
                                                 <% slno++ %>
-                                            <% } %>
+                                            
                                         <% } %>
                                     </tbody>
                                 </table>
@@ -201,30 +201,9 @@
                     text: result.message,
                     showConfirmButton: false,
                     timer: 1500
-                });
-
-                // Append the new category to the table
-                const tbody = document.querySelector('table tbody');
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td>New</td>
-                    <td><b>${categoryName}</b></td>
-                    <td>${categoryDescription}</td>
-                    <td>${categoryAction}</td>
-                    <td class="text-center">
-                        <div class="dropdown">
-                            <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm">
-                                <i class="material-icons md-more_horiz"></i>
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="edit-category?id=new">Edit info</a>
-                                <a class="dropdown-item text-danger" href="delete-category?id=new">Delete</a>
-                            </div>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(newRow);
-                // Example: Append the new category to the table
+                }).then(()=>{
+                    window.location.reload();
+                })
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -246,6 +225,8 @@
 <!-- delete category -->
 <script>
     async function confirmDelete(categoryId) {
+        console.log('categoryId:',categoryId);
+        
         const result = await Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -273,9 +254,9 @@
                         'Deleted!',
                         'Category has been deleted.',
                         'success'
-                    );
-                    // Optionally, remove the row from the table without reloading the page
-                    document.querySelector(`#category-${categoryId}`).remove();
+                    ).then(() =>{
+                    window.location.reload();
+                });
                 } else {
                     Swal.fire(
                         'Error!',
@@ -324,11 +305,9 @@ async function confirmAdd(categoryId, categoryName) {
                     'Added!',
                     `Category "${categoryName}" has been added back.`,
                     'success'
-                );
-                // Optionally, update the button to "Delete" without reloading the page
-                document.querySelector(`#category-${categoryId} .dropdown-menu`).innerHTML = `
-                    <a class="dropdown-item text-danger" onclick="confirmDelete('${categoryId}')">Delete</a>
-                `;
+                ).then(() =>{
+                    window.location.reload();
+                });
             } else {
                 Swal.fire(
                     'Error!',
