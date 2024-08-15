@@ -2,9 +2,15 @@ const Coupon = require('../models/couponModel');
 
 const loadCouponsPage = async(req,res) =>{
     try {
+        const couponData = await  Coupon.find();
+        if(couponData) {
         res.render('admin/couponPage',{
+            couponData,
             currentUrl:req.url
         });
+    }else{
+        console.log('couponController loadCouponPage: no coupons to find');
+    }
     } catch (error) {
         console.log('Error from couponController',error);
     }

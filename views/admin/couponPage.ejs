@@ -94,40 +94,61 @@
             
                                             </tr>
                                             </thead>
-                                            <tbody>
-                                               
-                                            <tr id="coupon-">
-
-                                                <td>
-                                                        
-
-                                 
-                                               
-                                                
-                                                
-                                                    
-                                                </td>
-                                                <td ></td>
-                                                <td ></td>
-                                                <td ></td>
-                                                <td ></td>
-                                                <td ></td>
-                                                <td ></td>
-                                                <td></td>
+                                            <% if(couponData) {%>
+                                                <tbody>
+                                                    <% const currentDate=new Date() %>,
+                                                   
+                                                    <%  couponData.sort((a, b) => new Date(b.Start_Date) - new Date(a.Start_Date)).forEach(coupon =>{%>
+                                                <tr id="coupon-<%= coupon._id %>">
+    
                                                     <td>
+                                                        <% if(coupon.isBlocked) {%>
+                                                        <span id="status-badge-<%= coupon._id %>" class="badge badge-pill badge-soft-danger" >Blocked </span>
+                                                            
+    
+                                     
+                                                   
+                                                    
+                                                    <% } else if (new Date(coupon.Ending_Date) < currentDate) { %>
+                                                        <span class="badge badge-pill badge-soft-pink">Expired</span>
+                                                        <% } else {%>
+                                                            <span id="status-badge-<%= coupon._id %>"   class="badge badge-pill badge-soft-success" >Active</span>
+                                        <%}%>
                                                     </td>
-                                                    
-                                                    
-                                                    <td  >
-                                                    
+                                                    <td ><%= coupon.coupon_code %></td>
+                                                    <td ><%= coupon.offer_percentage + '%' %></td>
+                                                    <td ><%= coupon.start_date.toLocaleDateString('en-US', {
+                                                        weekday: 'short', year: 'numeric', month: 'short', day:
+                                                        'numeric' }) %></td>
+                                                    <td ><%= coupon.minimum_order_amount  %></td>
+                                                    <td ><%= coupon.maximum_order_amount %></td>
+                                                    <td ><%= coupon.coupon_count %></td>
+                                                    <td><%= coupon.ending_date.toLocaleDateString('en-US', {
+                                                        weekday: 'short', year: 'numeric', month: 'short', day:
+                                                        'numeric' }) %> </td>
+                                                        <td>
+                                                            <a class="btn btn-primary btn-sm" href="/admin/coupon/edit?id=<%= coupon._id %>" >Edit</a>
+                                                        </td>
                                                         
-                                                            <!-- <span class="badge badge-pill badge-soft-pink">Expired</span>       -->
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        
+                                                        
+                                                        <td  >
+                                                        <%   if (coupon.isBlocked) {%>
+                                                            <a class="btn btn-success btn-sm" id="toggle-btn-<%= coupon._id %>"  onclick="toggleBlockStatus('<%= coupon._id %>', false)">Enable</a> 
+                                                            <% } else if (new Date(coupon.Ending_Date) < currentDate) { %>
+                                                                <!-- <span class="badge badge-pill badge-soft-pink">Expired</span>       -->
+                                                                <a class="btn btn-warning btn-sm non-functional">Expired</a>
+                                                                <%} else {%>
+                                                                <a class="btn btn-danger btn-sm" id="toggle-btn-<%= coupon._id %>" onclick="toggleBlockStatus('<%= coupon._id %>', true)">Disable</a>
+                                                                <%}%> 
+                                                    </td>
+                                                </tr>
+                                                <%})%>
+                                                </tbody>
                                             
-                                                no coupons
+                                                
+                                                <%} else {%>
+                                                    no coupons
+                                                    <%}%>
                                         </table>
                                     </div>
                                 </div> <!-- .col// -->
