@@ -175,89 +175,70 @@ const pushToUserSide = async (req, res) => {
 };
 
 
-const removeImage = async(req,res) =>{
+const removeImage = async (req, res) => {
     try {
+        console.log('remove image req.body:', req.query);
 
-        console.log('remove image req.body:',req.query);
+        const { productId, index } = req.query;
 
-        const {productId,index} = req.query;
-        
-        const product = await Product.findOne({_id:productId});
-        if(product){
-            product.image.splice(index,1);
+        const product = await Product.findOne({ _id: productId });
+        if (product) {
+            product.image.splice(index, 1);
             await product.save();
-            res.redirect(`/admin/products/edit?productId=${productId}`);
-        }else{
-            res.status(404).send('Product not found');
+            res.status(200).json({ message: 'Image removed successfully' });
+        } else {
+            res.status(404).json({ message: 'Product not found' });
         }
     } catch (error) {
-        console.log('error from product controller remove image',error);
+        console.log('error from product controller remove image', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-}
-
-const editProduct = async (req,res)  =>{try {
-    const productId = req.query.productId;
-
-    upload(req, res, async (err) => {
-        if (err) {
-            return res.status(500).send(err.message);
-        }
-
-        const { product_name, description, product_Aprice, product_Pprice, product_category, stock } = req.body;
-        const imageFiles = req.files;
-        let images = [];
-
-        if (imageFiles && imageFiles.length > 0) {
-            images = imageFiles.map(file => path.join('uploads', path.basename(file.path)).replace(/\\/g, '/')); // Store the file paths in the images array
-        }
-        console.log('productController editProduct productId',productId)
-
-        const productData = await Product.findOne({_id:productId});
-
-        const categoryData = await Category.find({});
-
-        console.log('productController editProduct productData',productData)
-        console.log('productController editProduct productData',productData)
-
-        if (!productData) {
-            return res.status(404).send('Product not found');
-        }
-        productData.image = productData.image.map(img => img.replace(/\\/g,'/'));
-
-
-        // Merge existing images with new images
-        if (images.length > 0) {
-            productData.image = [...productData.image, ...images];
-        }
-
-        productData.name = product_name;
-        productData.description = description;
-        productData.price = product_Aprice;
-        productData.promo_price = product_Pprice;
-        productData.category = new mongoose.Types.ObjectId(product_category);
-        productData.stock = {
-            7: Number(stock[7]) || 0,
-            8: Number(stock[8]) || 0,
-            9: Number(stock[9]) || 0,
-            10: Number(stock[10]) || 0,
-            11: Number(stock[11]) || 0,
-            12: Number(stock[12]) || 0
-        };
-
-        await productData.save();
-
-        res.render('admin/editProduct',{
-            currentUrl:req.url,
-            categoryData,
-            productData,
-            message: 'Prodect details updated successfully!'
-
-        });
-    });
-} catch (error) {
-    res.status(500).send(error.message);
-}
 };
+const editProduct = async (req, res) => {
+    try {
+        const productId = req.query.productId;
+
+        // Process images with multer
+        upload(req, res, async (err) => {
+            if (err) {
+                return res.status(500).json({ message: err.message });
+            }
+
+            const { product_name, description, product_Aprice, product_Pprice, product_category, stock } = req.body;
+            const imageFiles = req.files;
+            let images = [];
+
+            if (imageFiles && imageFiles.length > 0) {
+                images = imageFiles.map(file => path.join('uploads', path.basename(file.path)).replace(/\\/g, '/'));
+            }
+
+            const productData = await Product.findOne({ _id: productId });
+
+            if (!productData) {
+                return res.status(404).json({ message: 'Product not found' });
+            }
+
+            // Merge existing images with new images
+            if (images.length > 0) {
+                productData.image = [...productData.image, ...images];
+            }
+
+            productData.name = product_name;
+            productData.description = description;
+            productData.price = product_Aprice;
+            productData.promo_price = product_Pprice;
+            productData.category = new mongoose.Types.ObjectId(product_category);
+            productData.stock = stock;
+
+            await productData.save();
+
+            return res.status(200).json({ message: 'Product updated successfully' });
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'An error occurred', error: error.message });
+    }
+};
+
 
 
 module.exports = {

@@ -19,13 +19,14 @@ adminRoutes.get('/categories',auth.isLogin,categoryController.loadCategory);
 adminRoutes.post('/categories',auth.isLogin,categoryController.addCategory);
 adminRoutes.get('/edit-category',auth.isLogin, categoryController.loadEditCategory);
 adminRoutes.post('/edit-category',auth.isLogin,categoryController.editCategory)
-adminRoutes.get('/delete-category',auth.isLogin,categoryController.deleteCategory);
+adminRoutes.patch('/delete-category',auth.isLogin,categoryController.deleteCategory);
+adminRoutes.patch('/add-category',auth.isLogin,categoryController.addBackCategory);
 
 
 //userslist
 adminRoutes.get('/users', auth.isLogin,adminController.loadUserList);
-adminRoutes.get('/user/block',auth.isLogin,adminController.userBlock);
-adminRoutes.get('/user/unblock',auth.isLogin,adminController.userUnblock);
+adminRoutes.put('/user-block',auth.isLogin,adminController.userBlock);
+adminRoutes.put('/user-unblock',auth.isLogin,adminController.userUnblock);
 
 //productList
 adminRoutes.post('/addproduct',auth.isLogin,productController.addProduct);
@@ -33,8 +34,8 @@ adminRoutes.get('/products',auth.isLogin,productController.loadProducts);
 adminRoutes.get('/products/edit',auth.isLogin,productController.loadEditProduct);
 adminRoutes.put('/products/add',auth.isLogin,productController.pushToUserSide)
 adminRoutes.delete('/products/delete',auth.isLogin,productController.deleteProduct);
-adminRoutes.get('/products/edit/remove-image',productController.removeImage);
-adminRoutes.post('/products/edit',productController.editProduct);
+adminRoutes.delete('/products/edit/remove-image',productController.removeImage);
+adminRoutes.put('/products/edit',productController.editProduct);
 
 //order-lists
 adminRoutes.get('/orders-list',auth.isLogin,ordersListcontroller.loadOrdersList)
@@ -45,4 +46,5 @@ adminRoutes.post('/cancel-order',auth.isLogin,ordersListcontroller.cancelOrder)
 adminRoutes.get('/coupons',auth.isLogin,couponController.loadCouponsPage)
 adminRoutes.get('/addcoupons',auth.isLogin,couponController.loadAddcouponPage);
 adminRoutes.post('/addcoupons',auth.isLogin,couponController.addCoupon);
+
 module.exports = adminRoutes;

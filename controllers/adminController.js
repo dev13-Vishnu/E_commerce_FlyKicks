@@ -83,7 +83,7 @@ const loadUserList = async(req,res)=>{
 
 
 
-        console.log(users);
+        // console.log(users);
         
         res.render('admin/userslist',{users,
             totalPages:Math.ceil(count/limit),
@@ -95,43 +95,38 @@ const loadUserList = async(req,res)=>{
     }
 }
 
-const userBlock = async(req,res) =>{
+const userBlock = async (req, res) => {
     try {
-        console.log(req.query.id);
         const saved = await User.findByIdAndUpdate(
             { _id: req.query.id },
             { $set: { isBlocked: true } },
             { new: true }
-          )      // user.isBlocked = true;
-        // const saved = await user.save();
-        // console.log(saved); 
-        console.log(saved);
-        if(saved){
-            res.redirect('/admin/users')
+        );
+        if (saved) {
+            res.sendStatus(200); // Success
         }
     } catch (error) {
-        console.log('error from admincontroller userBlock',error);
+        console.log('error from admincontroller userBlock', error);
+        res.sendStatus(500); // Failure
     }
-}
+};
 
-const userUnblock = async(req,res) =>{
+const userUnblock = async (req, res) => {
     try {
-        console.log(req.query.id);
         const saved = await User.findByIdAndUpdate(
             { _id: req.query.id },
             { $set: { isBlocked: false } },
             { new: true }
-          )      // user.isBlocked = true;
-        // const saved = await user.save();
-        // console.log(saved); 
-        console.log(saved);
-        if(saved){
-            res.redirect('/admin/users')
+        );
+        if (saved) {
+            res.sendStatus(200); // Success
         }
     } catch (error) {
-        console.log('error from admincontroller userBlock',error);
+        console.log('error from admincontroller userUnblock', error);
+        res.sendStatus(500); // Failure
     }
-}
+};
+
 
 const logout = async (req, res) => {
     try {
