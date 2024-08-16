@@ -46,5 +46,7 @@ adminRoutes.post('/cancel-order',auth.isLogin,ordersListcontroller.cancelOrder)
 adminRoutes.get('/coupons',auth.isLogin,couponController.loadCouponsPage)
 adminRoutes.get('/addcoupons',auth.isLogin,couponController.loadAddcouponPage);
 adminRoutes.post('/addcoupons',auth.isLogin,couponController.addCoupon);
-
+adminRoutes.post('/coupon/block/:id',auth.isLogin,couponController.blockAndUnblockCoupon);
+adminRoutes.get('/coupon/edit',auth.isLogin,couponController.loadEditCoupon);
+adminRoutes.put('/coupon/edit/:id',auth.isLogin,couponController.editCoupon);
 module.exports = adminRoutes;

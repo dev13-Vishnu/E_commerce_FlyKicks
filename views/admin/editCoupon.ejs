@@ -27,7 +27,7 @@
             <div class="row">
                 <div class="col-9">
                     <div class="content-header">
-                        <h2 class="content-title">Add New coupon</h2>
+                        <h2 class="content-title">Edit Coupon</h2>
                         <div>
                             <!-- <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
                              <button class="btn btn-md rounded font-sm hover-up">Publich</button> -->
@@ -42,54 +42,78 @@
                         
                         
                         <div class="card-body">
-                            <form action="" id="couponForm"  onsubmit="return validate_form()">
+                            <form action="" id="couponForm" onsubmit="return validate_form()">
                                 <div class="mb-4">
                                     <label class="form-label">Coupon Code</label>
-                                    <input type="text" name="couponCode" id="couponCode" class="form-control" oninput="validate_coupon_code()">
+                                    <input type="text"
+                                    value="<%=couponData.coupon_code %>"
+                                     name="couponCode" id="couponCode" class="form-control" oninput="validate_coupon_code()">
                                     <div id="error-couponcode" class="text-danger"></div>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Coupon Description</label>
-                                    <input type="text" id="couponDescription" name="couponDescription" oninput="validate_coupon_description()" class="form-control">
+                                    <input type="text" 
+                                    value="<%=couponData.coupon_description %>"
+                                    id="couponDescription" name="couponDescription" oninput="validate_coupon_description()" class="form-control">
                                     <div id="error-coupondescription" class="text-danger"></div>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Offer Percentage</label>
-                                    <input type="text" id="couponoffer" name="offerPercentage" oninput="validate_coupon_offer()" class="form-control">
+                                    <input type="text"
+                                    value="<%=couponData.offer_percentage %>"
+                                    id="couponoffer" name="offerPercentage" oninput="validate_coupon_offer()" class="form-control">
                                     <div id="error-couponoffer" class="text-danger"></div>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Coupon Count</label>
-                                    <input type="text" id="couponCount" name="couponCount" class="form-control" oninput="validate_coupon_count()">
+                                    <input type="text" 
+                                    value="<%=couponData.coupon_count %>"
+                                    id="couponCount" name="couponCount" class="form-control" oninput="validate_coupon_count()">
                                     <div id="error-couponcount" class="text-danger"></div>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Minimum Order Amount</label>
-                                    <input type="text" id="minimum" name="minimumOrderAmount" oninput="validate_coupon_minimum()" class="form-control">
+                                    <input type="text"
+                                    value="<%=couponData.minimum_order_amount %>"
+                                    id="minimum" name="minimumOrderAmount" oninput="validate_coupon_minimum()" class="form-control">
                                     <div id="error-couponminimum" class="text-danger"></div>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Maximum Order Amount</label>
-                                    <input type="text" id="maximum" name="maximumOfferAmount" oninput="validate_coupon_maximum()" class="form-control">
+                                    <input type="text" id="maximum" 
+                                    value="<%=couponData.maximum_order_amount %>"
+                                    name="maximumOfferAmount" oninput="validate_coupon_maximum()" class="form-control">
                                     <div id="error-couponmaximum" class="text-danger"></div>
                                 </div>
                                 <div class="form-group">
                                     <div class="col-lg-6">
                                         <div class="mb-4">
                                             <label class="form-label">Start Date</label>
-                                            <input class="form-control" id="startDate" name="startDate" oninput="validate_coupon_start()" type="date">
+                                            <% 
+                                                function formatDate(date) {
+                                                    return new Date(date).toISOString().split('T')[0];
+                                                }
+                                            %>
+
+                                            <input 
+                                            value="<%= formatDate(couponData.start_date) %>"
+                                            class="form-control" id="startDate" name="startDate" oninput="validate_coupon_start()" type="date">
                                             <div id="error-couponstart" class="text-danger"></div>
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="mb-4">
                                             <label class="form-label">Expire Date</label>
-                                            <input class="form-control" id="expireDate" name="expireDate" oninput="validate_coupon_end()" type="date">
+                                            <input 
+                                            value="<%= formatDate(couponData.ending_date) %>"
+                                            class="form-control" id="ExpireDate" name="expireDate" oninput="validate_coupon_end()" type="date">
                                             <div id="error-couponend" class="text-danger"></div>
                                         </div>
                                     </div>
                                 </div>
-                                <button class="btn btn-primary" type="submit">Save</button>
+                                <button class="btn btn-primary"
+                                
+                                type="submit">Save Changes</button>
                             </form>
                             
                         </div>
@@ -212,7 +236,7 @@
         }
 
         function validate_coupon_end() {
-            const couponend = document.getElementById('expireDate').value;
+            const couponend = document.getElementById('ExpireDate').value;
             const couponstart = document.getElementById('startDate').value;
             if (couponend === "" ) {
                 document.getElementById('error-couponend').innerHTML = "Please enter a valid expiration date";
@@ -234,47 +258,44 @@
 
 
     </script>
-    <!-- add coupon -->
-     <script>
-        document.getElementById('couponForm').addEventListener('submit',async function (event) {
-            event.preventDefault();//Prevent the default form submission
-            if(validate_form()) {
-                const formData ={
-                    coupon_code: document.getElementById('couponCode').value,
-                    coupon_description: document.getElementById('couponDescription').value,
-                    offer_percentage: document.getElementById('couponOffer').value,
-                    coupon_count: document.getElementById('couponCouon').value,
-                    minimum_order_amount: document.getElementById('minimum').value,
-                    maximum_offer_amount: document.getElementById('maximum').value,
-                    start_date:document.getElementById('startDate').value,
-                    ending_date:document.getElementById('expireDate').value
-                };
-                try {
-                    const response = await fetch('/admin/addcoupons',{
-                        method : 'POST',
-                        headers : {
-                            'Content-Type':'application/json'
-                        },
-                        body: JSON.stringify(formData)
-                    });
-                    if(response.ok) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'Coupon created successfully',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            window.location.href = '/admin/copons'; // Redirect after successfull creation
-                        });
-                    }else{
-                        Swal.fire('Error', 'Failed to create coupon', 'error');
-                    }
-                } catch (error) {
-                    Swal.fire('Error', 'An error occured while creating the coupon', 'error');
-                }
+    <!-- submit form -->
+     
+<script>
+    document.getElementById('couponForm').addEventListener('submit', async function (event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        const couponId = '<%= couponData._id %>'; // Get the coupon ID
+
+        const formData = {
+            coupon_code: document.getElementById('couponCode').value,
+            coupon_description: document.getElementById('couponDescription').value,
+            offer_percentage: document.getElementById('couponoffer').value,
+            coupon_count: document.getElementById('couponCount').value,
+            minimum_order_amount: document.getElementById('minimum').value,
+            maximum_offer_amount: document.getElementById('maximum').value,
+            start_date: document.getElementById('startDate').value,
+            ending_date: document.getElementById('ExpireDate').value
+        };
+
+        try {
+            const response = await fetch(`/admin/coupon/edit/${couponId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                Swal.fire('Success', 'Coupon updated successfully', 'success');
+            } else {
+                Swal.fire('Error', 'Failed to update coupon', 'error');
             }
-        });
-     </script>
+        } catch (error) {
+            Swal.fire('Error', 'An error occurred while updating the coupon', 'error');
+        }
+    });
+</script>
 
 
     <script src="/admin/assets/js/vendors/jquery-3.6.0.min.js"></script>

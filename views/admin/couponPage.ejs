@@ -235,7 +235,7 @@
                 toggleButton.classList.remove('btn-danger');
                 toggleButton.classList.add('btn-success');
                 toggleButton.textContent = 'Enable';
-                toggleButton.setAttribute('onClick',`toggleBlockStatus(${couponId}',false)`);
+                toggleButton.setAttribute('onClick',`toggleBlockStatus('${couponId}',false)`);
             } else {
                 //Update badge to 'Active'
                 statusBadge.classList.remove('badge-soft-danger');
