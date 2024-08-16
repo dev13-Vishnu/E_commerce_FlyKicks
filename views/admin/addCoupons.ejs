@@ -55,7 +55,7 @@
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Offer Percentage</label>
-                                    <input type="text" id="couponoffer" name="offerPercentage" oninput="validate_coupon_offer()" class="form-control">
+                                    <input type="text" id="couponOffer" name="offerPercentage" oninput="validate_coupon_offer()" class="form-control">
                                     <div id="error-couponoffer" class="text-danger"></div>
                                 </div>
                                 <div class="mb-4">
@@ -70,7 +70,7 @@
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Maximum Order Amount</label>
-                                    <input type="text" id="maximum" name="maximumOfferAmount" oninput="validate_coupon_maximum()" class="form-control">
+                                    <input type="text" id="maximum" name="maximumOrderAmount" oninput="validate_coupon_maximum()" class="form-control">
                                     <div id="error-couponmaximum" class="text-danger"></div>
                                 </div>
                                 <div class="form-group">
@@ -141,8 +141,8 @@
         }
 
         function validate_coupon_offer(){
-            const couponoffer = document.getElementById('couponoffer').value;
-            if(couponoffer === "") {
+            const couponOffer = document.getElementById('couponOffer').value;
+            if(couponOffer === "") {
                 document.getElementById('error-couponoffer').innerHTML = "Please enter the offer percentage";
                 return false;
             } else {
@@ -243,9 +243,9 @@
                     coupon_code: document.getElementById('couponCode').value,
                     coupon_description: document.getElementById('couponDescription').value,
                     offer_percentage: document.getElementById('couponOffer').value,
-                    coupon_count: document.getElementById('couponCouon').value,
+                    coupon_count: document.getElementById('couponCount').value,
                     minimum_order_amount: document.getElementById('minimum').value,
-                    maximum_offer_amount: document.getElementById('maximum').value,
+                    maximum_order_amount: document.getElementById('maximum').value,
                     start_date:document.getElementById('startDate').value,
                     ending_date:document.getElementById('expireDate').value
                 };
@@ -264,7 +264,7 @@
                             icon: 'success',
                             confirmButtonText: 'OK'
                         }).then(() => {
-                            window.location.href = '/admin/copons'; // Redirect after successfull creation
+                            window.location.href = '/admin/coupons'; // Redirect after successfull creation
                         });
                     }else{
                         Swal.fire('Error', 'Failed to create coupon', 'error');
