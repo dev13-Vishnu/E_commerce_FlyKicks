@@ -1,13 +1,13 @@
 const isLoggedIn = async (req,res,next) =>{
     try {
         if (req.session.user) {
-            console.log('username:',req.session.user);
-            console.log('checking if the user isBlocked or not:',req.session.user.isBlocked);
+            // console.log('username:',req.session.user);
+            // console.log('checking if the user isBlocked or not:',req.session.user.isBlocked);
             if (!req.session.user.isBlocked) {
-                console.log('Checking if the user is blocked or not:',req.session.user.isBlocked);
+                // console.log('Checking if the user is blocked or not:',req.session.user.isBlocked);
                 next(); 
             } else {
-                console.log('Checking if the user is blocked or not:',req.session.user.isBlocked);
+                // console.log('Checking if the user is blocked or not:',req.session.user.isBlocked);
                 req.session.destroy();
                 res.redirect('/login');
             }

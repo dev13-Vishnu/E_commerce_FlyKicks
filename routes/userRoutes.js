@@ -16,7 +16,7 @@ const userController = require("../controllers/userController");
 const cartController = require('../controllers/cartController')
 const orderController = require('../controllers/orderController');
 const wishlistController = require('../controllers/wishlistController');
-
+const couponController = require('../controllers/couponController');
 const { isLoggedOut, isLoggedIn } = require("../middlewares/userAuthentication");
 
 
@@ -97,6 +97,7 @@ userRoute.delete('/wishlist/remove',isLoggedIn,wishlistController.removeFromWish
 //order routes
 userRoute.post('/place-order-cod',isLoggedIn,orderController.placeOrderCOD);
 userRoute.post('/place-order-razorpay',isLoggedIn,orderController.placeOrderRazorPay)
+userRoute.put('/apply-coupon',isLoggedIn,couponController.applyCoupon)
 
 module.exports = userRoute;
  

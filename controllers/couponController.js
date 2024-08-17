@@ -1,4 +1,5 @@
 const Coupon = require('../models/couponModel');
+const Cart = require('../models/cartModel');
 
 const loadCouponsPage = async(req,res) =>{
     try {
@@ -127,11 +128,68 @@ const editCoupon = async (req,res)=> {
     }
 }
 
+const applyCoupon = async (req, res) => {
+    try {
+        console.log('anything');
+        const userId = req.session.user._id;
+
+        const cart = await Cart.findOne({userId});
+        
+        if (!cart) {
+            return res.json({ success: false, message: 'Cart not found for the user' });
+        }
+
+        // Extract the total amount from the cart
+        const totalPrice = cart.total;
+
+        
+
+        const  {couponCode,totalAmount}  = req.body;
+
+        console.log(req.body);
+        // Find the coupon in the database
+        const coupon = await Coupon.findOne({ coupon_code: couponCode, isBlocked: false });
+
+        if (!coupon) {
+            return res.json({ success: false, message: 'Coupon not found or blocked' });
+        }
+
+        // Ensure the coupon is valid
+        const now = new Date();
+        if (now < coupon.start_date || now > coupon.ending_date) {
+            return res.json({ success: false, message: 'Coupon is expired or not yet valid.' });
+        }
+
+
+        // Check minimum and maximum order amount
+        if (totalPrice < coupon.minimum_order_amount || totalPrice > coupon.maximum_order_amount) {
+            console.log(totalPrice,coupon.maximum_order_amount);
+            
+            return res.json({ success: false, message: 'Your order does not meet the coupon requirements.' });
+        }
+
+        // Apply the coupon
+        const discountAmount = (coupon.offer_percentage / 100) * totalPrice;
+        const newTotal = totalPrice - discountAmount;
+
+        // update cart total with new total
+        cart.total = newTotal;
+        await cart.save();
+ 
+        return res.status(200).json({ success: true, newTotal });
+    } catch (error) {
+        console.error('Error applying coupon:', error);
+        return res.status(500).json({ success: false, message: 'An error occurred while applying the coupon' });
+    }
+}
+
+
 module.exports = {
     loadCouponsPage,
     loadAddcouponPage,
     addCoupon,
     blockAndUnblockCoupon,
     loadEditCoupon,
-    editCoupon
+    editCoupon,
+    applyCoupon
 } 

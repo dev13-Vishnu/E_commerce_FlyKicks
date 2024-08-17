@@ -712,12 +712,16 @@
                         <div class="panel-collapse collapse coupon_form " id="coupon">
                             <div class="panel-body">
                                 <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
-                                <form method="post">
+                                <form id="couponForm" >
                                     <div class="form-group">
-                                        <input type="text" placeholder="Enter Coupon Code...">
+                                        <input type="text" 
+                                        id="couponCode"
+                                        placeholder="Enter Coupon Code...">
                                     </div>
                                     <div class="form-group">
-                                        <button class="btn  btn-md" name="login">Apply Coupon</button>
+                                        <button class="btn  btn-md" 
+                                        type="submit"
+                                          name="login">Apply Coupon</button>
                                     </div>
                                 </form>
                             </div>
@@ -736,7 +740,7 @@
                             <div class="row">
                                 
                                 <% if(Array.isArray(addressData)&& addressData.length >
-                                0){ %> <%addressData.forEach((addressObject,index) => {%>
+                                0){ %> <%addressData.forEach((addressObject) => {%>
                                 <%addressObject.address.forEach(address => {%>
     
                                 <div class="col-lg-6 p-2">
@@ -747,7 +751,7 @@
                                         class="form-check-input" 
                                         name="selectedAddress"
                                         value="<%=address._id%>"
-                                        id="address<%=index%>"
+                                        id=""
                                         type="radio">
                                     </div>
                                     <div class="card-body">
@@ -950,7 +954,7 @@
                                         
                                         <tr>
                                             <th>SubTotal</th>
-                                            <td class="product-subtotal" colspan="2">₹c/-</td>
+                                            <td class="product-subtotal" colspan="2">₹<%=cart.total%>/-</td>
                                         </tr>
                                         <tr>
                                             <th>Shipping</th>
@@ -958,7 +962,8 @@
                                         </tr>
                                         <tr>
                                             <th>Total</th>
-                                            <td colspan="2" class="product-subtotal"><span
+                                            <td colspan="2" class="product-overall-subtotal"><span
+                                                id="subtotal"
                                                     class="font-xl text-brand fw-900">₹<%=cart.total+50 %>/-</span></td>
                                         </tr> <% } %>
                                         
@@ -1100,6 +1105,58 @@
 
     <!-- sweetalert -->
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+// <!--apply coupon-->
+<script>
+document.getElementById('couponForm').addEventListener('submit', applyCoupon);
+
+function applyCoupon(event) {
+    event.preventDefault();
+
+    const formData = {
+        coupon_code: document.getElementById('couponCode').value,
+    }
+    const totalAmount = parseFloat('<%=cart.total%>');
+
+    console.log('couponCode',formData.coupon_code);
+    console.log('totalAmount',totalAmount);
+    fetch('/apply-coupon', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({couponCode : formData.coupon_code}),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Coupon Applied',
+                text: 'Your coupon has been applied successfully!',
+            });
+            // Update the UI with the new total price
+            document.querySelector('.product-subtotal').innerText = `₹${data.newTotal}/-`;
+            document.querySelector('.product-overall-subtotal').innerText = `₹${data.newTotal + 50}/-`;
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Coupon',
+                text: data.message || 'Please try again with a valid coupon code.',
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error parsing JSON:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Request Failed',
+            text: 'An error occurred while applying the coupon. Please try again later.',
+        });
+    });
+}
+</script>
+
+
     
     //add-address
   
@@ -1191,7 +1248,7 @@ return valid;
                 const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
                 // const userId = '<%=userData._id%>';
 
-                const totalPrice = document.getElementById('subtotal').textContent();
+                // const totalPrice = document.getElementById('subtotal').textContent();
 
                 const payment_method = document.querySelector('input[name="payment_option"]:checked').value;
 
@@ -1203,7 +1260,7 @@ return valid;
                     cartId,
                     selectedAddress : selectedAddress.value,
                     payment_method,
-                    totalPrice
+                    // totalPrice
                 }
                 // const address = {
                 //     name: document.querySelector('#addressName').value,
@@ -1347,7 +1404,6 @@ return valid;
 });
 
         </script>
-
 </body>
 
 </html>
