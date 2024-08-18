@@ -928,48 +928,73 @@
                         <div class="order_review">
                             <div class="mb-20">
                                 <h4>Your Orders</h4>
-                            </div>
-                            <div class="table-responsive order_table text-center">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th colspan="2">Product</th>
-                                            <th>Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% if(cart) { %>
-                                            <% cart.products.forEach(product => {%>
+                                </div>
+                                <div class="table-responsive order_table text-center">
+                                    <table class="table">
+                                        <thead>
                                             <tr>
-                                            <td class="image product-thumbnail"><img
-                                                    src="<%=product.productId.image[1].replace(/\\/g, '/') %>" alt=""></td>
-                                            <td>
-                                                <h5><a href="shop-product-full.html"><%=product.productId.name %> Size-<%=product.size %></a></h5>
-                                                <span class="product-qty">x<%=product.quantity %></span>
-                                            </td>
-                                            <td>₹<%=product.total_price%></td>
-                                        </tr>
-                                        <%}); %>
-                                        
-                                        
-                                        <tr>
-                                            <th>SubTotal</th>
-                                            <td class="product-subtotal" colspan="2">₹<%=cart.total%>/-</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Shipping</th>
-                                            <td colspan="2"><em>₹50/-</em></td>
-                                        </tr>
-                                        <tr>
-                                            <th>Total</th>
-                                            <td colspan="2" class="product-overall-subtotal"><span
-                                                id="subtotal"
-                                                    class="font-xl text-brand fw-900">₹<%=cart.total+50 %>/-</span></td>
-                                        </tr> <% } %>
-                                        
-                                    </tbody>
-                                </table>
-                            </div>
+                                                <th colspan="2">Product</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% if(cart) { %>
+                                                <% cart.products.forEach(product => {%>
+                                                <tr>
+                                                    <td class="image product-thumbnail">
+                                                        <img src="<%=product.productId.image[1].replace(/\\/g, '/') %>" alt="">
+                                                    </td>
+                                                    <td>
+                                                        <h5>
+                                                            <a href="shop-product-full.html">
+                                                                <%=product.productId.name %> Size-<%=product.size %>
+                                                            </a>
+                                                        </h5>
+                                                        <span class="product-qty">x<%=product.quantity %></span>
+                                                    </td>
+                                                    <td>₹<%=product.total_price%></td>
+                                                </tr>
+                                                <% }); %>
+                                                
+                                                <tr>
+                                                    <th>SubTotal</th>
+                                                    <td id="product_subtotal" class="product-subtotal" colspan="2">
+                                                        ₹<%=cart.total%>/-
+                                                    </td>
+                                                </tr>
+
+                                                <% if (cart.total < 10000) { %>
+                                                <tr>
+                                                    <th>Shipping</th>
+                                                    <td colspan="2"><em>₹500/-(Free shipping for orders above ₹10000/-)</em></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total</th>
+                                                    <td id="product_overall_subtotal" colspan="2" class="product-overall-subtotal">
+                                                        ₹<span id="subtotal" class="font-xl text-brand fw-900">
+                                                            <%=cart.total + 500 %>
+                                                        </span>/-
+                                                    </td>
+                                                </tr>
+                                                <% } else { %>
+                                                <tr>
+                                                    <th>Shipping</th>
+                                                    <td colspan="2"><em>Free Shipping</em></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total</th>
+                                                    <td id="product_overall_subtotal" colspan="2" class="product-overall-subtotal">
+                                                        ₹<span id="subtotal" class="font-xl text-brand fw-900">
+                                                            <%=cart.total %>
+                                                        </span>/-
+                                                    </td>
+                                                </tr>
+                                                <% } %>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+
                             <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                             <div class="payment_method">
                                 <div class="mb-25">
@@ -1107,53 +1132,116 @@
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 // <!--apply coupon-->
 <script>
-document.getElementById('couponForm').addEventListener('submit', applyCoupon);
-
-function applyCoupon(event) {
+document.getElementById('couponForm').addEventListener('submit',function (event) {
     event.preventDefault();
 
-    const formData = {
-        coupon_code: document.getElementById('couponCode').value,
-    }
-    const totalAmount = parseFloat('<%=cart.total%>');
+        const couponCode = document.getElementById('couponCode').value;
+    
 
-    console.log('couponCode',formData.coupon_code);
-    console.log('totalAmount',totalAmount);
-    fetch('/apply-coupon', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({couponCode : formData.coupon_code}),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Coupon Applied',
-                text: 'Your coupon has been applied successfully!',
-            });
-            // Update the UI with the new total price
-            document.querySelector('.product-subtotal').innerText = `₹${data.newTotal}/-`;
-            document.querySelector('.product-overall-subtotal').innerText = `₹${data.newTotal + 50}/-`;
-        } else {
+    console.log('couponCode',couponCode);
+    // Make sure the action is only performed when the button says "Apply coupon"
+
+    if(document.querySelector('#couponForm button').textContent ==='Apply Coupon'){
+        fetch('/apply-coupon', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({couponCode}),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Coupon Applied',
+                    text: 'Your coupon has been applied successfully!',
+                });
+                // Replace "Apply Coupon" with "Remove Coupon"
+                document.querySelector('#couponForm button').textContent = 'Remove Coupon';
+                document.querySelector('#couponForm button').style.backgroundColor = 'red';
+                document.getElementById('couponCode').style.display = 'none';
+                
+                // Update the UI with the new total price
+                document.querySelector('.product-subtotal').innerText = `₹${data.newTotal}/-`;
+
+                
+                if(data.newTotal< 10000){
+                document.querySelector('.product-overall-subtotal').innerText = `₹${data.newTotal + 500}/-`;
+                }else{
+                    document.querySelector('.product-overall-subtotal').innerText = `₹${data.newTotal}/-`;
+                }
+            } else { 
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Coupon',
+                    text: data.message || 'Please try again with a valid coupon code.',
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error parsing JSON:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Invalid Coupon',
-                text: data.message || 'Please try again with a valid coupon code.',
+                title: 'Request Failed',
+                text: 'An error occurred while applying the coupon. Please try again later.',
+            });
+        });
+    }
+});
+
+document.querySelector('#couponForm button').addEventListener('click', function(event) {
+        if (event.target.textContent === 'Remove Coupon') {
+            //Prevent the form's submit event from triggerin
+            event.preventDefault();
+            event.stopPropagation();
+            fetch('/remove-coupon', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Coupon Removed',
+                        text: data.message,
+                    }).then(() => {
+                        // Replace "Remove Coupon" with "Apply Coupon"
+                        document.querySelector('#couponForm button').textContent = 'Apply Coupon';
+                        document.querySelector('#couponForm button').style.backgroundColor = '';
+                        // Additional code to update the total price on the page
+                        document.getElementById('couponCode').style.display = 'block';
+                        // Update the UI with the new total price
+                        document.querySelector('.product-subtotal').innerText = `₹${data.totalPrice}/-`;
+
+                        
+                        if(data.totalPrice< 10000){
+                        document.querySelector('.product-overall-subtotal').innerText = `₹${data.totalPrice + 500}/-`;
+                        }else{
+                            document.querySelector('.product-overall-subtotal').innerText = `₹${data.totalPrice}/-`;
+}
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message,
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong!',
+                });
             });
         }
-    })
-    .catch(error => {
-        console.error('Error parsing JSON:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Request Failed',
-            text: 'An error occurred while applying the coupon. Please try again later.',
-        });
     });
-}
 </script>
 
 
@@ -1238,6 +1326,8 @@ return valid;
 }
         
     </script>
+
+    // place order
     <script>
         var cartId = '<%=cart._id%>'
         document.addEventListener('DOMContentLoaded',() => {
@@ -1256,7 +1346,15 @@ return valid;
                     alert('Please select a billling address before plaicng your order.');
                     return;
                 }
+                let priceString = document.getElementById('product_overall_subtotal').textContent;
+
+                // Remove special characters (₹ and /-)
+                let sanitizedPrice = priceString.replace(/[^\d.-]/g, '');
+
+                let orderTotalAmount= parseFloat(sanitizedPrice);
+
                 const orderData = {
+                    orderTotalAmount,
                     cartId,
                     selectedAddress : selectedAddress.value,
                     payment_method,

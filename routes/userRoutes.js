@@ -98,6 +98,6 @@ userRoute.delete('/wishlist/remove',isLoggedIn,wishlistController.removeFromWish
 userRoute.post('/place-order-cod',isLoggedIn,orderController.placeOrderCOD);
 userRoute.post('/place-order-razorpay',isLoggedIn,orderController.placeOrderRazorPay)
 userRoute.put('/apply-coupon',isLoggedIn,couponController.applyCoupon)
-
+userRoute.post('/remove-coupon',isLoggedIn,couponController.removeCoupon);
 module.exports = userRoute;
  

@@ -706,18 +706,36 @@
                                                     <td class="cart_total_label">Cart Subtotal</td>
                                                     <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">₹<%=cart.total %>/-</span></td>
                                                 </tr>
+                            
+                                                <% if (cart.total < 10000) { %>
                                                 <tr>
                                                     <td class="cart_total_label">Shipping</td>
-                                                    <td class="cart_total_amount"> <i class="ti-gift mr-5"></i>₹50/-</td>
+                                                    <td class="cart_total_amount"> <i class="ti-gift mr-5"></i>₹500/- (Free shipping for orders above ₹10000/-)</td>
                                                 </tr>
                                                 <tr>
                                                     <td class="cart_total_label">Total</td>
-                                                    <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">₹<%=cart.total+50 %>/-</span></strong></td>
+                                                    <td class="cart_total_amount">
+                                                        <strong><span class="font-xl fw-900 text-brand">₹<%=cart.total + 500 %>/-</span></strong>
+                                                    </td>
                                                 </tr>
+                                                <% } else { %>
+                                                <tr>
+                                                    <td class="cart_total_label">Shipping</td>
+                                                    <td class="cart_total_amount"> <i class="ti-gift mr-5"></i>Free Shipping</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="cart_total_label">Total</td>
+                                                    <td class="cart_total_amount">
+                                                        <strong><span class="font-xl fw-900 text-brand">₹<%=cart.total %>/-</span></strong>
+                                                    </td>
+                                                </tr>
+                                                <% } %>
                                             </tbody>
                                         </table>
                                     </div>
-                                    <a href="/cart-checkout" class="btn "> <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut</a>
+                                    <a href="/cart-checkout" class="btn"> 
+                                        <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut
+                                    </a>
                         <% } else { %>
                             <tr>
                                 <h2 class="text-danger"> Your cart is empty</h2>

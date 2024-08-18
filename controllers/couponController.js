@@ -169,13 +169,9 @@ const applyCoupon = async (req, res) => {
         }
 
         // Apply the coupon
-        const discountAmount = (coupon.offer_percentage / 100) * totalPrice;
+    const discountAmount = (coupon.offer_percentage / 100) * totalPrice;
         const newTotal = totalPrice - discountAmount;
 
-        // update cart total with new total
-        cart.total = newTotal;
-        await cart.save();
- 
         return res.status(200).json({ success: true, newTotal });
     } catch (error) {
         console.error('Error applying coupon:', error);
@@ -183,6 +179,29 @@ const applyCoupon = async (req, res) => {
     }
 }
 
+const removeCoupon  = async (req,res) => {
+    try {
+
+        console.log('remove coupon')
+
+        const userId = req.session.user._id;
+
+        const cart = await Cart.findOne({userId});
+        
+        if (!cart) {
+            return res.json({ success: false, message: 'Cart not found for the user' });
+        }
+
+        // Extract the total amount from the cart
+        const totalPrice = cart.total;
+
+
+        return res.json({success:true, totalPrice});
+    } catch (error) {
+        console.error('Error removing coupon:', error);
+        return res.status(500).json({ success: false, message: 'An error occurred while removing the coupon' });
+    }
+}
 
 module.exports = {
     loadCouponsPage,
@@ -191,5 +210,6 @@ module.exports = {
     blockAndUnblockCoupon,
     loadEditCoupon,
     editCoupon,
-    applyCoupon
+    applyCoupon,
+    removeCoupon
 } 

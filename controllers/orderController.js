@@ -26,7 +26,7 @@ const cancelOrder = async(req,res) =>{
 
         res.status(200).json({success:true,message:'Order cancelled successfully'});
 
-
+ 
     } catch (error) {
         console.error('Error cancelling order:',error);
         res.status(500).json({success:false,message: 'Failed to cancel order'})
@@ -60,7 +60,7 @@ const loadCheckout = async(req,res) =>{
   const placeOrderCOD = async (req,res) =>{
     try {
       const userId = req.session.user._id;
-      const {selectedAddress,payment_method,index}= req.body;
+      const {selectedAddress,payment_method,index,orderTotalAmount}= req.body;
 
       
       // const user = User.findById(userId);
@@ -84,7 +84,7 @@ const loadCheckout = async(req,res) =>{
           quantity: product.quantity,
           productPrice: product.total_price,
         })),
-        totalPrice: cart.total + 50,
+        totalPrice: orderTotalAmount, 
         payment_method,
         payment_status: 'Failed',
       };
