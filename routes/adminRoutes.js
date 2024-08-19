@@ -7,6 +7,7 @@ const productController = require('../controllers/productController');
 const categoryController = require('../controllers/categoryController');
 const ordersListcontroller = require('../controllers/orderListController');
 const couponController = require('../controllers/couponController');
+const orderController = require('../controllers/orderController');
 
 adminRoutes.get('/',auth.isLogout,adminController.login);
 adminRoutes.post('/',auth.isLogout,adminController.verifyLogin);
@@ -37,10 +38,11 @@ adminRoutes.delete('/products/delete',auth.isLogin,productController.deleteProdu
 adminRoutes.delete('/products/edit/remove-image',productController.removeImage);
 adminRoutes.put('/products/edit',productController.editProduct);
 
-//order-lists
+//order
 adminRoutes.get('/orders-list',auth.isLogin,ordersListcontroller.loadOrdersList)
 adminRoutes.get('/order-details',auth.isLogin,ordersListcontroller.loadOrderDetails)
 adminRoutes.post('/cancel-order',auth.isLogin,ordersListcontroller.cancelOrder)
+adminRoutes.post('/update-product-status',auth.isLogin,orderController.orderStatus);
 
 //coupons
 adminRoutes.get('/coupons',auth.isLogin,couponController.loadCouponsPage)
@@ -49,4 +51,6 @@ adminRoutes.post('/addcoupons',auth.isLogin,couponController.addCoupon);
 adminRoutes.post('/coupon/block/:id',auth.isLogin,couponController.blockAndUnblockCoupon);
 adminRoutes.get('/coupon/edit',auth.isLogin,couponController.loadEditCoupon);
 adminRoutes.put('/coupon/edit/:id',auth.isLogin,couponController.editCoupon);
+
+
 module.exports = adminRoutes;

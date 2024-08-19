@@ -4,6 +4,15 @@ const Cart = require('../models/cartModel');
 const Address = require('../models/addressModel');
 const User = require('../models/userModel');
 const Razorpay = require('razorpay');
+const crypto = require('crypto')  
+
+
+
+
+const razorpayInstance = new Razorpay ({
+key_id: process.env.RAZORPAY_ID_KEY,
+key_secret: process.env.RAZORPAY_SECRET_KEY
+});
 
 const cancelOrder = async(req,res) =>{
     try {
@@ -57,119 +66,195 @@ const loadCheckout = async(req,res) =>{
     }
   }
 
-  const placeOrderCOD = async (req,res) =>{
-    try {
+  
+  // Controller to handle COD orders
+const placeOrderCOD = async (req, res) => {
+  try {
       const userId = req.session.user._id;
-      const {selectedAddress,payment_method,index,orderTotalAmount}= req.body;
+      const { selectedAddress, orderTotalAmount } = req.body;
 
-      
-      // const user = User.findById(userId);
-      const addressDoc = await Address.findOne({userId,'address._id':selectedAddress},{'address.$': 1});
-      
-      const address = addressDoc.address[0]
-      console.log('cartControler place order address:',address)
-      //Fetch the user's cart
-      const cart = await Cart.findOne({userId}).populate('products.productId');
-      if(!cart) {
-        return res.status(404).send('Cart not found');
+      // Get the selected address
+      const addressDoc = await Address.findOne({ userId, 'address._id': selectedAddress }, { 'address.$': 1 });
+      if (!addressDoc) return res.status(404).json({ success: false, message: 'Address not found' });
 
-      }
+      const address = addressDoc.address[0];
 
+      // Fetch the user's cart
+      const cart = await Cart.findOne({ userId }).populate('products.productId');
+      if (!cart) return res.status(404).json({ success: false, message: 'Cart not found' });
+
+      // Determine if the order qualifies for free shipping
+      const freeShipping = orderTotalAmount >= 10000;
+
+      // Prepare the order data
       const orderData = {
-        userId,
-        address,
-        products: cart.products.map(product => ({
-          productId: product.productId._id,
-          size: product.size,
-          quantity: product.quantity,
-          productPrice: product.total_price,
-        })),
-        totalPrice: orderTotalAmount, 
-        payment_method,
-        payment_status: 'Failed',
+          userId,
+          cartId: cart._id,
+          products: cart.products.map(product => ({
+              productId: product.productId._id,
+              size: product.size,
+              quantity: product.quantity,
+              productPrice: product.productId.price,
+          })),
+          address: {
+              name: address.name,
+              street: address.street,
+              country: address.country,
+              city: address.city,
+              state: address.state,
+              pincode: address.pincode,
+              mobile: address.mobile.toString(),
+              email: '',
+          },
+          payableAmount: orderTotalAmount,
+          freeShipping: freeShipping,
+          paymentMethod: 'COD',
+          paymentStatus: 'Pending',
       };
 
-      
-      
-
+      // Save the order to the database
       const order = new Order(orderData);
       await order.save();
 
-      for(const product of cart.products) {
-        const updateField = `stock.${product.size}`;
-        await Product.findByIdAndUpdate(product.productId._id,{
-          $inc:{[updateField]:-product.quantity},
-        });
+      // Update the product stock
+      for (const product of cart.products) {
+          const updateField = `stock.${product.size}`;
+          await Product.findByIdAndUpdate(product.productId._id, {
+              $inc: { [updateField]: -product.quantity },
+          });
       }
-      await Cart.findOneAndDelete({userId});
+
+      // Clear the cart after the order is placed
+      await Cart.findOneAndDelete({ userId });
+
       res.status(200).json({ success: true, message: 'Order placed successfully', order });
-
-
-    } catch (error) {
+  } catch (error) {
       console.error('Error during checkout:', error);
       res.status(500).json({ success: false, message: 'Failed to place order' });
-    }
   }
+};
 
-const placeOrderRazorPay = async (req,res) =>{
+// Controller to handle Razorpay orders
+const placeOrderRazorPay = async (req, res) => {
+  try {
+      const { selectedAddress, amount } = req.body;
+      const receiptId = `order-rcpt-${Date.now()}`;
 
-    
-    const {selectedAddress, payment_method, total_amount} = req.body;
-    
-    const razorpayInstance = new Razorpay ({
-    key_id: process.env.RAZORPAY_ID_KEY,
-    key_secret: process.env.RAZORPAY_SECRET_KEY
-    });
+      // Create a new Razorpay order
+      const order = await razorpayInstance.orders.create({
+          amount: amount ,  // Razorpay expects the amount in paisa
+          currency: 'INR',
+          receipt: receiptId,
+      });
 
-    const amountInPaise = total_amount * 100;
+      res.status(200).json({ success: true, orderId: order.id });
+  } catch (error) {
+      console.error('Error during Razorpay order creation:', error);
+      res.status(500).json({ success: false, message: 'Failed to create Razorpay order' });
+  }
+};
 
-    const options = {
-        amount: amountInPaise,
-        currency: "INR",
-        receipt: "order_reptid_11"
-    };
+// Controller to verify Razorpay payment
+const verifyPayment = async (req, res) => {
+  try {
+      const { data, payload } = req.body;
+      const userId = req.session.user._id;
+
+      const cart = await Cart.findOne({ userId }).populate('products.productId');
+      if (!cart) return res.status(404).json({ success: false, message: 'Cart not found' });
+
+      const addressDoc = await Address.findOne({ userId, 'address._id': data.address }, { 'address.$': 1 });
+      if (!addressDoc) return res.status(404).json({ success: false, message: 'Address not found' });
+
+      const address = addressDoc.address[0];
+
+      const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = payload.payment;
+
+      // Verify the payment signature
+      let hmac = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY);
+      hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+      hmac = hmac.digest("hex");
+
+      // Determine if the order qualifies for free shipping
+      const freeShipping = data.amount >= 10000;
+
+      if (hmac === razorpay_signature) {
+          // Signature is valid, process the order
+          const orderData = {
+              userId,
+              cartId: cart._id,
+              products: cart.products.map(product => ({
+                  productId: product.productId._id,
+                  size: product.size,
+                  quantity: product.quantity,
+                  productPrice: product.productId.price,
+              })),
+              address: {
+                  name: address.name,
+                  street: address.street,
+                  country: address.country,
+                  city: address.city,
+                  state: address.state,
+                  pincode: address.pincode,
+                  mobile: address.mobile.toString(),
+                  email: '',
+              },
+              payableAmount: data.amount,
+              freeShipping: freeShipping,
+              paymentMethod: 'RazorPay',
+              paymentStatus: 'Success',
+          };
+
+          const order = new Order(orderData);
+          await order.save();
+
+          // Update the product stock
+          for (const product of cart.products) {
+              const updateField = `stock.${product.size}`;
+              await Product.findByIdAndUpdate(product.productId._id, {
+                  $inc: { [updateField]: -product.quantity },
+              });
+          }
+
+          // Clear the cart after the order is placed
+          await Cart.findOneAndDelete({ userId });
+
+          res.status(200).json({ success: true, message: 'Payment verified and order placed successfully', order });
+      } else {
+          res.status(400).json({ success: false, message: 'Payment verification failed' });
+      }
+  } catch (error) {
+      console.error('Error during payment verification:', error);
+      res.status(500).json({ success: false, message: 'Failed to verify payment' });
+  }
+};
+  
+const orderStatus = async (req, res) => {
+    const { orderId, productId, newStatus } = req.body;
+
     try {
-        const userId = req.session.user._id;
-        const razorpayOrder = await razorpayInstance.orders.create(options);
+        const order = await Order.findOneAndUpdate(
+            { _id: orderId, "products._id": productId },
+            { $set: { "products.$.status": newStatus } },
+            { new: true }
+        );
 
-        const addressDoc = await Address.findOne({userId,'address._id':selectedAddress},{'address.$':1});
-
-        const address = addressDoc.address[0];
-        console.log('cartController placeOrderRazorpay address:',address);
-
-        const cart = await Cart.findOne({userId}).populate('products.productId');
-
-        if(!cart) {
-            return res.status(404).send('Cart not found');
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order or Product not found." });
         }
-        //Create the order document and save it to the database
 
-        const newOrder = new Order({
-            userId,
-            orderId: razorpayOrder.id,
-            products: cart.products.map(product => ({
-                productId: product.productId._id,
-                size: product.quantity,
-                productPrice:product.total_price,
-            })),
-            address,
-            totalPrice: total_amount,
-            payment_method,
-            payment_status:'pending',
-
-        }); 
-        await newOrder.save();
-        // await Cart.findOneAndDelete({userId});
-        res.json({ success: true, paymentUrl:`http://checkout.razorpay.com/v1/checkout.js?order_id=${razorpayOrder.id}`});
-
+        res.json({ success: true, message: "Product status updated successfully." });
     } catch (error) {
-        
+        console.error("Error updating product status:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error." });
     }
-  }
+};
 
 module.exports = {
     cancelOrder,
     placeOrderCOD,
     loadCheckout,
-    placeOrderRazorPay
+    placeOrderRazorPay,
+    verifyPayment,
+    orderStatus
 } 

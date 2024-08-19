@@ -1,136 +1,123 @@
-const mongoose = require ('mongoose');
+const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
-    {
-        userId : {
-            type: mongoose.Schema.Types.ObjectId,
-            ref:'user',
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
+    cartId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "carts",
+      required: true,
+    },
+    orderId: {
+      type: String,
+      default: () => {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+      },
+      unique: true,
+    },
+    products: [
+      {
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "products",
+          required: true,
+        },
+        size: {
+          type: String,
+          required: true,
+        },
+        productPrice: {
+          type: Number,
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          min: 1,
+        },
+        status: {
+          type: String,
+          enum: [
+            "Pending",
+            "Processing",
+            "Shipped",
+            "Delivered",
+            "Cancelled",
+          "Return Pending",
+            "Return Cancelled",
+            "Return Success",
+          ],
+          default: "Pending",
+        },
+        reason: {
+          type: String,
+          required: false,
+        },
+      },
+    ],
+    address:[{
+        name:{
+            type:String,
             required:true
         },
-        orderId: {
-          type: String,
-          default: () => {
-            return Math.floor(100000 + Math.random() * 900000).toString();
-          },
-          unique: true,
-        },
-        products:[
-            {
-                productId: {
-                    type:mongoose.Schema.Types.ObjectId,
-                    ref:'products'
-
-                },
-                size : {
-                    type: String,
-                    required: true
-                },
-                quantity: {
-                    type:Number,
-                    required:true,
-                    default: 1
-                },
-                productPrice: {
-                    type: Number,
-                    required: true
-                },
-                product_orderStatus:
-                {
-                    type:String,
-                    enum:[
-                        "Pending",
-                        "Compleated",
-                        "Canceled",
-                        "Return",
-                        "Shipped",
-                        "Return Pending",
-                        "Return Cancelled",
-                        "Return Compleatd",
-                        "Payment Failed"
-                    ],
-                    default:"Pending"
-                },
-                Payment_method:{
-                    method:{
-                        type:String,
-                        enum: ['cod','Walled','RazonrPay'],
-
-                    }
-                },
-                payment_status: {
-                    type: String,
-                    enum:["Failed","Success"],
-                    default:'Failed'
-                },
-                message:{
-                    type:String,
-                    default:""
-                },
-                date:{
-                    type:Date,
-                    default:Date.now()
-                },
-                coupon: {
-                    type:mongoose.Schema.Types.ObjectId,
-                    ref:"coupon",
-                    default: null
-                },
-                cartId:{
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref:'cart'
-                },
-                delivery: {
-                    type: Number,
-                    default:0
-                }
-            }
-        ],
-        address:[{
-            name:{
-                type:String,
-                required:true
-            },
-            mobile:{
-                type:Number,
-                required:true
-            },
-            country:{
-                type:String,
-                required:true
-            },
-            state:{
-                type:String,
-                required:true
-            },
-            city:{
-                type:String,
-                required:true
-            },
-            street:{
-                type:String,
-                required:true
-            },
-            pincode:{
-                type:Number,
-                required:true
-            },
-            isDefault:{
-                type:Boolean,
-                default:false
-            }
-        }],
-        totalPrice : {
-            type: Number,
-            required: true
-        },
-        wallet:{
+        mobile:{
             type:Number,
-            default: 0
+            required:true
         },
+        country:{
+            type:String,
+            required:true
+        },
+        state:{
+            type:String,
+            required:true
+        },
+        city:{
+            type:String,
+            required:true
+        },
+        street:{
+            type:String,
+            required:true
+        },
+        pincode:{
+            type:Number,
+            required:true
+        },
+        isDefault:{
+            type:Boolean,
+            default:false
+        }
+    }],
+    payableAmount: {
+      type: Number,
+      required: true,
+    },
+    coupon: {
+      type: String,
+    },
+    freeShipping: {
+      type: Boolean,
+      required: true,
+    },
+    paymentMethod: {
+      type: String,
+      enum: ["COD", "RazorPay"],
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["Success", "Pending", "Failed"],
+    },
+    orderDate: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+  { timestamps: true }
+);
 
-    },{
-        timestamps:true
-    }
-)
-
-module.exports = mongoose.model("order",orderSchema)
+module.exports = mongoose.model("orders", orderSchema);

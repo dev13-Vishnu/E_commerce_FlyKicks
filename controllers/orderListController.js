@@ -34,7 +34,7 @@ const loadOrderDetails = async(req,res) => {
     }
 }
 
-const cancelOrder = async(req,res) =>{
+const cancelOrder = async (req, res) => {
     const { orderId } = req.body;
 
     try {
@@ -43,10 +43,10 @@ const cancelOrder = async(req,res) =>{
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        // Update the order status to 'Canceled' and update the product stock
+        // Update the order status to 'Cancelled' and update the product stock
         for (let product of order.products) {
-            if (product.product_orderStatus === 'Pending') {
-                product.product_orderStatus = 'Canceled';
+            if (product.status === 'Pending') { // Check if the product status is 'Pending'
+                product.status = 'Cancelled'; // Set the product status to 'Cancelled'
 
                 const productDoc = product.productId;
                 if (productDoc) {
@@ -64,13 +64,13 @@ const cancelOrder = async(req,res) =>{
 
         await order.save();
 
-        res.json({ success: true });
+        res.json({ success: true, message: 'Order cancelled successfully' });
     } catch (err) {
         console.error(`Error: ${err.message}`);
         res.status(500).json({ success: false, message: 'Server error: ' + err.message });
     }
+};
 
-}
 
 module.exports ={
     loadOrdersList,

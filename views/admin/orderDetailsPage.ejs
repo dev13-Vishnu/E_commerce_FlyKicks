@@ -87,23 +87,15 @@
                     <div class="row align-items-center">
                         <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
                             <span>
-                                <i class="material-icons md-calendar_today"></i> <b<%= order.date %></b>
+                                <i class="material-icons md-calendar_today"></i> <b><%= order.date %></b>
                             </span> <br>
-                            <small class="text-muted">Order ID:  <%= order.orderId %></small>
+                            <small class="text-muted">Order ID: <%= order.orderId %></small>
                         </div>
                         <div class="col-lg-6 col-md-6 ms-auto text-md-end">
-                            <select class="form-select d-inline-block mb-lg-0 mb-15 mw-200">
-                                <option>Change status</option>
-                                <option<%= order.products[0].product_orderStatus === 'Awaiting payment' ? ' selected' : '' %>>Awaiting payment</option>
-                                <option<%= order.products[0].product_orderStatus === 'Confirmed' ? ' selected' : '' %>>Confirmed</option>
-                                <option<%= order.products[0].product_orderStatus === 'Shipped' ? ' selected' : '' %>>Shipped</option>
-                                <option<%= order.products[0].product_orderStatus === 'Delivered' ? ' selected' : '' %>>Delivered</option>
-                            </select>
-                            <a class="btn btn-primary" href="#">Save</a>
                             <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a>
                         </div>
                     </div>
-                </header> <!-- card-header end// -->
+                </header>
                 <div class="card-body">
                     <div class="row mb-50 mt-20 order-info-wrap">
                         <div class="col-md-4">
@@ -119,7 +111,7 @@
                                     <a href="#">View profile</a>
                                 </div>
                             </article>
-                        </div> <!-- col// -->
+                        </div>
                         <div class="col-md-4">
                             <article class="icontext align-items-start">
                                 <span class="icon icon-sm rounded-circle bg-primary-light">
@@ -136,10 +128,9 @@
                                         <%=order.address[0].country %>,<br />
                                         <%=order.address[0].mobile %>,<br />
                                     </p>
-                                    <!-- <a href="#">Download info</a> -->
                                 </div>
                             </article>
-                        </div> <!-- col// -->
+                        </div>
                         <div class="col-md-4">
                             <article class="icontext align-items-start">
                                 <span class="icon icon-sm rounded-circle bg-primary-light">
@@ -150,21 +141,20 @@
                                     <p class="mb-1">
                                         City: <%= order.address[0].city %>, <%= order.address[0].country %> <br> <%= order.address[0].street %>, <%= order.address[0].state %> <br> Po Box <%= order.address[0].pincode %>
                                     </p>
-                                    <a href="#">View profile</a>
                                 </div>
                             </article>
-                        </div> <!-- col// -->
-                    </div> <!-- row // -->
+                        </div>
+                    </div>
                     <div class="row">
-                        <div class="col-lg-7">
                             <div class="table-responsive">
                                 <table class="table">
                                     <thead>
                                         <tr>
-                                            <th width="40%">Product</th>
-                                            <th width="20%">Unit Price</th>
-                                            <th width="20%">Quantity</th>
+                                            <th width="30%">Product</th>
+                                            <th width="15%">Unit Price</th>
+                                            <th width="10%">Quantity</th>
                                             <th width="20%" class="text-end">Total</th>
+                                            <th width="25%">Product Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -173,35 +163,53 @@
                                             <td>
                                                 <a class="itemside" href="#">
                                                     <div class="left">
-                                                        <img src="/<%=product.productId.image[1].replace(/\\/g, '/') %>" width="40" height="40" class="img-xs" alt="Item">
+                                                        <img src="/<%= product.productId.image[1] ? product.productId.image[1].replace(/\\/g, '/') : product.productId.image[0].replace(/\\/g, '/') %>" width="40" height="40" class="img-xs" alt="Item">
                                                     </div>
-                                                    <div class="info"> <%= product.productId.name %> </div>
+                                                    <div class="info">
+                                                        <%= product.productId.name %>
+                                                    </div>
                                                 </a>
                                             </td>
                                             <td> ₹<%= (product.productPrice).toFixed(2) %> </td>
                                             <td> <%= product.quantity %> </td>
                                             <td class="text-end">₹<%= (product.productPrice * product.quantity).toFixed(2) %> </td>
+                                            <td>
+                                                <select class="form-select d-inline-block mw-200 product-status" data-order-id="<%= order._id %>" data-product-id="<%= product._id %>">
+                                                    <option value="Pending"<%= product.status === 'Pending' ? ' selected' : '' %>>Pending</option>
+                                                    <option value="Processing"<%= product.status === 'Processing' ? ' selected' : '' %>>Processing</option>
+                                                    <option value="Shipped"<%= product.status === 'Shipped' ? ' selected' : '' %>>Shipped</option>
+                                                    <option value="Delivered"<%= product.status === 'Delivered' ? ' selected' : '' %>>Delivered</option>
+                                                    <option value="Cancelled"<%= product.status === 'Cancelled' ? ' selected' : '' %>>Cancelled</option>
+                                                    <option value="Return Pending"<%= product.status === 'Return Pending' ? ' selected' : '' %>>Return Pending</option>
+                                                    <option value="Return Cancelled"<%= product.status === 'Return Cancelled' ? ' selected' : '' %>>Return Cancelled</option>
+                                                    <option value="Return Success"<%= product.status === 'Return Success' ? ' selected' : '' %>>Return Success</option>
+                                                </select>
+                                            </td>
                                         </tr>
                                         <% }) %>
                                         <tr>
-                                            <td colspan="4">
+                                            <td colspan="5">
                                                 <article class="float-end">
                                                     <dl class="dlist">
                                                         <dt>Subtotal:</dt>
-                                                        <dd>₹<%= (order.totalPrice-50).toFixed(2) %></dd>
+                                                        <dd>₹<%= (order.payableAmount).toFixed(2) %></dd>
                                                     </dl>
                                                     <dl class="dlist">
                                                         <dt>Shipping cost:</dt>
-                                                        <dd>₹<%= (order.products[0].delivery).toFixed(2) %></dd>
+                                                        <dd>₹<%= (order.freeShipping ? 0 : 50).toFixed(2) %></dd>
                                                     </dl>
                                                     <dl class="dlist">
                                                         <dt>Grand total:</dt>
-                                                        <dd> <b class="h5">₹<%= ((order.totalPrice + order.products[0].delivery)).toFixed(2) %></b> </dd>
+                                                        <dd>
+                                                            <b class="h5">₹<%= (order.payableAmount + (order.freeShipping ? 0 : 50)).toFixed(2) %></b>
+                                                        </dd>
                                                     </dl>
                                                     <dl class="dlist">
-                                                        <dt class="text-muted">Status:</dt>
+                                                        <dt class="text-muted">Payment Status:</dt>
                                                         <dd>
-                                                            <span class="badge rounded-pill alert-success text-success"><%= order.products[0].payment_status === 'Failed' ? 'Payment Failed' : 'Payment done' %></span>
+                                                            <span class="badge rounded-pill alert-<%= order.paymentStatus === 'Failed' ? 'danger' : 'success' %> text-<%= order.paymentStatus === 'Failed' ? 'danger' : 'success' %>">
+                                                                <%= order.paymentStatus === 'Failed' ? 'Payment Failed' : 'Payment done' %>
+                                                            </span>
                                                         </dd>
                                                     </dl>
                                                 </article>
@@ -209,31 +217,17 @@
                                         </tr>
                                     </tbody>
                                 </table>
-                            </div> <!-- table-responsive// -->
-                            <!-- <a class="btn btn-primary" href="page-orders-tracking.html">View Order Tracking</a> -->
-                        </div> <!-- col// -->
+                            </div>
+                        <div class="col-lg-7">
+                        </div>
                         <div class="col-lg-1"></div>
-                        <div class="col-lg-4">
-                            <!-- <div class="box shadow-sm bg-light">
-                                <h6 class="mb-15">Payment info</h6>
-                                <p>
-                                    <img src="/admin/assets/imgs/card-brands/2.png" class="border" height="20"> Master Card **** **** 4768 <br>
-                                    Business name: Grand Market LLC <br>
-                                    Phone: +1 (800) 555-154-52
-                                </p>
-                            </div>
-                            <div class="h-25 pt-4">
-                                <div class="mb-3">
-                                    <label>Notes</label>
-                                    <textarea class="form-control" name="notes" id="notes" placeholder="Type some note"></textarea>
-                                </div>
-                                <button class="btn btn-primary">Save note</button>
-                            </div>
-                        </div> col// -->
+                        <div class="col-lg-4"></div>
                     </div>
-                </div> <!-- card-body end// -->
-            </div> <!-- card end// -->
-        </section> <!-- content-main end// -->
+                </div>
+            </div>
+        </section>
+        
+        
         <footer class="main-footer font-xs">
             <div class="row pb-30 pt-15">
                 <div class="col-sm-6">
@@ -256,6 +250,54 @@
     <script src="/admin/assets/js/vendors/jquery.fullscreen.min.js"></script>
     <!-- Main Script -->
     <script src="/admin/assets/js/main.js" type="text/javascript"></script>
+    <!-- sweet alert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- change the product status in order -->
+     <script>
+        document.querySelectorAll('.product-status').forEach(select => {
+    select.addEventListener('change', function() {
+        const orderId = this.dataset.orderId;
+        const productId = this.dataset.productId;
+        const newStatus = this.value;
+
+        fetch('/admin/update-product-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ orderId, productId, newStatus })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Order status updated successfully!',
+                    icon: 'success',
+                    showConfirmButton:false,
+                    timer:1000
+                    });
+
+            } else {
+                Swal.fire({
+                title: 'Failed!',
+                text: 'Failed to update product status.',
+                icon: 'error',
+                showConfirmButton:false,
+                timer:1000
+            });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the status.');
+        });
+    });
+});
+
+
+     </script>
 </body>
 
 </html>

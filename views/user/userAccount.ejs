@@ -468,47 +468,49 @@
                             <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table">
-                                <thead>
-                                    <tr>
-                                    <th>Order</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Total</th>
-                                    <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-                                    <% if(orderData){ %>
-                                        <%orderData.forEach(orders=>{%>
-                                            
-                                    <tr id="order-row-<%=orders._id %>">
-                                    <td><%=orders.orderId %></td>
-                                    <td><%= orders.createdAt.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) %></td>
-                                    <td id="order-status-<%=orders._id %>"><%=orders.products[0].product_orderStatus %></td>
-                                    <td> ₹<%=orders.totalPrice %> /-for <%=orders.products.length %> item</td>
-                                    <td>
-                                        <% if(orders.products[0].product_orderStatus === 'Pending'){ %>
-                                        <a href="#" onclick="cancelOrder('<%=orders._id%>')" class="btn-small d-block"
-                                        >Cancel</a>
-                                        <% }else{ %>
-                                            <span class ="text-muted">Cannot Cancel</span>
-                                            <% } %>
-                                        
-                                    </td>
-                                    </tr>
-
-                                        <% }) %>
-                                        <%} else {%>
-
-                                            <h4 class="text-danger">
-                                            No orders yet!
-                                            </h4>
-                                            
-                                    <%    } %>
-                                    
-                                </tbody>
+                                    <thead>
+                                        <tr>
+                                            <th>Order</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Total</th>
+                                            <th>Details</th> <!-- New Details column -->
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if(orderData && orderData.length > 0){ %>
+                                            <% orderData.reverse().forEach(order => { %>
+                                                <tr id="order-row-<%= order._id %>">
+                                                    <td><%= order.orderId %></td>
+                                                    <td><%= new Date(order.orderDate).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                                                    
+                                                    <!-- Access the first product's status -->
+                                                    <td id="order-status-<%= order._id %>"><%= order.products[0].status %></td>
+                                                    
+                                                    <!-- Display total price and number of items -->
+                                                    <td>₹<%= order.payableAmount %> /- for <%= order.products.length %> item<%= order.products.length > 1 ? 's' : '' %></td>
+                                                    
+                                                    <!-- New Details column with View button -->
+                                                    <td>
+                                                        <a href="order-details?orderObjectId=<%= order._id %>" class="btn btn-sm btn-brand">View</a>
+                                                    </td>
+                                
+                                                    <td>
+                                                        <% if(order.products[0].status === 'Pending'){ %>
+                                                            <a href="#" onclick="cancelOrder('<%= order._id %>')" class="btn-small d-block">Cancel</a>
+                                                        <% } else { %>
+                                                            <span class="text-muted">Cannot Cancel</span>
+                                                        <% } %>
+                                                    </td>
+                                                </tr>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <h4 class="text-danger">No orders yet!</h4>
+                                        <% } %>
+                                    </tbody>
                                 </table>
+                                
                             </div>
                             </div>
                         </div>
