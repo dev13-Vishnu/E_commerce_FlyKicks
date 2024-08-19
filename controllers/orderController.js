@@ -25,7 +25,7 @@ const cancelOrder = async(req,res) =>{
         //Update order status to "Canceled" and increase product stock\
 
         for(const product of order.products) {
-            product.product_orderStatus = 'Canceled';
+            product.status = 'Canceled';
             console.log('OrderControler.cancelOrder product.productId',product.productId);
             await Product.findByIdAndUpdate(product.productId, {
                 $inc:{[`stock.${product.size}`]:product.quantity}
@@ -94,7 +94,7 @@ const placeOrderCOD = async (req, res) => {
               productId: product.productId._id,
               size: product.size,
               quantity: product.quantity,
-              productPrice: product.productId.price,
+              productPrice: product.productId.promo_price,
           })),
           address: {
               name: address.name,
@@ -187,7 +187,7 @@ const verifyPayment = async (req, res) => {
                   productId: product.productId._id,
                   size: product.size,
                   quantity: product.quantity,
-                  productPrice: product.productId.price,
+                  productPrice: product.productId.promo_price,
               })),
               address: {
                   name: address.name,
@@ -250,11 +250,107 @@ const orderStatus = async (req, res) => {
     }
 };
 
+const loadUserOrderDetails = async (req,res) =>{
+    try {
+        const orderId = req.query.orderObjectId;
+        console.log('ordersListController.loadOrderDetaisl orderId:',orderId);
+
+
+        const order = await Order.findById(orderId).populate('products.productId');
+
+        console.log('ordersListController.loadOrderDetaisl order:',order);
+
+         
+        res.render('user/userOrderDetailsPage',{
+            order
+        })
+    } catch (error) {
+        console.log('Error from orderController loadUserOrderDetails:',error);
+    }
+}
+
+
+const cancelIndividualProduct = async (req, res) => {
+    const { orderId, productId } = req.body;
+
+    try {
+        const order = await Order.findById(orderId).populate('products.productId');
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const productInOrder = order.products.find(p => p._id.toString() === productId);
+
+        if (!productInOrder) {
+            return res.status(404).json({ message: 'Product not found in the order' });
+        }
+
+        if (productInOrder.status === 'Cancelled') {
+            return res.status(400).json({ message: 'Product is already canceled' });
+        }
+
+        // Find the product and check if it is deleted
+        const product = await Product.findById(productInOrder.productId._id);
+
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // Check if sizes object exists and is valid
+        if (!product.stock || typeof product.stock !== 'object') {
+            return res.status(400).json({ message: 'Product stock information is invalid' });
+        }
+
+        // Update the stock for the specific size
+        const size = productInOrder.size;
+
+        if (!product.stock[size]) {
+            return res.status(400).json({ message: `Size '${size}' not found in product stock` });
+        }
+
+        product.stock[size] += productInOrder.quantity;
+        await product.save();
+
+        // Calculate cost reduction
+        const productCost = productInOrder.quantity * product.promo_price;
+        console.log('orderController cancelIndividualProduct productCost:',productCost);
+        order.payableAmount -= productCost;
+
+        
+
+        // Remove the product from the order
+        // Update the product's status to "Cancelled"
+        productInOrder.status = 'Cancelled';
+         // Check if all products are canceled
+         const allCanceled = order.products.every(p => p.status === 'Cancelled');
+
+         if (allCanceled) {
+             // Set payable amount to zero if all products are canceled
+             order.payableAmount = 0;
+         } else if (order.payableAmount < 10000 && order.freeShipping) {
+             order.payableAmount += 500;
+             order.freeShipping = false; // Assuming `freeShipping` is a field in your order schema
+         }
+ 
+         await order.save();
+
+        return res.status(200).json({ message: 'Product canceled, stock updated, order adjusted, and shipping status updated successfully' });
+
+    } catch (error) {
+        console.log('Error from orderController cancelIndividualProduct:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+
 module.exports = {
     cancelOrder,
     placeOrderCOD,
     loadCheckout,
     placeOrderRazorPay,
     verifyPayment,
-    orderStatus
+    orderStatus,
+    loadUserOrderDetails,
+    cancelIndividualProduct
 } 

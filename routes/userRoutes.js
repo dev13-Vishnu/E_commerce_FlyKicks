@@ -100,5 +100,7 @@ userRoute.post('/place-order-razorpay',isLoggedIn,orderController.placeOrderRazo
 userRoute.put('/apply-coupon',isLoggedIn,couponController.applyCoupon)
 userRoute.post('/remove-coupon',isLoggedIn,couponController.removeCoupon);
 userRoute.post('/verify-payment', isLoggedIn,orderController.verifyPayment);
+userRoute.get('/order-details',isLoggedIn,orderController.loadUserOrderDetails)
+userRoute.post('/cancel-product',isLoggedIn,orderController.cancelIndividualProduct);
 module.exports = userRoute;
  
