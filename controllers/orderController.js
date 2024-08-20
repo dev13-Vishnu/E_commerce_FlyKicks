@@ -343,6 +343,69 @@ const cancelIndividualProduct = async (req, res) => {
     }
 }
 
+const returnProduct = async (req,res)=> {
+
+    const {orderId, productId, reason} = req.body;
+
+    try {
+        const order = await Order.findById(orderId).populate('products.productId');
+        if(!order) {
+            return res.status(404).json({message:'Order not found'})
+        }
+
+        const productInOrder = order.products.find(p=>p._id.toString() === productId);
+
+        if(!productInOrder) {
+            return res.status(404).json({message:'Product not found in the order'});
+        }
+        if(productInOrder.status === 'Returned'){
+            return res.status(400).json({message:'Product is already returned'});
+        }
+        //Mark the product as returned and save the reason
+        productInOrder.status = 'Return Pending';
+        productInOrder.reason = reason;
+
+        //Find the product and update stock for the returned product
+        const product = await Product.findById(productInOrder.productId._id);
+
+        if(!product) {
+            return res.status(404).json({message:'Product not found'});
+        }
+
+        const size = productInOrder.size;
+
+        if(!product.stock[size]) {
+            return res.status(400).json({message:`Size '${size}' not found in product stock`});
+        }
+        
+        product.stock[size] += productInOrder.quantity;
+        await product.save();
+
+        //Adjust the payable amount
+        const productCost = productInOrder.quantity * product.promo_price;
+        order.payableAmount -= productCost;
+
+        // If all products are returned , set payable amount
+        const allReturned = order.products.every(p => p.status === 'Return Success');
+
+        if(allReturned) {
+            order.payableAmount = 0;
+        }else if(order.payableAmount < 10000 && order.freeShipping) {
+            order.payableAmount += 500;
+            order.freeShipping = false;
+        }
+
+        await order.save();
+
+        return res.status(200).json({message:'Product returned successfully, stok updated, order adjusted , and reason saved'});
+
+    } catch (error) {
+        console.log('Error form orderController returnProduct:', error);
+        res.status(500).json({message: 'Internal server error'});
+    }
+
+}
+
 
 module.exports = {
     cancelOrder,
@@ -352,5 +415,6 @@ module.exports = {
     verifyPayment,
     orderStatus,
     loadUserOrderDetails,
-    cancelIndividualProduct
+    cancelIndividualProduct,
+    returnProduct
 } 

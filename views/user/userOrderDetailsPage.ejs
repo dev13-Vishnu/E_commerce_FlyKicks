@@ -20,6 +20,73 @@
     <link rel="stylesheet" href="/user/assets/css/main.css?v=3.4" />
 
     <style>
+      .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+      .modal-content {
+    position: relative; /* Ensures absolute positioning works within this container */
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 400px; /* Adjust as needed */
+    margin: 15% auto; /* Center the modal on the page */
+    border-radius: 10px;
+}
+
+.close {
+    position: absolute;
+    right: 20px; /* Adjust this value to your preference */
+    top: 10px; /* Adjust this value to your preference */
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    resize: vertical; /* Allows vertical resizing only */
+}
+
+#confirmReturn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+#confirmReturn:hover {
+    background-color: #0056b3;
+}
+
+/* modalends */
 
 dl.dlist {
         display: flex;
@@ -925,8 +992,10 @@ form .inputBox input:valid ~ i {
                                               <% if (product.status === 'Pending' || product.status === 'Processing') { %>
                                                   <button class="btn btn-sm btn-warning" onclick="cancelProduct('<%= order._id %>', '<%= product._id %>')">Cancel</button>
                                               <% } else if (product.status === 'Delivered') { %>
-                                                  <button class="btn btn-sm btn-success" onclick="returnProduct('<%= order._id %>', '<%= product._id %>')">Return</button>
-                                              <% } else { %>
+                                                  <button class="btn btn-sm btn-success" onclick="openReturnModal('<%= order._id %>', '<%= product._id %>')">Return</button>
+                                              <% } else if(product.status === 'Return Success'|| 'Return Pending') {
+                                                %> <span> Product returned</span><%
+                                              }else { %>
                                                   <button class="btn btn-sm btn-secondary" disabled>Cannot Cancel</button>
                                               <% } %>
                                           </td>
@@ -974,6 +1043,16 @@ form .inputBox input:valid ~ i {
         </section> <!-- content-main end// -->
         </div>
       </section>
+    <!-- Modal -->
+    <div id="returnModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeReturnModal()">&times;</span>
+            <h2>Return Product</h2>
+            <p>Please provide a reason for the return:</p>
+            <textarea id="returnReason" placeholder="Enter your reason here..."></textarea>
+            <button class="btn " id="confirmReturn" onclick="submitReturn()">Submit</button>
+        </div>
+    </div>
     </main>
     <%-include('./layouts/footer.ejs') %>
 
@@ -992,6 +1071,9 @@ form .inputBox input:valid ~ i {
         </div>
       </div>
     </div>
+
+
+
     <!-- Vendor JS-->
     <script src="/user/assets/js/vendor/modernizr-3.6.0.min.js"></script>
     <script src="/user/assets/js/vendor/jquery-3.6.0.min.js"></script>
@@ -1066,6 +1148,71 @@ form .inputBox input:valid ~ i {
     });
 }
 
+    </script>
+    <script>
+        let currentOrderId, currentProductId;
+
+        function openReturnModal(orderId, productId) {
+            currentOrderId = orderId;
+            currentProductId = productId;
+            document.getElementById('returnModal').style.display = 'block';
+        }
+
+        function closeReturnModal() {
+            document.getElementById('returnModal').style.display = 'none';
+        }
+
+        async function submitReturn() {
+            const reason = document.getElementById('returnReason').value;
+
+            if (!reason) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Please provide a reason for the return',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch('/return-product', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ orderId: currentOrderId, productId: currentProductId, reason })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Something went wrong!',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
     </script>
 
   </body>
