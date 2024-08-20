@@ -9,6 +9,7 @@ const bodyparser = require('body-parser');
 const nocache = require("nocache");
 const flash = require("connect-flash");
 const cors = require('cors');
+const errorHandler = require('./middlewares/errorHandling');
 
 app.use(flash());
 
@@ -29,7 +30,8 @@ app.use(passport.session());
 
 try {
     mongoose.connect(process.env.MONGO_URL)
-      .then(() => console.log("MongoDB connected"))
+      .then(() => console.log("MongoDB connected")
+    )
       .catch((error) => {
         console.error("MongoDB connection error:", error);
         process.exit(1); // Exit the application on connection failure
@@ -41,6 +43,10 @@ try {
 
   //set the static files directory
   app.use(express.static(path.join(__dirname,'public')))
+
+  // check-env.js
+console.log(`NODE_ENV is set to: ${process.env.NODE_ENV}`);
+
 
   // configure view engine
   app.set('views',path.join(__dirname,'views'));
@@ -63,6 +69,8 @@ app.use(cors())
 const adminRoutes = require('./routes/adminRoutes');
 
 app.use('/admin',adminRoutes);
+
+app.use(errorHandler);
   
 
   

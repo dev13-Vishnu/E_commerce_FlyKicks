@@ -56,7 +56,7 @@ const loadFailureGoogle = async (req, res) => {
   }
 };
 
-const loadLandingPage = async (req, res) => {
+const loadLandingPage = async (req, res,next) => {
   try {
     //render home page
 
@@ -87,7 +87,7 @@ const loadLandingPage = async (req, res) => {
       currentUrl:req.query.page
     });
   } catch (error) {
-    console.log("errro from userController londhome", error);
+    next(error)
   }
 };
 
@@ -271,7 +271,7 @@ const verifyLogin = async (req, res) => {
     console.log('error from userController verify login',error);
   }
 };
-const loadHome = async (req, res) => {
+const loadHome = async (req, res,next) => {
   try {
       const searchQuery = req.query.q;
       const sortQuery = req.query.sort;
@@ -357,7 +357,7 @@ const loadHome = async (req, res) => {
           sortQuery
       });
   } catch (error) {
-      console.log("error from userController.loadHome", error);
+    next(error)
   }
 }
 

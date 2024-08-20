@@ -50,18 +50,18 @@ const verifyLogin = async(req,res)=>{
     }
 };
 
-const loadDashboard = async(req,res)=>{
+const loadDashboard = async(req,res, next)=>{
     try {
         console.log(req.url);
         res.render('admin/dashboard',{currentUrl:req.url});
         console.log('dashboard rederning');
 
     } catch (error) {
-    console.log('admin controll loadDashboard error',error);        
+    next(error)     
     }
 }
 
-const loadUserList = async(req,res)=>{
+const loadUserList = async(req,res,next)=>{
     try {
         
          var page = 1;
@@ -91,7 +91,7 @@ const loadUserList = async(req,res)=>{
             currentUrlPage:req.query.page,
             currentUrl:req.url});
     } catch (error) {
-        console.log( "error from admin contronller LoadUsersList",error);
+        next(error);
     }
 }
 
