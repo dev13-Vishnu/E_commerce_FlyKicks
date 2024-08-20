@@ -318,6 +318,16 @@ const cancelIndividualProduct = async (req, res) => {
         order.payableAmount -= productCost;
 
         
+        // Add product cost to the wallet if payment status is 'Success'
+        if (order.paymentStatus === 'Success') {
+            order.wallet += productCost;
+
+            // Only add the shipping cost to the wallet if it hasn't been added yet
+            if (!order.freeShipping && !order.shippingFeeAddedToWallet) {
+                order.wallet += 500; 
+                order.shippingFeeAddedToWallet = true; // Flag to indicate shipping fee has been added
+            }
+        }
 
         // Remove the product from the order
         // Update the product's status to "Cancelled"
@@ -385,8 +395,19 @@ const returnProduct = async (req,res)=> {
         const productCost = productInOrder.quantity * product.promo_price;
         order.payableAmount -= productCost;
 
+         // Add product cost to the wallet if payment status is 'Success'
+         if (order.paymentStatus === 'Success') {
+            order.wallet += productCost;
+
+            // Only add the shipping cost to the wallet if it hasn't been added yet
+            if (!order.freeShipping && !order.shippingFeeAddedToWallet) {
+                order.wallet += 500;
+                order.shippingFeeAddedToWallet = true; // Flag to indicate shipping fee has been added
+            }
+        }
+
         // If all products are returned , set payable amount
-        const allReturned = order.products.every(p => p.status === 'Return Success');
+        const allReturned = order.products.every(p => p.status === 'Return Pending');
 
         if(allReturned) {
             order.payableAmount = 0;
