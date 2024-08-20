@@ -532,7 +532,16 @@
                                 you should have received.
                             </p> -->
                             <div class="row">
-                                <div class="col-lg-8">
+                                <div class="col-lg-8 container d-flex align-items-center justify-content-center">
+                                    <% if (totalWallet > 0) { %>
+                                        <h2 class="text-brand">
+                                            Wallet Balance: ₹<%= totalWallet.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> /-
+                                        </h2>
+                                      <% } else { %>
+                                        <h2 class="text-brand">
+                                          No Balance Available
+                                        </h2>
+                                      <% } %>
                                 <!-- <form
                                     class="contact-form-style mt-30 mb-50"
                                     action="#"

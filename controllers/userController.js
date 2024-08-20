@@ -9,6 +9,7 @@ const randomstring = require('randomstring');
 const forgetPassword = require('../helpers/forgotPassword');
 const Order = require('../models/orderModel');
 const productModel = require("../models/productModel");
+const mongoose = require('mongoose');
 
 
 const loadSuccessGoogle = async (req, res) => {
@@ -433,39 +434,46 @@ const loadProductDetails = async (req,res) =>{
 }
 
 //load account
-const loadAccount = async(req,res)=>{
+const loadAccount = async (req, res) => {
   try {
     const searchQuery = req.query.q;
     const sortQuery = req.query.sort;
-    // const sessionUserData = req.session.user;
     const userId = req.session.user._id;
+
+    // Fetch user data, addresses, and orders
     const userData = await User.findById(userId);
-    const addressData = await Address.find({userId});
-    const orderData = await Order.find({userId});
+    const addressData = await Address.find({ userId });
+    const orderData = await Order.find({ userId });
 
+    // Calculate wallet balance
+    const walletBalance = await Order.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } }, // Filter orders by userId
+      { $group: { _id: null, totalWallet: { $sum: "$wallet" } } }, // Sum the wallet field
+      { $project: { _id: 0, totalWallet: 1 } } // Return only the totalWallet
+    ]);
 
+    console.log('userController loadAccount walletBalance:',walletBalance);
 
-    // console.log('userController. loadAccount,addressData:',addressData);
-    
+    // Handle case where no orders exist
+    const totalWallet = walletBalance.length > 0 ? walletBalance[0].totalWallet : 0;
 
-    
+    console.log('user Controller load accound total wallet:',totalWallet);
 
-    // console.log('loadAccount userId:',userId);
-    // console.log('loadAccount userData:',userData);
-    // console.log('load account user:',req.session.user);
-    res.render('user/userAccount',{
+    // Render the view with the data
+    res.render('user/userAccount', {
+      totalWallet,
       userData,
       addressData,
-      userData,
       orderData,
       searchQuery,
       sortQuery
-    }
-    )
+    });
+
   } catch (error) {
-    console.log('error from userController.loadAccount',error);
+    console.log('Error from userController.loadAccount:', error);
+    res.status(500).send('Internal Server Error');
   }
-}
+};
 
 //edit account
 const editAccount = async(req,res) =>{

@@ -252,6 +252,12 @@ const orderStatus = async (req, res) => {
 
 const loadUserOrderDetails = async (req,res) =>{
     try {
+        
+        const searchQuery = req.query.q;
+        const sortQuery = req.query.sort;
+        
+        const userId = req.session.user._id;
+        const userData = await User.findById(userId);
         const orderId = req.query.orderObjectId;
         console.log('ordersListController.loadOrderDetaisl orderId:',orderId);
 
@@ -262,6 +268,9 @@ const loadUserOrderDetails = async (req,res) =>{
 
          
         res.render('user/userOrderDetailsPage',{
+            userData,
+            searchQuery,
+            sortQuery,
             order
         })
     } catch (error) {
@@ -320,7 +329,7 @@ const cancelIndividualProduct = async (req, res) => {
         
         // Add product cost to the wallet if payment status is 'Success'
         if (order.paymentStatus === 'Success') {
-            order.wallet += productCost;
+            order.wallet += productCost;    
 
             // Only add the shipping cost to the wallet if it hasn't been added yet
             if (!order.freeShipping && !order.shippingFeeAddedToWallet) {
