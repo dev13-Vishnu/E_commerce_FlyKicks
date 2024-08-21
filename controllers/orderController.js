@@ -154,6 +154,17 @@ const placeOrderRazorPay = async (req, res) => {
   }
 };
 
+// payment method wallet
+const placeOrderWallet = async (req, res) => {
+    try {
+        const userId = req.session.user._id;
+        const {selectedAdderess, orderTotalAmount} = req.body;
+        
+    } catch (error) {
+        
+    }
+}
+
 // Controller to verify Razorpay payment
 const verifyPayment = async (req, res) => {
   try {
@@ -228,6 +239,7 @@ const verifyPayment = async (req, res) => {
       res.status(500).json({ success: false, message: 'Failed to verify payment' });
   }
 };
+
   
 const orderStatus = async (req, res) => {
     const { orderId, productId, newStatus } = req.body;
@@ -446,5 +458,6 @@ module.exports = {
     orderStatus,
     loadUserOrderDetails,
     cancelIndividualProduct,
-    returnProduct
+    returnProduct,
+    placeOrderWallet
 } 

@@ -1007,22 +1007,22 @@
                                             id="exampleRadios3" checked="">
                                         <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse"
                                             data-target="#bankTranfer" aria-controls="bankTranfer">Cash on Delivery</label>
-                                        <!-- <div class="form-group collapse in" id="bankTranfer">
+                                        <div class="form-group collapse in" id="bankTranfer">
                                             <p class="text-muted mt-5">There are many variations of passages of Lorem
                                                 Ipsum available, but the majority have suffered alteration. </p>
                                         </div>
                                     </div>
                                     <div class="custome-radio">
                                         <input class="form-check-input" required="" type="radio" name="payment_option"
+                                        value="Wallet
                                             id="exampleRadios4" checked="">
                                         <label class="form-check-label" for="exampleRadios4" data-bs-toggle="collapse"
-                                            data-target="#checkPayment" aria-controls="checkPayment">Check
-                                            Payment</label>
+                                            data-target="#checkPayment" aria-controls="checkPayment">Walllet</label>
                                         <div class="form-group collapse in" id="checkPayment">
                                             <p class="text-muted mt-5">Please send your cheque to Store Name, Store
                                                 Street, Store Town, Store State / County, Store Postcode. </p>
                                         </div>
-                                    </div>-->
+                                    </div>
                                     <div class="custome-radio">
                                         <input class="form-check-input" required="" type="radio" name="payment_option"
                                             id="exampleRadios5"
@@ -1524,6 +1524,36 @@ return valid;
                             title: 'Oops...',
                             text: 'Failed to create Razorpay order. Please try again later.'
                         });
+                    }
+                }
+                if(payment_method === 'wallet'){
+                    try {
+                        const response = await fetch('/place-order-wallet',{
+                            meathod: 'POST',
+                            headers: {
+                                'Content-Type':'application/json'
+                            },
+                            body: JSON.stringify(orderData)
+                        });
+                        const result = await response.json();
+                        if(result.success){
+                            Swal.fir({
+                                icon: 'Success',
+                                title: 'Thank You...',
+                                text: 'Thank you Please Come Back Again.',
+                                confirmButtonText: 'OK'
+                            })
+                            .then((result)=> {
+                                if(result .isConfirmed) {
+                                    window.location.href = '/account';
+                                }
+                            });
+                        }else{
+                            alert('Failed to place order: '+ result.message);
+                        }
+                    } catch (error) {
+                        console.error('Error placing order: ', error);
+                        alert('An error occured while placing the order. Please try again');
                     }
                 }
             });
