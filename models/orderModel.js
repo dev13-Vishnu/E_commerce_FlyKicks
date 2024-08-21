@@ -106,12 +106,16 @@ const orderSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ["COD", "RazorPay"],
+      enum: ["COD","Wallet", "RazorPay"],
     },
     paymentStatus: {
       type: String,
       enum: ["Success", "Pending", "Failed"],
     },
+    wallet: { 
+      type: Number, 
+      default: 0 
+    },  // Ensure this field is included
     orderDate: {
       type: Date,
       default: Date.now,

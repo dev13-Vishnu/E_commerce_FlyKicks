@@ -5,7 +5,7 @@ const Address = require('../models/addressModel');
 const User = require('../models/userModel');
 const Razorpay = require('razorpay');
 const crypto = require('crypto')  
-
+const mongoose = require('mongoose');
 
 
 
@@ -158,10 +158,92 @@ const placeOrderRazorPay = async (req, res) => {
 const placeOrderWallet = async (req, res) => {
     try {
         const userId = req.session.user._id;
-        const {selectedAdderess, orderTotalAmount} = req.body;
+        const {selectedAddress, orderTotalAmount} = req.body;
+
+        const userOrder = await Order.findOne({ userId });
+        if (!userOrder) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Calculate wallet balance
+    const walletBalance = await Order.aggregate([
+        { $match: { userId: new mongoose.Types.ObjectId(userId) } }, // Filter orders by userId
+        { $group: { _id: null, totalWallet: { $sum: "$wallet" } } }, // Sum the wallet field
+        { $project: { _id: 0, totalWallet: 1 } } // Return only the totalWallet
+      ]);
+  
+      console.log('userController loadAccount walletBalance:',walletBalance);
+  
+      // Handle case where no orders exist
+      const totalWallet = walletBalance.length > 0 ? walletBalance[0].totalWallet : 0;
+
+      if(totalWallet < orderTotalAmount) {
+        return res.status(400).json({success: false, message: 'Insufficeint wallet balance'})
+      }
+
+      // Deduct the order amount from the wallet
+      const newWalletValue = -orderTotalAmount; // Negative to reflect deduction
+      
+      console.log('orderControll placeOrderWallet newWalletValue:',newWalletValue);
+
+        const addressDoc  = await Address.findOne ({userId, 'address._id':selectedAddress}, {'address.$': 1});
+
+        const address = addressDoc.address[0];
         
+        //Fetch the user's cart
+        const cart = await  Cart.findOne({userId}).populate('products.productId'); 
+        if(!cart) return res.status(404).json({success:false,message:'Cart not found'});
+
+        //Determine if the order qualifies for free shipping
+        const freeShipping = orderTotalAmount >= 10000;
+
+        //Prepare the order date
+
+        const orderData = {
+            userId,
+            cartId: cart._id,
+            products: cart.products.map(product => ({
+                productId: product.productId._id,
+                size: product.size,
+                quantity: product.quantity,
+                productPrice: product.productId.promo_price,
+            })),
+            address: {
+                name: address.name,
+                street: address.street,
+                country: address.country,
+                city: address.city,
+                state: address.state,
+                pincode: address.pincode,
+                mobile: address.mobile.toString(),
+                email: '',
+            },
+            payableAmount:orderTotalAmount,
+            freeShipping: freeShipping,
+            paymentMethod: 'Wallet',
+            paymentStatus: 'Success',
+            wallet: newWalletValue,  // Initialize the wallet field with the deducted amount
+        };
+
+        // Save the order to the database
+        const order = new Order(orderData);
+        const savedOrder = await order.save();
+
+        console.log('orderController placeOrderWallet savedOrder:',savedOrder);
+        //Update the  prodduct stock
+        for (const product of cart.products) {
+            const updateField = `stock.${product.size}`;
+            await Product.findByIdAndUpdate(product.productId._id,{
+                $inc: {[updateField]: -product.quantity},
+            });
+        }
+        //Clear the cart after the order is placed
+        await Cart.findOneAndDelete({userId});
+        res.status(200).json({ success: true, message:'Order placed successfully', order});
+
     } catch (error) {
-        
+        console.error('Error during checkout:', error);
+        res.status(500).json({ success: false, message: 'Failed to place order'});
     }
 }
 
