@@ -17,6 +17,49 @@
     <link href="/admin/assets/css/main.css" rel="stylesheet" type="text/css" />
 
     <style>
+      .date-range-filter {
+            margin-bottom: 20px;
+        }
+        .date-range-filter input[type="date"] {
+            width: 150px; /* Adjust the width as needed */
+            margin-right: 10px;
+            margin-left: 10px;
+        }
+        .date-range-filter #filterDateRange {
+            margin-right: 10px;
+        }
+        .date-range-filter .btn-create-report {
+            padding: 5px 10px; /* Adjust padding to make button shorter */
+            font-size: 14px; /* Adjust font size if needed */
+        }
+      .badge-soft-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.badge-soft-warning {
+    background-color: #ffc107;
+    color: #fff;
+}
+
+.badge-soft-danger {
+    background-color: #dc3545;
+    color: #fff;
+}
+.date-range-filter {
+  display: flex;
+  align-items: center;
+}
+
+.date-range-filter .form-control {
+  margin-right: 10px;
+}
+
+.date-range-filter .btn-primary {
+  margin-left: 10px;
+}
+
+
 
     </style></em>
 </head>
@@ -354,7 +397,7 @@
           <header class="card-header">
             <h4 class="card-title">Latest orders</h4>
             <div class="row align-items-center">
-              <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
+              <!-- <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
                 <div class="custom_select">
                   <select class="form-select select-nice">
                     <option selected>All Categories</option>
@@ -370,11 +413,24 @@
                     <option>Mother & Kids</option>
                   </select>
                 </div>
+              </div> -->
+              <div class="date-range-filter d-flex align-items-center">
+                <label class="text-brand" for="startDate">Start Date : </label>
+                <input type="date" id="startDate" class="form-control">
+                <label class="text-brand" for="endDate">End Date :</label>
+                <input type="date" id="endDate" class="form-control">
+                <button id="filterDateRange" class="btn btn-primary">Filter</button>
+              
+                  <a href="" id="createReport" class="btn btn-primary">
+                    <i class="text-muted material-icons md-post_add">
+
+                    </i>
+                    Create report
+                  </a>
+                
               </div>
-              <div class="col-md-2 col-6">
-                <input type="date" value="" class="form-control" />
-              </div>
-              <div class="col-md-2 col-6">
+              
+              <!-- <div class="col-md-2 col-6">
                 <div class="custom_select">
                   <select class="form-select select-nice">
                     <option selected>Status</option>
@@ -384,7 +440,7 @@
                     <option>Refund</option>
                   </select>
                 </div>
-              </div>
+              </div> -->
             </div>
           </header>
           <div class="card-body">
@@ -393,7 +449,7 @@
                 <table class="table align-middle table-nowrap mb-0">
                   <thead class="table-light">
                     <tr>
-                      <th scope="col" class="text-center">
+                      <!-- <th scope="col" class="text-center">
                         <div class="form-check align-middle">
                           <input
                             class="form-check-input"
@@ -405,7 +461,7 @@
                             for="transactionCheck01"
                           ></label>
                         </div>
-                      </th>
+                      </th> -->
                       <th class="align-middle" scope="col">Order ID</th>
                       <th class="align-middle" scope="col">Billing Name</th>
                       <th class="align-middle" scope="col">Date</th>
@@ -415,9 +471,10 @@
                       <th class="align-middle" scope="col">View Details</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <tr>
-                      <td class="text-center">
+                  <tbody id="ordersTableBody">
+                    <% orders.forEach(order => {%>
+                      <tr>
+                      <!-- <td class="text-center">
                         <div class="form-check">
                           <input
                             class="form-check-input"
@@ -429,191 +486,30 @@
                             for="transactionCheck02"
                           ></label>
                         </div>
-                      </td>
-                      <td><a href="#" class="fw-bold">#SK2540</a></td>
-                      <td>Neal Matthews</td>
-                      <td>07 Oct, 2022</td>
-                      <td>$400</td>
+                      </td> -->
+                      <td><a href="#" class="fw-bold"><%= order.orderId %></a></td>
+                      <td><%= order.userId.username %></td>
+                      <td><%= order.orderDate.toDateString() %></td>
+                      <td>₹<%=order.payableAmount %>/-</td>
                       <td>
-                        <span class="badge badge-pill badge-soft-success"
-                          >Paid</span
+                        <span class="badge badge-pill 
+                        <% if(order.paymentStatus === 'Success') { %> badge-soft-success <% } %>
+                        <% if(order.paymentStatus === 'Pending') { %> badge-soft-warning <% } %>
+                        <% if(order.paymentStatus === 'Failed') { %> badge-soft-danger <% } %>"
+                          ><%=order.paymentStatus %></span
                         >
                       </td>
                       <td>
                         <i
                           class="material-icons md-payment font-xxl text-muted mr-5"
                         ></i>
-                        Mastercard
+                        <%=order.paymentMethod %>
                       </td>
                       <td>
-                        <a href="#" class="btn btn-xs"> View details</a>
+                        <a href="/admin/order-details?orderObjectId=<%= order._id %>" class="btn btn-xs"> View details</a>
                       </td>
                     </tr>
-                    <tr>
-                      <td class="text-center">
-                        <div class="form-check">
-                          <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="transactionCheck03"
-                          />
-                          <label
-                            class="form-check-label"
-                            for="transactionCheck03"
-                          ></label>
-                        </div>
-                      </td>
-                      <td><a href="#" class="fw-bold">#SK2541</a></td>
-                      <td>Jamal Burnett</td>
-                      <td>07 Oct, 2022</td>
-                      <td>$380</td>
-                      <td>
-                        <span class="badge badge-pill badge-soft-danger"
-                          >Chargeback</span
-                        >
-                      </td>
-                      <td>
-                        <i
-                          class="material-icons md-payment font-xxl text-muted mr-5"
-                        ></i>
-                        Visa
-                      </td>
-                      <td>
-                        <a href="#" class="btn btn-xs"> View details</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="text-center">
-                        <div class="form-check">
-                          <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="transactionCheck04"
-                          />
-                          <label
-                            class="form-check-label"
-                            for="transactionCheck04"
-                          ></label>
-                        </div>
-                      </td>
-                      <td><a href="#" class="fw-bold">#SK2542</a></td>
-                      <td>Juan Mitchell</td>
-                      <td>06 Oct, 2022</td>
-                      <td>$384</td>
-                      <td>
-                        <span class="badge badge-pill badge-soft-success"
-                          >Paid</span
-                        >
-                      </td>
-                      <td>
-                        <i
-                          class="material-icons md-payment font-xxl text-muted mr-5"
-                        ></i>
-                        Paypal
-                      </td>
-                      <td>
-                        <a href="#" class="btn btn-xs"> View details</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="text-center">
-                        <div class="form-check">
-                          <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="transactionCheck05"
-                          />
-                          <label
-                            class="form-check-label"
-                            for="transactionCheck05"
-                          ></label>
-                        </div>
-                      </td>
-                      <td><a href="#" class="fw-bold">#SK2543</a></td>
-                      <td>Barry Dick</td>
-                      <td>05 Oct, 2022</td>
-                      <td>$412</td>
-                      <td>
-                        <span class="badge badge-pill badge-soft-success"
-                          >Paid</span
-                        >
-                      </td>
-                      <td>
-                        <i
-                          class="material-icons md-payment font-xxl text-muted mr-5"
-                        ></i>
-                        Mastercard
-                      </td>
-                      <td>
-                        <a href="#" class="btn btn-xs"> View details</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="text-center">
-                        <div class="form-check">
-                          <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="transactionCheck06"
-                          />
-                          <label
-                            class="form-check-label"
-                            for="transactionCheck06"
-                          ></label>
-                        </div>
-                      </td>
-                      <td><a href="#" class="fw-bold">#SK2544</a></td>
-                      <td>Ronald Taylor</td>
-                      <td>04 Oct, 2022</td>
-                      <td>$404</td>
-                      <td>
-                        <span class="badge badge-pill badge-soft-warning"
-                          >Refund</span
-                        >
-                      </td>
-                      <td>
-                        <i
-                          class="material-icons md-payment font-xxl text-muted mr-5"
-                        ></i>
-                        Visa
-                      </td>
-                      <td>
-                        <a href="#" class="btn btn-xs"> View details</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="text-center">
-                        <div class="form-check">
-                          <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="transactionCheck07"
-                          />
-                          <label
-                            class="form-check-label"
-                            for="transactionCheck07"
-                          ></label>
-                        </div>
-                      </td>
-                      <td><a href="#" class="fw-bold">#SK2545</a></td>
-                      <td>Jacob Hunter</td>
-                      <td>04 Oct, 2022</td>
-                      <td>$392</td>
-                      <td>
-                        <span class="badge badge-pill badge-soft-success"
-                          >Paid</span
-                        >
-                      </td>
-                      <td>
-                        <i
-                          class="material-icons md-payment font-xxl text-muted mr-5"
-                        ></i>
-                        Paypal
-                      </td>
-                      <td>
-                        <a href="#" class="btn btn-xs"> View details</a>
-                      </td>
-                    </tr>
+                  <%  }); %>
                   </tbody>
                 </table>
               </div>
@@ -669,5 +565,116 @@
       src="/admin/assets/js/custom-chart.js"
       type="text/javascript"
     ></script>
+
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.6.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- Include jsPDF AutoTable -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.22/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+      const orders = <%- JSON.stringify(orders) %>;
+
+      document.addEventListener('DOMContentLoaded', function() {
+          renderOrders(orders);
+      });
+
+      document.getElementById('filterDateRange').addEventListener('click', function () {
+          const startDate = new Date(document.getElementById('startDate').value);
+          const endDate = new Date(document.getElementById('endDate').value);
+
+          const filteredOrders = orders.filter(order => {
+              const orderDate = new Date(order.orderDate);
+              return orderDate >= startDate && orderDate <= endDate;
+          });
+
+          renderOrders(filteredOrders);
+      });
+
+      document.getElementById('createReport').addEventListener('click', function (event) {
+            event.preventDefault();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Check if autoTable is available
+            if (typeof doc.autoTable === 'function') {
+                const table = document.querySelector('table');
+                const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent);
+                const rows = Array.from(table.querySelectorAll('tbody tr')).map(row => {
+                    const cells = Array.from(row.querySelectorAll('td')).map(cell => cell.textContent);
+                    return cells.slice(0, -1) // Exclude last column (Actions) and add 'View Details'
+                });
+
+                // Remove the "Actions" header from the headers array
+                const headersWithoutActions = headers.slice(0, -1)
+
+                 // Define column widths (adjust as needed)
+                 const columnWidths = [20,22,40,20,40,40]; // Example widths for each column
+                  // Add header and data to the PDF
+                  doc.autoTable({
+                    head: [headersWithoutActions],
+                    body: rows,
+                    startY: 20,
+                    margin: { top: 10 },
+                    columnStyles: {
+                        0: { cellWidth: columnWidths[0] },
+                        1: { cellWidth: columnWidths[1] },
+                        2: { cellWidth: columnWidths[2] },
+                        3: { cellWidth: columnWidths[3] }, // Details column
+                        4: { cellWidth: columnWidths[4] }, // Details column
+                        5: { cellWidth: columnWidths[5] } // Details column
+                    },
+                    styles: {
+                        cellPadding: 2, // Adjust cell padding
+                        fontSize: 10, // Adjust font size
+                        halign: 'center', // Center-align cell content
+                        valign: 'middle' // Vertical alignment of cell content
+                    },
+                    headStyles: {
+                        fillColor: [22, 160, 133], // Header background color
+                        textColor: [255, 255, 255], // Header text color
+                        fontStyle: 'bold', // Header text style
+                    },
+                    didDrawPage: function (data) {
+                        doc.text('Order Report', 14, 15);
+                    }
+                });
+
+                doc.save('orders_report.pdf');
+            } else {
+                console.error('autoTable is not available. Make sure jsPDF and jsPDF AutoTable are properly included.');
+            }
+        });
+      function renderOrders(filteredOrders) {
+          const tbody = document.getElementById('ordersTableBody');
+          tbody.innerHTML = ''; // Clear existing rows
+
+          filteredOrders.forEach(order => {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                  <td><a href="#" class="fw-bold">${order.orderId}</a></td>
+                  <td>${order.userId.username} </td>
+                  <td>${new Date(order.orderDate).toDateString()}</td>
+                  <td>₹${order.payableAmount}/-</td>
+                  <td>
+                      <span class="badge badge-pill ${
+                        order.paymentStatus === 'Success' ? 'badge-soft-success' :
+                        order.paymentStatus === 'Pending' ? 'badge-soft-warning' :
+                        order.paymentStatus === 'Failed' ? 'badge-soft-danger' : ''
+                      }">${order.paymentStatus}</span>
+                  </td>
+                  <td>
+                      <i class="material-icons md-payment font-xxl text-muted mr-5"></i>
+                      ${order.paymentMethod}
+                  </td>
+                  <td>
+                      <a href="/admin/order-details?orderObjectId=${order._id}" class="btn btn-xs">View details</a>
+                  </td>
+              `;
+              tbody.appendChild(row);
+          });
+      }
+  </script>
   </body>
 </html>

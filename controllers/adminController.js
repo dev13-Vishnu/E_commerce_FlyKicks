@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
 const seccurePassword = require('../helpers/securePassword');
+const Order = require('../models/orderModel'); 
 
 
 
@@ -53,7 +54,15 @@ const verifyLogin = async(req,res)=>{
 const loadDashboard = async(req,res, next)=>{
     try {
         console.log(req.url);
-        res.render('admin/dashboard',{currentUrl:req.url});
+        const orders = await Order.find({})
+            .populate('userId', 'username email')  // Populate user details
+            .populate('products.productId', 'name')  // Populate product details
+            .sort({ createdAt: -1 });  // Sort by most recent orders
+
+        res.render('admin/dashboard',{
+            currentUrl:req.url,
+            orders
+        });
         console.log('dashboard rederning');
 
     } catch (error) {
