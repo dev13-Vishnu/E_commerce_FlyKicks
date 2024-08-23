@@ -19,7 +19,7 @@ const offerSchema = mongoose.Schema({
         required: true
     },
     discount: {
-        type: String,
+        type: Number,
         required: true
     },
     offerType: {

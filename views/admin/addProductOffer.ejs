@@ -44,23 +44,25 @@
                         <div class="card-body">
                             <form action="" id="offerForm"  onsubmit="return validate_form()">
                                 <div class="mb-4">
-                                    <label class="form-label">offer Name</label>
+                                    <label class="form-label">Offer Name</label>
                                     <input type="text" name="offerName" id="offerName" class="form-control" oninput="validate_offer_name()">
                                     <div id="error-offer-name" class="text-danger"></div>
                                 </div>
                                 <div class="mb-4">
-                                    <label class="form-label">offer Description</label>
+                                    <label class="form-label">Offer Description</label>
                                     <input type="text" id="offerDescription" name="offerDescription" oninput="validate_offer_description()" class="form-control">
                                     <div id="error-offer-description" class="text-danger"></div>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Offer Percentage</label>
-                                    <input type="text" id="offerOffer" name="offerPercentage" oninput="validate_offer_percetage()" class="form-control">
+                                    <input type="text" id="offerPercentage" name="offerPercentage" oninput="validate_offer_percentage()" class="form-control">
                                     <div id="error-offer-percentage" class="text-danger"></div>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Offer Type</label>
-                                    <input type="text" id="offerType" name="offerType" class="form-control" oninput="validate_offer_type()">
+                                    <input type="text" id="offerType" 
+                                    value="product"
+                                    name="offerType" class="form-control" oninput="validate_offer_type()" readonly>
                                     <div id="error-offer-type" class="text-danger"></div>
                                 </div> 
                                 
@@ -120,7 +122,13 @@
             if(offerPercentage === "") {
                 document.getElementById('error-offer-percentage').innerHTML = "Please enter the offer percentage";
                 return false;
-            } else {
+            }
+                //check if the value is a number between 0 -100
+                const percentage = Number(offerPercentage);
+                if(isNaN(percentage)|| 0 > percentage || percentage > 100){
+                    document.getElementById('error-offer-percentage').innerHTML = "Please enter a valid percentage between 0 and 100";
+                return false;
+                } else {
                 document.getElementById('error-offer-percentage').innerHTML = "";
                 return true;
             }
@@ -144,7 +152,7 @@
         
 
         function validate_form() {
-            return validate_offer_name() && validate_offer_description()&& validate_offer_percentage() &&  validate_offe_type()  
+            return validate_offer_name() && validate_offer_description()&& validate_offer_percentage() &&  validate_offer_type()  
         }
 
 
@@ -155,14 +163,14 @@
             event.preventDefault();//Prevent the default form submission
             if(validate_form()) {
                 const formData ={
-                    coupon_code: document.getElementById('offerName').value,
-                    coupon_description: document.getElementById('offerDescription').value,
+                    offer_name: document.getElementById('offerName').value,
+                    offer_description: document.getElementById('offerDescription').value,
                     offer_percentage: document.getElementById('offerPercentage').value,
-                    coupon_count: document.getElementById('offerType').value,
+                    offer_type: document.getElementById('offerType').value,
                     
                 };
                 try {
-                    const response = await fetch('/admin/add-product-offer',{
+                    const response = await fetch('/admin/add-product-offers',{
                         method : 'POST',
                         headers : {
                             'Content-Type':'application/json'
@@ -186,6 +194,24 @@
                 }
             }
         });
+     </script>
+     <script>
+        document.getElementById('offerPercentage').addEventListener('keydown', function (event) {
+    // Allow: backspace, delete, tab, escape, enter, and arrows
+    if (
+        event.key === "Backspace" || event.key === "Delete" || 
+        event.key === "Tab" || event.key === "Escape" || 
+        event.key === "Enter" || event.key === "ArrowLeft" || 
+        event.key === "ArrowRight"
+    ) {
+        return;
+    }
+    // Prevent default action for all non-numeric keys
+    if (event.key < "0" || event.key > "9") {
+        event.preventDefault();
+    }
+});
+
      </script>
 
 
