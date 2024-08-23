@@ -8,6 +8,7 @@ const categoryController = require('../controllers/categoryController');
 const ordersListcontroller = require('../controllers/orderListController');
 const couponController = require('../controllers/couponController');
 const orderController = require('../controllers/orderController');
+const offerController = require('../controllers/offerController');
 
 adminRoutes.get('/',auth.isLogout,adminController.login);
 adminRoutes.post('/',auth.isLogout,adminController.verifyLogin);
@@ -53,7 +54,7 @@ adminRoutes.get('/coupon/edit',auth.isLogin,couponController.loadEditCoupon);
 adminRoutes.put('/coupon/edit/:id',auth.isLogin,couponController.editCoupon);
 
 //offers
-adminRoutes.get('/offes',auth.isLogin,offerController.loadOfferPage);
+adminRoutes.get('/offers',auth.isLogin,offerController.loadOfferPage);
 
 
 module.exports = adminRoutes;
