@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
 const seccurePassword = require('../helpers/securePassword');
 const Order = require('../models/orderModel'); 
+const moment = require('moment');
 
 
 
@@ -51,24 +52,98 @@ const verifyLogin = async(req,res)=>{
     }
 };
 
-const loadDashboard = async(req,res, next)=>{
+
+const loadDashboard = async (req, res, next) => {
     try {
-        console.log(req.url);
+        // Fetch Orders
         const orders = await Order.find({})
-            .populate('userId', 'username email')  // Populate user details
-            .populate('products.productId', 'name')  // Populate product details
-            .sort({ createdAt: -1 });  // Sort by most recent orders
+            .populate('userId', 'username email')
+            .populate('products.productId', 'name')
+            .sort({ orderDate: -1 });
 
-        res.render('admin/dashboard',{
+        // Get Dates for Filters
+        const today = moment().endOf('day');
+        const last7Days = moment().subtract(6, 'days').startOf('day');
+        const startOfMonth = moment().startOf('month');
+        const startOfYear = moment().startOf('year');
+
+        // Aggregate Sales Data for Last 7 Days
+        const salesDataLast7Days = await Order.aggregate([
+            {
+                $match: {
+                    orderDate: { $gte: last7Days.toDate(), $lte: today.toDate() }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$orderDate" },
+                        month: { $month: "$orderDate" },
+                        day: { $dayOfMonth: "$orderDate" }
+                    },
+                    totalSales: { $sum: "$payableAmount" },
+                    orderCount: { $sum: 1 }
+                }
+            },
+            { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } }
+        ]);
+
+        // Aggregate Sales Data for This Month
+        const salesDataThisMonth = await Order.aggregate([
+            {
+                $match: {
+                    orderDate: { $gte: startOfMonth.toDate(), $lte: today.toDate() }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$orderDate" },
+                        month: { $month: "$orderDate" },
+                        day: { $dayOfMonth: "$orderDate" }
+                    },
+                    totalSales: { $sum: "$payableAmount" },
+                    orderCount: { $sum: 1 }
+                }
+            },
+            { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } }
+        ]);
+
+        // Aggregate Sales Data for This Year
+        const salesDataThisYear = await Order.aggregate([
+            {
+                $match: {
+                    orderDate: { $gte: startOfYear.toDate(), $lte: today.toDate() }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$orderDate" },
+                        month: { $month: "$orderDate" }
+                    },
+                    totalSales: { $sum: "$payableAmount" },
+                    orderCount: { $sum: 1 }
+                }
+            },
+            { $sort: { "_id.year": 1, "_id.month": 1 } }
+        ]);
+
+        // Render Dashboard View and Pass Data
+        res.render('admin/dashboard', {
             currentUrl:req.url,
-            orders
+            orders,
+            salesDataLast7Days: JSON.stringify(salesDataLast7Days),
+            salesDataThisMonth: JSON.stringify(salesDataThisMonth),
+            salesDataThisYear: JSON.stringify(salesDataThisYear)
         });
-        console.log('dashboard rederning');
-
     } catch (error) {
-    next(error)     
+        console.error('Error loading dashboard:', error);
+        next(error);
     }
-}
+};
+
+
 
 const loadUserList = async(req,res,next)=>{
     try {
