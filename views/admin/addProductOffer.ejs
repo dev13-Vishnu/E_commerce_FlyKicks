@@ -1,0 +1,292 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Evara Dashboard</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:title" content="">
+    <meta property="og:type" content="">
+    <meta property="og:url" content="">
+    <meta property="og:image" content="">
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="/admin/assets/imgs/theme/favicon.svg">
+    <!-- Template CSS -->
+    <link href="/admin/assets/css/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <div class="screen-overlay"></div>
+    <%-include('./layouts/sidemenu.ejs') %>
+    <main class="main-wrap">
+        <%-include('./layouts/navbar.ejs') %>
+
+        <section class="content-main">
+            <div class="row">
+                <div class="col-9">
+                    <div class="content-header">
+                        <h2 class="content-title">Add New coupon</h2>
+                        <div>
+                            <!-- <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
+                             <button class="btn btn-md rounded font-sm hover-up">Publich</button> -->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-9">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4>Product Details</h4>
+                        </div>
+                        
+                        
+                        <div class="card-body">
+                            <form action="" id="couponForm"  onsubmit="return validate_form()">
+                                <div class="mb-4">
+                                    <label class="form-label">Coupon Code</label>
+                                    <input type="text" name="couponCode" id="couponCode" class="form-control" oninput="validate_coupon_code()">
+                                    <div id="error-couponcode" class="text-danger"></div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Coupon Description</label>
+                                    <input type="text" id="couponDescription" name="couponDescription" oninput="validate_coupon_description()" class="form-control">
+                                    <div id="error-coupondescription" class="text-danger"></div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Offer Percentage</label>
+                                    <input type="text" id="couponOffer" name="offerPercentage" oninput="validate_coupon_offer()" class="form-control">
+                                    <div id="error-couponoffer" class="text-danger"></div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Coupon Count</label>
+                                    <input type="text" id="couponCount" name="couponCount" class="form-control" oninput="validate_coupon_count()">
+                                    <div id="error-couponcount" class="text-danger"></div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Minimum Order Amount</label>
+                                    <input type="text" id="minimum" name="minimumOrderAmount" oninput="validate_coupon_minimum()" class="form-control">
+                                    <div id="error-couponminimum" class="text-danger"></div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Maximum Order Amount</label>
+                                    <input type="text" id="maximum" name="maximumOrderAmount" oninput="validate_coupon_maximum()" class="form-control">
+                                    <div id="error-couponmaximum" class="text-danger"></div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-6">
+                                        <div class="mb-4">
+                                            <label class="form-label">Start Date</label>
+                                            <input class="form-control" id="startDate" name="startDate" oninput="validate_coupon_start()" type="date">
+                                            <div id="error-couponstart" class="text-danger"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="mb-4">
+                                            <label class="form-label">Expire Date</label>
+                                            <input class="form-control" id="expireDate" name="expireDate" oninput="validate_coupon_end()" type="date">
+                                            <div id="error-couponend" class="text-danger"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" type="submit">Save</button>
+                            </form>
+                            
+                        </div>
+                    </div> <!-- card end// -->
+                </div>
+            </div>
+        </section> <!-- content-main end// -->
+
+        <footer class="main-footer font-xs">
+            <div class="row pb-30 pt-15">
+                <div class="col-sm-6">
+                    <script>
+                        document.write(new Date().getFullYear())
+                    </script> ©, Evara - HTML Ecommerce Template .
+                </div>
+                <div class="col-sm-6">
+                    <div class="text-sm-end">
+                        All rights reserved
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- sweetalert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function validate_coupon_code(){
+            const couponCode = document.getElementById('couponCode').value;
+            if (couponCode === "") {
+                document.getElementById('error-couponcode').innerHTML = "Please enter the code";
+                return false;
+            } else {
+                document.getElementById('error-couponcode').innerHTML = "";
+                return true;
+            }
+        }
+
+        function validate_coupon_description(){
+            const couponDescription = document.getElementById('couponDescription').value;
+            if (couponDescription === "") {
+                document.getElementById('error-coupondescription').innerHTML = "please enter the description";
+                return false;
+            } else {
+                document.getElementById('error-coupondescription').innerHTML = "";
+                return true;
+            }
+        }
+
+        function validate_coupon_offer(){
+            const couponOffer = document.getElementById('couponOffer').value;
+            if(couponOffer === "") {
+                document.getElementById('error-couponoffer').innerHTML = "Please enter the offer percentage";
+                return false;
+            } else {
+                document.getElementById('error-couponoffer').innerHTML = "";
+                return true;
+            }
+        }
+
+        function validate_coupon_count() {
+            const couponCount = document.getElementById('couponCount').value;
+            if (couponCount === "" || couponCount == 0) {
+                document.getElementById('error-couponcount').innerHTML = "Please enter a valid coupon count";
+                return false;
+            } else {
+                document.getElementById('error-couponcount').innerHTML = "";
+                return true;
+            }
+        }   
+
+        function validate_coupon_minimum() {
+    const minimum = parseFloat(document.getElementById('minimum').value)  ;
+    if (minimum === "" || minimum == 0|| isNaN(minimum)) {
+        document.getElementById('error-couponminimum').innerHTML = "Please enter a valid minimum order amount";
+        return false;
+    } else {
+        document.getElementById('error-couponminimum').innerHTML = "";
+        return true;
+    }
+}
+
+        function validate_coupon_maximum() {
+            const maximum = parseFloat(document.getElementById('maximum').value); const minimum = parseFloat(document.getElementById('minimum').value);
+
+
+            if (maximum === "" || maximum == 0 || isNaN(maximum)) {
+                document.getElementById('error-couponmaximum').innerHTML = "Please enter a valid maximum order amount";
+                return false;
+            }else if(maximum < minimum ){
+                document.getElementById('error-couponmaximum').innerHTML = "please Enter the Maximum Amount Greater Than minimum Amount ";
+                return false;
+            } 
+
+            else {
+                document.getElementById('error-couponmaximum').innerHTML = "";
+                return true;
+            }
+        }
+
+        function validate_coupon_start() {
+            const couponstart = document.getElementById('startDate').value;
+            let currentDate = new Date().toISOString().split('T')[0]; // get current date in YYYY-MM-DD format
+            if (couponstart === "")  {
+                document.getElementById('error-couponstart').innerHTML = "Please enter a valid start date";
+                return false;
+                
+            }
+            else if(couponstart < currentDate)
+            {
+
+                document.getElementById('error-couponstart').innerHTML = `The start date cannot be in the past. `;
+                return false;
+            }
+            else {
+                document.getElementById('error-couponstart').innerHTML = "";
+                return true;
+            }
+        }
+
+        function validate_coupon_end() {
+            const couponend = document.getElementById('expireDate').value;
+            const couponstart = document.getElementById('startDate').value;
+            if (couponend === "" ) {
+                document.getElementById('error-couponend').innerHTML = "Please enter a valid expiration date";
+                return false;
+            } else if( couponend < couponstart){
+                document.getElementById('error-couponend').innerHTML = "End Date Cannot be past of Start Date";
+                return false;
+
+            }
+            else {
+                document.getElementById('error-couponend').innerHTML = "";
+                return true;
+            }
+        }
+
+        function validate_form() {
+            return validate_coupon_code() && validate_coupon_description()&& validate_coupon_offer() &&  validate_coupon_count() && validate_coupon_minimum() && validate_coupon_maximum()  && validate_coupon_start() && validate_coupon_end();
+        }
+
+
+    </script>
+    <!-- add coupon -->
+     <script>
+        document.getElementById('couponForm').addEventListener('submit',async function (event) {
+            event.preventDefault();//Prevent the default form submission
+            if(validate_form()) {
+                const formData ={
+                    coupon_code: document.getElementById('couponCode').value,
+                    coupon_description: document.getElementById('couponDescription').value,
+                    offer_percentage: document.getElementById('couponOffer').value,
+                    coupon_count: document.getElementById('couponCount').value,
+                    minimum_order_amount: document.getElementById('minimum').value,
+                    maximum_order_amount: document.getElementById('maximum').value,
+                    start_date:document.getElementById('startDate').value,
+                    ending_date:document.getElementById('expireDate').value
+                };
+                try {
+                    const response = await fetch('/admin/addcoupons',{
+                        method : 'POST',
+                        headers : {
+                            'Content-Type':'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    if(response.ok) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Coupon created successfully',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/admin/coupons'; // Redirect after successfull creation
+                        });
+                    }else{
+                        Swal.fire('Error', 'Failed to create coupon', 'error');
+                    }
+                } catch (error) {
+                    Swal.fire('Error', 'An error occured while creating the coupon', 'error');
+                }
+            }
+        });
+     </script>
+
+
+    <script src="/admin/assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/admin/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/admin/assets/js/vendors/select2.min.js"></script>
+    <script src="/admin/assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/admin/assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <!-- Main Script -->
+    <script src="/admin/assets/js/main.js" type="text/javascript"></script>
+</body>
+
+
+
+
+</html>
