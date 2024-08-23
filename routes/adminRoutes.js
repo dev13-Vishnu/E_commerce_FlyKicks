@@ -52,5 +52,8 @@ adminRoutes.post('/coupon/block/:id',auth.isLogin,couponController.blockAndUnblo
 adminRoutes.get('/coupon/edit',auth.isLogin,couponController.loadEditCoupon);
 adminRoutes.put('/coupon/edit/:id',auth.isLogin,couponController.editCoupon);
 
+//offers
+adminRoutes.get('/offes',auth.isLogin,offerController.loadOfferPage);
+
 
 module.exports = adminRoutes;
