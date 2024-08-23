@@ -27,7 +27,7 @@
             <div class="row">
                 <div class="col-9">
                     <div class="content-header">
-                        <h2 class="content-title">Add New coupon</h2>
+                        <h2 class="content-title">Add New Product Offer</h2>
                         <div>
                             <!-- <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
                              <button class="btn btn-md rounded font-sm hover-up">Publich</button> -->
@@ -37,58 +37,33 @@
                 <div class="col-lg-9">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h4>Product Details</h4>
+                            <h4>Offer Details</h4>
                         </div>
-                        
+                         
                         
                         <div class="card-body">
-                            <form action="" id="couponForm"  onsubmit="return validate_form()">
+                            <form action="" id="offerForm"  onsubmit="return validate_form()">
                                 <div class="mb-4">
-                                    <label class="form-label">Coupon Code</label>
-                                    <input type="text" name="couponCode" id="couponCode" class="form-control" oninput="validate_coupon_code()">
-                                    <div id="error-couponcode" class="text-danger"></div>
+                                    <label class="form-label">offer Name</label>
+                                    <input type="text" name="offerName" id="offerName" class="form-control" oninput="validate_offer_name()">
+                                    <div id="error-offer-name" class="text-danger"></div>
                                 </div>
                                 <div class="mb-4">
-                                    <label class="form-label">Coupon Description</label>
-                                    <input type="text" id="couponDescription" name="couponDescription" oninput="validate_coupon_description()" class="form-control">
-                                    <div id="error-coupondescription" class="text-danger"></div>
+                                    <label class="form-label">offer Description</label>
+                                    <input type="text" id="offerDescription" name="offerDescription" oninput="validate_offer_description()" class="form-control">
+                                    <div id="error-offer-description" class="text-danger"></div>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Offer Percentage</label>
-                                    <input type="text" id="couponOffer" name="offerPercentage" oninput="validate_coupon_offer()" class="form-control">
-                                    <div id="error-couponoffer" class="text-danger"></div>
+                                    <input type="text" id="offerOffer" name="offerPercentage" oninput="validate_offer_percetage()" class="form-control">
+                                    <div id="error-offer-percentage" class="text-danger"></div>
                                 </div>
                                 <div class="mb-4">
-                                    <label class="form-label">Coupon Count</label>
-                                    <input type="text" id="couponCount" name="couponCount" class="form-control" oninput="validate_coupon_count()">
-                                    <div id="error-couponcount" class="text-danger"></div>
-                                </div>
-                                <div class="mb-4">
-                                    <label class="form-label">Minimum Order Amount</label>
-                                    <input type="text" id="minimum" name="minimumOrderAmount" oninput="validate_coupon_minimum()" class="form-control">
-                                    <div id="error-couponminimum" class="text-danger"></div>
-                                </div>
-                                <div class="mb-4">
-                                    <label class="form-label">Maximum Order Amount</label>
-                                    <input type="text" id="maximum" name="maximumOrderAmount" oninput="validate_coupon_maximum()" class="form-control">
-                                    <div id="error-couponmaximum" class="text-danger"></div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="col-lg-6">
-                                        <div class="mb-4">
-                                            <label class="form-label">Start Date</label>
-                                            <input class="form-control" id="startDate" name="startDate" oninput="validate_coupon_start()" type="date">
-                                            <div id="error-couponstart" class="text-danger"></div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="mb-4">
-                                            <label class="form-label">Expire Date</label>
-                                            <input class="form-control" id="expireDate" name="expireDate" oninput="validate_coupon_end()" type="date">
-                                            <div id="error-couponend" class="text-danger"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                                    <label class="form-label">Offer Type</label>
+                                    <input type="text" id="offerType" name="offerType" class="form-control" oninput="validate_offer_type()">
+                                    <div id="error-offer-type" class="text-danger"></div>
+                                </div> 
+                                
                                 <button class="btn btn-primary" type="submit">Save</button>
                             </form>
                             
@@ -118,139 +93,76 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        function validate_coupon_code(){
-            const couponCode = document.getElementById('couponCode').value;
-            if (couponCode === "") {
-                document.getElementById('error-couponcode').innerHTML = "Please enter the code";
+        function validate_offer_name(){
+            const offerName = document.getElementById('offerName').value;
+            if (offerName === "") {
+                document.getElementById('error-offer-name').innerHTML = "Please enter the code";
                 return false;
             } else {
-                document.getElementById('error-couponcode').innerHTML = "";
+                document.getElementById('error-offer-name').innerHTML = "";
                 return true;
             }
         }
 
-        function validate_coupon_description(){
-            const couponDescription = document.getElementById('couponDescription').value;
-            if (couponDescription === "") {
-                document.getElementById('error-coupondescription').innerHTML = "please enter the description";
+        function validate_offer_description(){
+            const offerDescription = document.getElementById('offerDescription').value;
+            if (offerDescription === "") {
+                document.getElementById('error-offer-description').innerHTML = "please enter the description";
                 return false;
             } else {
-                document.getElementById('error-coupondescription').innerHTML = "";
+                document.getElementById('error-offer-description').innerHTML = "";
                 return true;
             }
         }
 
-        function validate_coupon_offer(){
-            const couponOffer = document.getElementById('couponOffer').value;
-            if(couponOffer === "") {
-                document.getElementById('error-couponoffer').innerHTML = "Please enter the offer percentage";
+        function validate_offer_percentage(){
+            const offerPercentage = document.getElementById('offerPercentage').value;
+            if(offerPercentage === "") {
+                document.getElementById('error-offer-percentage').innerHTML = "Please enter the offer percentage";
                 return false;
             } else {
-                document.getElementById('error-couponoffer').innerHTML = "";
+                document.getElementById('error-offer-percentage').innerHTML = "";
                 return true;
             }
         }
 
-        function validate_coupon_count() {
-            const couponCount = document.getElementById('couponCount').value;
-            if (couponCount === "" || couponCount == 0) {
-                document.getElementById('error-couponcount').innerHTML = "Please enter a valid coupon count";
+        function validate_offer_type() {
+            const offerType = document.getElementById('offerType').value;
+            if (offerType === "") {
+                document.getElementById('error-offer-type').innerHTML = "Please enter a valid coupon count";
                 return false;
             } else {
-                document.getElementById('error-couponcount').innerHTML = "";
+                document.getElementById('error-offer-type').innerHTML = "";
                 return true;
             }
         }   
 
-        function validate_coupon_minimum() {
-    const minimum = parseFloat(document.getElementById('minimum').value)  ;
-    if (minimum === "" || minimum == 0|| isNaN(minimum)) {
-        document.getElementById('error-couponminimum').innerHTML = "Please enter a valid minimum order amount";
-        return false;
-    } else {
-        document.getElementById('error-couponminimum').innerHTML = "";
-        return true;
-    }
-}
-
-        function validate_coupon_maximum() {
-            const maximum = parseFloat(document.getElementById('maximum').value); const minimum = parseFloat(document.getElementById('minimum').value);
 
 
-            if (maximum === "" || maximum == 0 || isNaN(maximum)) {
-                document.getElementById('error-couponmaximum').innerHTML = "Please enter a valid maximum order amount";
-                return false;
-            }else if(maximum < minimum ){
-                document.getElementById('error-couponmaximum').innerHTML = "please Enter the Maximum Amount Greater Than minimum Amount ";
-                return false;
-            } 
+        
 
-            else {
-                document.getElementById('error-couponmaximum').innerHTML = "";
-                return true;
-            }
-        }
-
-        function validate_coupon_start() {
-            const couponstart = document.getElementById('startDate').value;
-            let currentDate = new Date().toISOString().split('T')[0]; // get current date in YYYY-MM-DD format
-            if (couponstart === "")  {
-                document.getElementById('error-couponstart').innerHTML = "Please enter a valid start date";
-                return false;
-                
-            }
-            else if(couponstart < currentDate)
-            {
-
-                document.getElementById('error-couponstart').innerHTML = `The start date cannot be in the past. `;
-                return false;
-            }
-            else {
-                document.getElementById('error-couponstart').innerHTML = "";
-                return true;
-            }
-        }
-
-        function validate_coupon_end() {
-            const couponend = document.getElementById('expireDate').value;
-            const couponstart = document.getElementById('startDate').value;
-            if (couponend === "" ) {
-                document.getElementById('error-couponend').innerHTML = "Please enter a valid expiration date";
-                return false;
-            } else if( couponend < couponstart){
-                document.getElementById('error-couponend').innerHTML = "End Date Cannot be past of Start Date";
-                return false;
-
-            }
-            else {
-                document.getElementById('error-couponend').innerHTML = "";
-                return true;
-            }
-        }
+        
 
         function validate_form() {
-            return validate_coupon_code() && validate_coupon_description()&& validate_coupon_offer() &&  validate_coupon_count() && validate_coupon_minimum() && validate_coupon_maximum()  && validate_coupon_start() && validate_coupon_end();
+            return validate_offer_name() && validate_offer_description()&& validate_offer_percentage() &&  validate_offe_type()  
         }
 
 
     </script>
     <!-- add coupon -->
      <script>
-        document.getElementById('couponForm').addEventListener('submit',async function (event) {
+        document.getElementById('offerForm').addEventListener('submit',async function (event) {
             event.preventDefault();//Prevent the default form submission
             if(validate_form()) {
                 const formData ={
-                    coupon_code: document.getElementById('couponCode').value,
-                    coupon_description: document.getElementById('couponDescription').value,
-                    offer_percentage: document.getElementById('couponOffer').value,
-                    coupon_count: document.getElementById('couponCount').value,
-                    minimum_order_amount: document.getElementById('minimum').value,
-                    maximum_order_amount: document.getElementById('maximum').value,
-                    start_date:document.getElementById('startDate').value,
-                    ending_date:document.getElementById('expireDate').value
+                    coupon_code: document.getElementById('offerName').value,
+                    coupon_description: document.getElementById('offerDescription').value,
+                    offer_percentage: document.getElementById('offerPercentage').value,
+                    coupon_count: document.getElementById('offerType').value,
+                    
                 };
                 try {
-                    const response = await fetch('/admin/addcoupons',{
+                    const response = await fetch('/admin/add-product-offer',{
                         method : 'POST',
                         headers : {
                             'Content-Type':'application/json'
@@ -260,17 +172,17 @@
                     if(response.ok) {
                         Swal.fire({
                             title: 'Success!',
-                            text: 'Coupon created successfully',
+                            text: 'Offer created successfully',
                             icon: 'success',
                             confirmButtonText: 'OK'
                         }).then(() => {
-                            window.location.href = '/admin/coupons'; // Redirect after successfull creation
+                            window.location.href = '/admin/offers'; // Redirect after successfull creation
                         });
                     }else{
-                        Swal.fire('Error', 'Failed to create coupon', 'error');
+                        Swal.fire('Error', 'Failed to create offer', 'error');
                     }
                 } catch (error) {
-                    Swal.fire('Error', 'An error occured while creating the coupon', 'error');
+                    Swal.fire('Error', 'An error occured while creating offer', error);
                 }
             }
         });
@@ -289,4 +201,4 @@
 
 
 
-</html>
+</html>                                     

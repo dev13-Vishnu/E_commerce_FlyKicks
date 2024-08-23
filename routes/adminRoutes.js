@@ -56,6 +56,6 @@ adminRoutes.put('/coupon/edit/:id',auth.isLogin,couponController.editCoupon);
 //offers
 adminRoutes.get('/offers',auth.isLogin,offerController.loadOfferPage);
 adminRoutes.get('/add-category-offers', auth.isLogin,offerController.loadAddCategoryOfferPage)
-adminRoutes
+adminRoutes.get('/add-product-offers', auth.isLogin,offerController.loadAddProductOfferPage)
 
 module.exports = adminRoutes;

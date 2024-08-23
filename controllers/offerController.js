@@ -20,8 +20,18 @@ const loadAddCategoryOfferPage = async (req,res) => {
         
     }
 }
+const loadAddProductOfferPage = async (req,res) => {
+    try {
+        res.render('admin/addProductOffer',{
+            currentUrl:req.url,
+        })
+    } catch (error) {
+        
+    }
+}
 
 module.exports = {
     loadOfferPage,
-    loadAddCategoryOfferPage
+    loadAddCategoryOfferPage,
+    loadAddProductOfferPage
 }
