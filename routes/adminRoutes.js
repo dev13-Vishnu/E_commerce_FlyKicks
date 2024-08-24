@@ -59,7 +59,7 @@ adminRoutes.get('/add-category-offers', auth.isLogin,offerController.loadAddCate
 adminRoutes.get('/add-product-offers', auth.isLogin,offerController.loadAddProductOfferPage)
 adminRoutes.post('/add-product-offers', auth.isLogin,offerController.addProductOffer)
 adminRoutes.get('/offers/products',auth.isLogin,offerController.loadProductModal)
-adminRoutes.post('/offers/products/apply', auth.isLogin,offerController.applyOfferToProduct)
+adminRoutes.post('/products-offer-apply', auth.isLogin,offerController.applyOfferToProduct)
 adminRoutes.post ('/offers/products/remove', auth.isLogin,offerController.removeOfferFromProduct );
 
 

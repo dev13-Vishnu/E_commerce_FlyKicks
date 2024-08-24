@@ -168,7 +168,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="applyOfferBtn">Apply Offer</button>
+                    
                 </div>
             </div>
         </div>
@@ -182,6 +182,11 @@
     <script src="/admin/assets/js/vendors/jquery.fullscreen.min.js"></script>
     <!-- Main Script -->
     <script src="/admin/assets/js/main.js" type="text/javascript"></script>
+
+     <!-- jQuery -->
+     <script src="/admin/assets/js/vendors/jquery-3.6.0.min.js"></script>
+     <!-- Bootstrap JS -->
+     <script src="/admin/assets/js/vendors/bootstrap.bundle.min.js"></script>
  <!-- SweetAlert2 JS -->
  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -209,7 +214,7 @@
                                      <img src="/${product.image[0].replace(/\\/g, '/')}" alt="Product">
                                  </a>
                                  <div class="info-wrap">
-                                     <a href="products/edit?productId=${product._id}" class="title">${product.name}</a>
+                                     <p href="" class="title">${product.name}</p>
                                      <div class="price mt-1">₹${product.price}</div>
                                      <div class="d-flex px-5 justify-content-between mt-2">
                                          ${product.offer ? 
@@ -229,26 +234,34 @@
          });
      }
 
-     function applyOffer(productId) {
-         $.ajax({
-             url: '/admin/offers/products/apply',
-             type: 'POST',
-             data: { productId: productId, offerId: selectedOfferId },
-             success: function (response) {
-                 Swal.fire({
-                     title: 'Success!',
-                     text: 'Offer applied successfully!',
-                     icon: 'success',
-                     confirmButtonText: 'OK'
-                 }).then(() => {
-                     loadProducts(); // Reload products to update the button states
-                 });
-             },
-             error: function (error) {
-                 console.error("Error applying offer:", error);
-             }
-         });
-     }
+     function applyOffer(productId, offerId) {
+    $.ajax({
+        url: '/admin/products-offer-apply',
+        type: 'POST',
+        data: { productId, offerId:selectedOfferId },
+        success: function(response) {
+            Swal.fire({
+                title: 'Success',
+                text: response.message,
+                icon: 'success'
+            })
+            .then(()=> {
+                loadProducts(); // Reload products to update the button states
+            });
+
+        
+            
+        },
+        error: function(xhr, status, error) {
+            console.error('Error applying offer:', xhr);
+            Swal.fire({
+                title: 'Error',
+                text: xhr.responseJSON ? xhr.responseJSON.message : 'Failed to apply offer',
+                icon: 'error'
+            });
+        }
+    });
+}
 
      function removeOffer(productId) {
          $.ajax({

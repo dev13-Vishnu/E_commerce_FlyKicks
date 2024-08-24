@@ -1,5 +1,5 @@
-const { off } = require('pdfkit')
-const Offers = require('../models/offerModel')
+
+const Offer = require('../models/offerModel')
 const Product = require('../models/productModel');
 
 const loadOfferPage = async (req, res) => {
@@ -7,7 +7,7 @@ const loadOfferPage = async (req, res) => {
 
         const products = await Product.find({});
 
-        const offers = await Offers.find({});
+        const offers = await Offer.find({});
         res.render('admin/offer',{
             currentUrl: req.url,
             offers,
@@ -41,7 +41,7 @@ const loadAddProductOfferPage = async (req,res) => {
 const addProductOffer = async (req, res, next) => {
     try {
         const {offer_name, offer_description, offer_percentage, offer_type} = req.body;
-        const newOffer = new Offers({
+        const newOffer = new Offer({
             offerName : offer_name,
             offerDescription : offer_description,
             discount : offer_percentage,
@@ -60,33 +60,45 @@ const addProductOffer = async (req, res, next) => {
 
     const loadProductModal = async (req, res) => {
         try {
-            const products = await Product.find({ delete: false }).select('name image price promo_price');
+            const products = await Product.find({ delete: false }).select('name image price promo_price').populate('offer');
             res.json(products);
         } catch (error) {
             res.status(500).json({ error: 'Failed to fetch products' });
         }
     }
 
-    const applyOfferToProduct = async (req,res) => {
+    const applyOfferToProduct =  async (req, res) => {
         const { productId, offerId } = req.body;
-        try {
-            const product = await Product.findById(productId);
-            const offer = await Offer.findById(offerId);
     
-            if (!product || !offer) {
-                return res.status(404).json({ message: 'Product or Offer not found' });
+        console.log('offerController applyOfferToProduct req.body',req.body);
+        try {
+            // Check if the offer exists
+            const offer = await Offer.findById(offerId);
+            if (!offer) {
+                return res.status(404).json({ message: 'Offer not found' });
             }
     
-            product.offer = offerId;
-            await product.save();
+            // Update the product's offer field
+            let product = await Product.findByIdAndUpdate(
+                productId,
+                { offer: offerId },
+                { new: true }
+            );
     
-            res.json({ message: 'Offer applied successfully' });
-            
+            if (!product) {
+                return res.status(404).json({ message: 'Product not found' });
+            }
+    
+            // Populate the offer field in the product to include offer details in the response
+            product = await product.populate('offer');
+    
+            // Send success response
+            res.status(200).json({ message: 'Offer applied successfully', product });
         } catch (error) {
-            
-        res.status(500).json({ message: 'Failed to apply offer', error });
+            console.error("Error applying offer:", error); // Log the error for debugging
+            res.status(500).json({ message: 'Failed to apply offer', error: error.message });
         }
-    }
+    };
 
     const removeOfferFromProduct  = async (req, res) => {
         const { productId } = req.body;
