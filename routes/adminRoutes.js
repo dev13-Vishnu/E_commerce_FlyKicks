@@ -61,6 +61,9 @@ adminRoutes.post('/add-product-offers', auth.isLogin,offerController.addProductO
 adminRoutes.get('/offers/products',auth.isLogin,offerController.loadProductModal)
 adminRoutes.post('/products-offer-apply', auth.isLogin,offerController.applyOfferToProduct)
 adminRoutes.post ('/offers/products/remove', auth.isLogin,offerController.removeOfferFromProduct );
+adminRoutes.get('/edit-offer/:id',auth.isLogin,offerController.loadEditProductOfferPage);
+adminRoutes.put('/edit-product-offers/:id',auth.isLogin,offerController.editProductOffer);
+adminRoutes.put('/offers/delete/:offerId', auth.isLogin,offerController.deleteOffer)
 
 
 module.exports = adminRoutes;
