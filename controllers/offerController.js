@@ -5,10 +5,13 @@ const Product = require('../models/productModel');
 const loadOfferPage = async (req, res) => {
     try {
 
+        const products = await Product.find({});
+
         const offers = await Offers.find({});
         res.render('admin/offer',{
             currentUrl: req.url,
-            offers
+            offers,
+            products
         })
     } catch (error) {
         
@@ -57,18 +60,58 @@ const addProductOffer = async (req, res, next) => {
 
     const loadProductModal = async (req, res) => {
         try {
-            const products = await Product.find({}).select('name imageUrl'); // Adjust the query as necessary
-            res.json({ products });
+            const products = await Product.find({ delete: false }).select('name image price promo_price');
+            res.json(products);
         } catch (error) {
-            console.error('Error fetching products:', error);
             res.status(500).json({ error: 'Failed to fetch products' });
         }
     }
+
+    const applyOfferToProduct = async (req,res) => {
+        const { productId, offerId } = req.body;
+        try {
+            const product = await Product.findById(productId);
+            const offer = await Offer.findById(offerId);
+    
+            if (!product || !offer) {
+                return res.status(404).json({ message: 'Product or Offer not found' });
+            }
+    
+            product.offer = offerId;
+            await product.save();
+    
+            res.json({ message: 'Offer applied successfully' });
+            
+        } catch (error) {
+            
+        res.status(500).json({ message: 'Failed to apply offer', error });
+        }
+    }
+
+    const removeOfferFromProduct  = async (req, res) => {
+        const { productId } = req.body;
+        try {
+            const product = await Product.findById(productId);
+    
+            if (!product) {
+                return res.status(404).json({ message: 'Product not found' });
+            }
+    
+            product.offer = null;
+            await product.save();
+    
+            res.json({ message: 'Offer removed successfully' });
+        } catch (error) {
+            res.status(500).json({ message: 'Failed to remove offer', error });
+        }
+    };
 
 module.exports = {
     loadOfferPage,
     loadAddCategoryOfferPage,
     loadAddProductOfferPage,
     addProductOffer,
-    loadProductModal
+    loadProductModal,
+    applyOfferToProduct,
+    removeOfferFromProduct 
 }
