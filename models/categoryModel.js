@@ -24,8 +24,9 @@ const categorySchema = mongoose.Schema({
         defautl:Date.now()
     },
 
-        offer: {
-            type: Number,
+    offer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'offer',
     }
 })
 module.exports = mongoose.model('category',categorySchema);

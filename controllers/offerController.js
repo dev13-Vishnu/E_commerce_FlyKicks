@@ -1,20 +1,25 @@
 
+const categoryModel = require('../models/categoryModel');
 const Offer = require('../models/offerModel')
 const Product = require('../models/productModel');
+const Category = require('../models/categoryModel');
 
 const loadOfferPage = async (req, res) => {
     try {
 
-        const products = await Product.find({});
+        const products = await Product.find({delete:false});
+        
+        const categories = await Category.find({delete:false})
 
         const offers = await Offer.find({});
         res.render('admin/offer',{
             currentUrl: req.url,
             offers,
-            products
+            products,
+            categories
         })
     } catch (error) {
-        
+        console.log('Error fom the offeController. load offer page :',error);
     }
 }
 
@@ -25,7 +30,7 @@ const loadAddCategoryOfferPage = async (req,res) => {
             currentUrl:req.url,
         })
     } catch (error) {
-        
+        console.log('Error from offerController. load add category offer page:',error)
     }
 }
 const loadAddProductOfferPage = async (req,res) => {
@@ -34,7 +39,7 @@ const loadAddProductOfferPage = async (req,res) => {
             currentUrl:req.url,
         })
     } catch (error) {
-        
+        console.log('Error from offerController. load add product offer page:',error)
     }
 }
 
@@ -60,10 +65,23 @@ const addProductOffer = async (req, res, next) => {
 
     const loadProductModal = async (req, res) => {
         try {
+
+            // console.log('offerController load product modal routhe checking')
             const products = await Product.find({ delete: false }).select('name image price promo_price').populate('offer');
             res.json(products);
         } catch (error) {
             res.status(500).json({ error: 'Failed to fetch products' });
+        }
+    }
+
+    const loadCategoryModal = async (req, res)=> {
+        try {
+            // console.log('offerController load category modal routhe checking')
+            const categories = await Category.find({delete:false}).populate('offer');
+            res.json(categories);
+        
+        } catch (error) {
+            res.status(500).json({ error: 'Failed to fetch Categories' });
         }
     }
 
@@ -117,6 +135,57 @@ const addProductOffer = async (req, res, next) => {
             res.status(500).json({ message: 'Failed to remove offer', error });
         }
     };
+
+
+    const applyCategoryOffer = async (req,res) => {
+        try {
+            const {categoryId, offerId} = req.body;
+
+            console.log('offerController.applyCategoryOffer req.body',req.body);
+            //Find the category by ID and Updata its offer field
+            const updatedCategory = await Category.findByIdAndUpdate(
+                categoryId,
+                {offer:  offerId},
+                {new: true}
+            );
+
+            if(!updatedCategory){
+                return res.status(404).json({message: 'Category Not found'});
+            }
+
+            return res.status(200).json({
+                message: 'Offer applied successfully',
+                category: updatedCategory
+            });
+        } catch (error) {
+            console.log('Error from the offerControler applyCategoryOffe:',error);  
+        }
+    }
+
+const removeCategoryOffer = async (req,res) => {
+    try {
+        const {categoryId} = req.body;
+        console.log('offerController. removeCategoryOffer req.body:',req.body);
+
+        const updatedCategory = await Category.findByIdAndUpdate(
+            categoryId,
+            { $unset: { offer: '' } }, // Unset the offer field
+            { new: true }
+        ) ;
+
+        if(!updatedCategory) {
+            return res.status(404).json({messsage: 'Category not found'});
+        }
+
+        return res.status(200).json({
+            message: 'Offer applied successfully',
+            category: updatedCategory
+        })
+    } catch (error) {
+        console.log('Error from the offerControler removeCategoryOffer:',error);  
+    }
+}
+
     
     const loadEditProductOfferPage = async (req,res) => {
         try {
@@ -182,5 +251,9 @@ module.exports = {
     removeOfferFromProduct,
     loadEditProductOfferPage,
     editProductOffer,
-    deleteOffer
+    deleteOffer,
+    loadCategoryModal,
+    applyCategoryOffer,
+    removeCategoryOffer
+
 }
