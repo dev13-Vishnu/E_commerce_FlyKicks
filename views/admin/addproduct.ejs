@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+ <!DOCTYPE HTML>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -10,7 +10,7 @@
     <meta property="og:type" content="">
     <meta property="og:url" content="">
     <meta property="og:image" content="">
-    <link rel="shortcut icon" type="image/x-icon" href="/admin/assets/imgs/theme/favicon.svg">
+    <link rel="sh ortcut icon" type="image/x-icon" href="/admin/assets/imgs/theme/favicon.svg">
     <link href="/admin/assets/css/main.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -123,9 +123,6 @@
                         </div>
                     </div>
                     
-                    <div class="container">
-                        <div id="previewContainer"></div>
-                    </div>
 
                 </div>
                 
@@ -142,6 +139,9 @@
                                 <div id="previewContainer"></div>
                             </div>
                         </div>
+                        <div class="container">
+                            <div id="previewContainer"></div>
+                        </div> 
                     </div>
                     <div class="card mb-4">
                         <div class="card-header">
@@ -179,71 +179,82 @@
         </div>
     </main>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-    <script>
-        let cropper;
-        let currentImageInput;
+<script>
+    let cropper;
+let croppedFiles = [];
 
-        $(document).on('change', 'input[type="file"]', function (e) {
-            currentImageInput = this;
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    $('#imageToCrop').attr('src', event.target.result);
-                    $('#cropModal').css('display', 'flex');
-                    if (cropper) {
-                        cropper.destroy();
-                    }
-                    cropper = new Cropper(document.getElementById('imageToCrop'), {
-                        aspectRatio: 1,
-                        viewMode: 1
-                    });
-                };
-                reader.readAsDataURL(file);
+// Handle image selection and show crop modal
+$(document).on('change', 'input[type="file"]', function (e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            $('#imageToCrop').attr('src', event.target.result);
+            $('#cropModal').css('display', 'flex');
+
+            if (cropper) {
+                cropper.destroy();
             }
-        });
 
-        $('#cropButton').on('click', function () {
-            const canvas = cropper.getCroppedCanvas();
-            canvas.toBlob(function (blob) {
-                const url = URL.createObjectURL(blob);
-                const img = document.createElement('img');
-                img.src = url;
-                $('#previewContainer').append(img);
+            cropper = new Cropper(document.getElementById('imageToCrop'), {
+                aspectRatio: 1,
+                viewMode: 1
+            });
 
-                const croppedFile = new File([blob], currentImageInput.files[0].name, { type: 'image/jpeg', lastModified: Date.now() });
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(croppedFile);
-                currentImageInput.files = dataTransfer.files;
+            $('#cropButton').data('file', file);
+        };
+        reader.readAsDataURL(file);
+    }
+});
 
-                $('#cropModal').css('display', 'none');
-            }, 'image/jpeg');
-        });
+// Handle image cropping and preview
+$('#cropButton').on('click', function () {
+    const file = $(this).data('file');
+    const canvas = cropper.getCroppedCanvas();
 
-        $('#imageForm').on('submit', function (e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        $('input[type="file"]').each(function () {
-            const files = $(this).prop('files');
-            for (let i = 0; i < files.length; i++) {
-                formData.append('images', files[i]);
-            }
-        });
-        $.ajax({
-            url: '/admin/addproduct',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                alert('Product added successfully');
-            },
-            error: function (err) {
-                alert('Error adding product: ' + err.responseText);
-            }
-        });
+    canvas.toBlob(function (blob) {
+        const uniqueName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${file.name}`;
+        const croppedFile = new File([blob], uniqueName, { type: 'image/jpeg', lastModified: Date.now() });
+        croppedFiles.push(croppedFile);
+
+        const url = URL.createObjectURL(blob);
+        const img = document.createElement('img');
+        img.src = url;
+        $('#previewContainer').append(img);
+
+        $('#cropModal').css('display', 'none');
+
+        // Do not reset the input here to avoid prompting for file selection again
+    }, 'image/jpeg');
+});
+
+// Handle form submission with AJAX
+$('#imageForm').on('submit', function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    // Clear the input files from the form data and replace with cropped images
+    formData.delete('images');
+    croppedFiles.forEach(file => formData.append('images', file));
+
+    $.ajax({
+        url: '/admin/addproduct',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+            alert('Product added successfully');
+            window.location.reload(); // Optional: Reload the page to reset the form
+        },
+        error: function (err) {
+            alert('Error adding product: ' + err.responseText);
+        }
     });
+});
 
-    </script>
+</script>
+
 </body>
 </html>

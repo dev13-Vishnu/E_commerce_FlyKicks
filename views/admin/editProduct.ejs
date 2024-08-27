@@ -15,10 +15,66 @@
     <link rel="shortcut icon" type="image/x-icon" href="/admin/assets/imgs/theme/favicon.svg">
     <!-- Template CSS -->
     <link href="/admin/assets/css/main.css" rel="stylesheet" type="text/css" />
+    <!-- Cropper.js -->
+    <link href="https://unpkg.com/cropperjs/dist/cropper.css" rel="stylesheet">
 
                 
 
     <style>
+        /* Crop Modal Styles */
+/* Crop Modal Styles */
+#cropModal {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%; /* Adjust width as needed */
+    max-width: 800px; /* Set a maximum width */
+    height: 80%; /* Adjust height as needed */
+    max-height: 600px; /* Set a maximum height */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it appears on top of other elements */
+    border-radius: 8px; /* Optional: Add rounded corners */
+    overflow: hidden; /* Prevent overflow */
+}
+
+#cropModal img {
+    width: 100%; /* Ensure the image fits the modal width */
+    height: auto; /* Maintain aspect ratio */
+}
+
+/* Crop Button Styles */
+#cropButton {
+    position: absolute;
+    bottom: 20px; /* Position at the bottom of the modal */
+    right: 20px; /* Position at the right side */
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
+
+/* Image Preview Container Styles */
+#previewContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Space between images */
+    margin-top: 20px;
+}
+
+#previewContainer img {
+    max-width: 150px;
+    max-height: 150px;
+    object-fit: cover; /* Ensure images maintain aspect ratio */
+    border: 1px solid #ddd; /* Optional: Add a border around the image */
+    border-radius: 5px; /* Optional: Add rounded corners */
+}
+
         
         .btn.btn-custom.btn-sm {
             background-color : red;
@@ -124,8 +180,8 @@
                             
                                     </div>
                                 </div> card end//
-
-                                    <div class="row">
+                                
+                    <div class="row">
                                         <% for(let i = 0; i < productData.image.length; i++) { %>
                                             <div class="col-sm-6 mb-4">
                                                 <div class="card mb-4">
@@ -188,24 +244,16 @@
                                                 
 
                                                 <div class="mb-4">
-                                                    <label for="image1" class="form-label">Image 1</label>
-                                                    <input type="file" class="form-control" id="image1" name="images" accept="image/*" >
-                                                </div>
-                                                <div class="mb-4">
-                                                    <label for="image2" class="form-label">Image 2</label>
-                                                    <input type="file" class="form-control" id="image2" name="images" accept="image/*">
-                                                </div>
-                                                <div class="mb-4">
-                                                    <label for="image3" class="form-label">Image 3</label>
-                                                    <input type="file" class="form-control" id="image3" name="images" accept="image/*">
-                                                </div>
-                                                <div class="mb-4">
-                                                    <label for="image4" class="form-label">Image 4</label>
-                                                    <input type="file" class="form-control" id="image4" name="images" accept="image/*">
+                                                    <label for="imageUplad" class="form-label">Upload Images</label>
+                                                    <input type="file" class="form-control" id="imageUpload" name="images" accept="image/*" >
                                                 </div>
                                                 
 
                                             </div>
+                                    <!-- Image Preview Container -->
+                                        <div class="container">
+                                        <div id="previewContainer"></div>
+                                        </div>
                                         </div> 
                                         <div class="card mb-4">
                                             <div class="card-header">
@@ -258,7 +306,15 @@
                     <!-- </div> card end// --> 
                 </div>
             </div>
-        </section> <!-- content-main end// -->
+        </section>
+        <div class="container">
+        <!-- cropModal -->
+        <div id="cropModal">
+            <img id="imageToCrop" src="" alt="Image to Crop">
+            <button class="btn btn-brand " id="cropButton">Crop</button>
+        </div>
+
+        </div> <!-- content-main end// -->
         <!-- <footer class="main-footer font-xs">
             <div class="row pb-30 pt-15">
                 <div class="col-sm-6">
@@ -273,16 +329,115 @@
                 </div>
             </div>
         </footer> -->
+        
     </main>
     <script src="/admin/assets/js/vendors/jquery-3.6.0.min.js"></script>
     <script src="/admin/assets/js/vendors/bootstrap.bundle.min.js"></script>
     <script src="/admin/assets/js/vendors/select2.min.js"></script>
     <script src="/admin/assets/js/vendors/perfect-scrollbar.js"></script>
     <script src="/admin/assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <!-- Cropper.js -->
+    <link href="https://unpkg.com/cropperjs/dist/cropper.css" rel="stylesheet">
+    <script src="https://unpkg.com/cropperjs"></script>
+
     <!-- Main Script -->
     <script src="/admin/assets/js/main.js" type="text/javascript"></script>
     <!-- sweetalert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- cropperjs  -->
+
+    <script>
+        let cropper;
+        let croppedFiles = [];
+    
+        $(document).on('change', '#imageUpload', function (e) {
+            const files = e.target.files;
+            if (files.length) {
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        $('#imageToCrop').attr('src', event.target.result);
+                        $('#cropModal').css('display', 'flex');
+    
+                        if (cropper) {
+                            cropper.destroy();
+                        }
+    
+                        cropper = new Cropper(document.getElementById('imageToCrop'), {
+                            aspectRatio: 1,
+                            viewMode: 1
+                        });
+    
+                        $('#cropButton').data('file', file);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
+    
+        $('#cropButton').on('click', function () {
+            const file = $(this).data('file');
+            const canvas = cropper.getCroppedCanvas();
+    
+            canvas.toBlob(function (blob) {
+                const uniqueName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${file.name}`;
+                const croppedFile = new File([blob], uniqueName, { type: 'image/jpeg', lastModified: Date.now() });
+                croppedFiles.push(croppedFile);
+    
+                const url = URL.createObjectURL(blob);
+                const img = document.createElement('img');
+                img.src = url;
+                $('#previewContainer').append(img);
+    
+                $('#cropModal').css('display', 'none');
+            }, 'image/jpeg');
+        });
+    
+        document.getElementById('submitBtn').addEventListener('click', async function () {
+            const form = document.getElementById('editProductForm');
+            const formData = new FormData(form);
+            const productId = "<%= productData._id %>";
+    
+            // Remove the original images if present in the form data
+            formData.delete('images');
+            
+            // Append cropped files
+            croppedFiles.forEach(file => formData.append('images', file));
+    
+            try {
+                const response = await fetch(`/admin/products/edit?productId=${productId}`, {
+                    method: 'PUT', // Use PUT to update the existing product
+                    body: formData,
+                });
+    
+                const result = await response.json();
+    
+                if (response.ok) {
+                    Swal.fire(
+                        'Success!',
+                        'The product has been updated.',
+                        'success'
+                    ).then(() => {
+                        window.location.reload(); // Reload the page to reflect changes
+                    });
+                } else {
+                    Swal.fire(
+                        'Error!',
+                        result.message || 'There was an issue updating the product.',
+                        'error'
+                    );
+                }
+            } catch (error) {
+                Swal.fire(
+                    'Error!',
+                    'Something went wrong!',
+                    'error'
+                );
+            }
+        });
+    </script>
+    
     <!-- remove image -->
      <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -337,46 +492,6 @@
 });
 
      </script>
-
-     <!-- edit product  -->
-     <script>
-        document.getElementById('submitBtn').addEventListener('click', async function () {
-            const form = document.getElementById('editProductForm');
-            const formData = new FormData(form);
-    
-            const productId = "<%= productData._id %>";
-            try {
-                const response = await fetch(`/admin/products/edit?productId=${productId}`, {
-                    method: 'PUT', // Use PUT to update the existing product
-                    body: formData,
-                });
-    
-                const result = await response.json();
-    
-                if (response.ok) {
-                    Swal.fire(
-                        'Success!',
-                        'The product has been updated.',
-                        'success'
-                    ).then(() => {
-                        window.location.reload(); // Reload the page to reflect changes
-                    });
-                } else {
-                    Swal.fire(
-                        'Error!',
-                        result.message || 'There was an issue updating the product.',
-                        'error'
-                    );
-                }
-            } catch (error) {
-                Swal.fire(
-                    'Error!',
-                    'Something went wrong!',
-                    'error'
-                );
-            }
-        });
-    </script>
 
 </body>
 

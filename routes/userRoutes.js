@@ -18,6 +18,7 @@ const orderController = require('../controllers/orderController');
 const wishlistController = require('../controllers/wishlistController');
 const couponController = require('../controllers/couponController');
 const { isLoggedOut, isLoggedIn } = require("../middlewares/userAuthentication");
+const offerController = require('../controllers/offerController');
 
 
 userRoute.get('/',isLoggedOut,userController.loadLandingPage)
@@ -104,6 +105,7 @@ userRoute.post('/verify-payment', isLoggedIn,orderController.verifyPayment);
 userRoute.get('/order-details',isLoggedIn,orderController.loadUserOrderDetails)
 userRoute.post('/cancel-product',isLoggedIn,orderController.cancelIndividualProduct);
 userRoute.post('/return-product',isLoggedIn,orderController.returnProduct);
+userRoute.post('/track-referral',isLoggedIn,offerController.referANewUser)
 
 module.exports = userRoute;
  

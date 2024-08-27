@@ -56,10 +56,24 @@ const verifyLogin = async(req,res)=>{
 const loadDashboard = async (req, res, next) => {
     try {
         // Fetch Orders
-        const orders = await Order.find({})
+        let orders = await Order.find({})
             .populate('userId', 'username email')
             .populate('products.productId', 'name')
             .sort({ orderDate: -1 });
+
+        // Add discount calculation to each order
+        orders = orders.map(order => {
+            // Calculate the total product price
+            const totalProductPrice = order.products.reduce((acc, product) => acc + product.price, 0);
+
+            // Calculate the discount (excluding shipping cost if freeShipping is true)
+            const discount = totalProductPrice - (order.freeShipping ? order.payableAmount : order.payableAmount - 500);
+
+            return {
+                ...order._doc,
+                discount: discount
+            };
+        });
 
         // Get Dates for Filters
         const today = moment().endOf('day');
@@ -129,10 +143,47 @@ const loadDashboard = async (req, res, next) => {
             { $sort: { "_id.year": 1, "_id.month": 1 } }
         ]);
 
+        // Calculate Overall Revenue
+        const overallRevenue = orders.reduce((total, order) => total + order.payableAmount, 0);
+
+        // Calculate Total Orders
+        const totalOrders = orders.length;
+
+        // Calculate Total Products Sold
+        const totalProducts = orders.reduce((count, order) => count + order.products.length, 0);
+
+        // Calculate Average Monthly Earnings
+        const currentYear = new Date().getFullYear();
+        const monthlyEarnings = await Order.aggregate([
+            {
+                $match: {
+                    orderDate: {
+                        $gte: new Date(currentYear, 0, 1),
+                        $lte: new Date(currentYear, 11, 31),
+                    },
+                },
+            },
+            {
+                $group: {
+                    _id: { month: { $month: "$orderDate" } },
+                    totalSales: { $sum: "$payableAmount" },
+                },
+            },
+        ]);
+
+        const totalMonths = monthlyEarnings.length;
+        const averageMonthlyEarning = totalMonths > 0
+            ? monthlyEarnings.reduce((sum, month) => sum + month.totalSales, 0) / totalMonths
+            : 0;
+
         // Render Dashboard View and Pass Data
         res.render('admin/dashboard', {
-            currentUrl:req.url,
+            currentUrl: req.url,
             orders,
+            overallRevenue,
+            totalOrders,
+            totalProducts,
+            averageMonthlyEarning,
             salesDataLast7Days: JSON.stringify(salesDataLast7Days),
             salesDataThisMonth: JSON.stringify(salesDataThisMonth),
             salesDataThisYear: JSON.stringify(salesDataThisYear)
@@ -142,6 +193,7 @@ const loadDashboard = async (req, res, next) => {
         next(error);
     }
 };
+
 
 
 

@@ -3,7 +3,13 @@ const categoryModel = require('../models/categoryModel');
 const Offer = require('../models/offerModel')
 const Product = require('../models/productModel');
 const Category = require('../models/categoryModel');
+const Referral = require('../models/referralModel');
+require('dotenv').config()
+const User = require('../models/userModel');
 
+const {sendReferralMail} = require('../helpers/sendRefferalMail');
+
+const PORT = process.env.PORT
 const loadOfferPage = async (req, res) => {
     try {
 
@@ -123,14 +129,25 @@ const addProductOffer = async (req, res, next) => {
         try {
             const product = await Product.findById(productId);
     
+            console.log ('offerController removeOfferFromProduct product:',product);
             if (!product) {
                 return res.status(404).json({ message: 'Product not found' });
             }
     
-            product.offer = null;
-            await product.save();
+            const updatedProduct = await Product.findByIdAndUpdate(
+                productId,
+                { $unset: { offer: '' } }, // Unset the offer field
+                { new: true }
+            ) ;
+
+            if(!updatedProduct) {
+                return res.status(404).json({message: 'Product Not found'});
+            }
     
-            res.json({ message: 'Offer removed successfully' });
+            return res.status(200).json({
+                message: 'Offer removed successfully'
+            });
+
         } catch (error) {
             res.status(500).json({ message: 'Failed to remove offer', error });
         }
@@ -187,13 +204,13 @@ const removeCategoryOffer = async (req,res) => {
 }
 
     
-    const loadEditProductOfferPage = async (req,res) => {
+    const loadEditOfferPage = async (req,res) => {
         try {
             const offer = await Offer.findById(req.params.id);
             if(!offer) {
                 return res.status(404).send('Offer not found');
             }
-            res.render('admin/editProductOfferPage',{
+            res.render('admin/editOfferPage',{
                 currentUrl:req.url,
 
                 offer
@@ -202,7 +219,7 @@ const removeCategoryOffer = async (req,res) => {
         }
     };
 
-    const  editProductOffer = async(req,res) => {
+    const  editOffer = async(req,res) => {
         try {
             const {offerName,offerDescription, discount, offerType} = req.body;
             await Offer.findByIdAndUpdate(req.params.id, {
@@ -241,6 +258,60 @@ const removeCategoryOffer = async (req,res) => {
         }
     }
 
+
+    const referANewUser = async (req,res)  =>{
+
+        const { email } = req.body;
+        console.log('offerController referNewUser Email from req.body:', email);
+
+        try {
+            //Find the referrer based on their session on Id (assuming user is logged in)
+            console.log('offerController referNewUser refer a new user working')
+
+            const referrer = await User.findById(req.session.user._id);
+
+            if(!referrer) {
+                return res.status(404).send('Referrer not found');
+            }
+
+            //Chech if a referral already exists for this email
+            let referral = await Referral.findOne({email:email});
+
+            if(referral) {
+                return res.status(400).send('Referral already exists for this email.');
+            }
+
+            //Create a new referral document
+            referral = new Referral({
+                userId : referrer._id,
+                email: email,
+                reffered: false
+            });
+
+            await referral.save();
+
+            // Generate a unique referral link for development (using localhost)
+            const referralLink = `http://localhost:${PORT}/signup?referralId=${referral._id}`;
+
+            //send the referral mail
+            console.log('offerController referNewUser Referrer Name:', referrer.username);
+            console.log('offerController referNewUser Referral Email:', email);
+            console.log('offerController referNewUser Referral Link:', referralLink);
+
+            await sendReferralMail(referrer.username, email, referralLink);
+
+
+            res.status(200).send('Referral link sent successfully!');
+            
+                        
+        } catch (error) {
+            console.log('Error from offerController referNewUser:',error);
+            res.status(500).send('Server error. Please try again later.');
+        
+            
+        }
+    }
+
 module.exports = {
     loadOfferPage,
     loadAddCategoryOfferPage,
@@ -249,11 +320,12 @@ module.exports = {
     loadProductModal,
     applyOfferToProduct,
     removeOfferFromProduct,
-    loadEditProductOfferPage,
-    editProductOffer,
+    loadEditOfferPage,
+    editOffer,
     deleteOffer,
     loadCategoryModal,
     applyCategoryOffer,
-    removeCategoryOffer
+    removeCategoryOffer,
+    referANewUser
 
 }

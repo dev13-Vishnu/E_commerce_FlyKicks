@@ -2,125 +2,71 @@
   <div class="container">
     <div class="header-wrap">
       <div class="logo logo-width-1">
-        <a href="/"
-          ><img
-            src="/user/assets/imgs/theme/FLY_KICKS_gold_crropped.png"
-            alt="logo"
-        /></a>
+        <a href="/"><img src="/user/assets/imgs/theme/FLY_KICKS_gold_crropped.png" alt="logo" /></a>
       </div>
       <div class="header-right">
-        <div class="search-style-2 search-sort-bar" style="width: 70%;">
-          <form action="/home"
-          method="get"
-          id="searchForm" 
-          >
-            <!-- <select class="select-active">
-              <option>All Categories</option>
-              <option>Women's</option>
-              <option>Men's</option>
-              <option>Cellphones</option>
-              <option>Computer</option>
-              <option>Electronics</option>
-              <option>Accessories</option>
-              <option>Home & Garden</option>
-              <option>Luggage</option>
-              <option>Shoes</option>
-              <option>Mother & Kids</option>
-            </select> -->
-            <input type="text" 
-            placeholder="Search for items..."
-            id="searchInput"
-            name="q"
-            <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
-              value="<%= searchQuery %>"
-          <% } %>
-             
-            />
+        <div class="search-style-2 search-sort-bar" style="width: 70%; position: relative;">
+          <form action="/home" method="GET" id="searchSortForm">
+            <!-- Category Dropdown -->
+            <select name="category" id="categorySelect" onchange="document.getElementById('searchSortForm').submit();">
+              <option value="">All Categories</option>
+              <option value="sneakers" <%= categoryQuery === 'sneakers' ? 'selected' : '' %>>Sneakers</option>
+              <option value="basketball" <%= categoryQuery === 'basketball' ? 'selected' : '' %>>Basketball</option>
+              <option value="classics" <%= categoryQuery === 'classics' ? 'selected' : '' %>>Classic</option>
+              <option value="skateboard" <%= categoryQuery === 'skateboard' ? 'selected' : '' %>>Skateboard</option>
+              <option value="slides and sandals" <%= categoryQuery === 'slides and sandals' ? 'selected' : '' %>>Slides and Sandals</option>
+            </select>
+
+            <!-- Search Input with Clear Button -->
+            <div style="position: relative;">
+              <input type="text" 
+                placeholder="Search for items..."
+                id="searchInput"
+                name="q"
+                <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
+                  value="<%= searchQuery %>"
+                <% } %>
+                style="padding-right: 40px;"
+              />
+              <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
+                <button type="button" id="clearButton" style="
+                  position: absolute;
+                  right: 10px;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  background: transparent;
+                  border: none;
+                  font-size: 18px;
+                  cursor: pointer;
+                  color: #888;
+                  z-index: 1; 
+                ">&times;</button>
+              <% } %>
+            </div>
+
+            <!-- Sort Dropdown -->
+            <select name="sort" id="sortSelect" onchange="document.getElementById('searchSortForm').submit();">
+              <option value="">Sort By</option>
+              <option value="name-asc" <%= sortQuery === 'name-asc' ? 'selected' : '' %>>Name: A to Z</option>
+              <option value="price-asc" <%= sortQuery === 'price-asc' ? 'selected' : '' %>>Price: Low to High</option>
+              <option value="price-desc" <%= sortQuery === 'price-desc' ? 'selected' : '' %>>Price: High to Low</option>
+              <option value="rating" <%= sortQuery === 'rating' ? 'selected' : '' %>>Rating</option>
+            </select>
           </form>
         </div>
-        
-    <!-- Sort Dropdown --><!-- Sort Dropdown -->
-    <form id="sortForm" method="GET" action="/">
-      <% if (searchQuery || sortQuery) { %>
-          <input type="hidden" name="q" value="<%= searchQuery %>">
-      <% } %>
-      <select name="sort" id="sortSelect" onchange="document.getElementById('sortForm').submit();">
-          <option value="">Sort By</option>
-          <option value="name-asc" <%= sortQuery === 'name-asc' ? 'selected' : '' %>>Name: A to Z</option>
-          <option value="price-asc" <%= sortQuery === 'price-asc' ? 'selected' : '' %>>Price: Low to High</option>
-          <option value="price-desc" <%= sortQuery === 'price-desc' ? 'selected' : '' %>>Price: High to Low</option>
-          <option value="rating" <%= sortQuery === 'rating' ? 'selected' : '' %>>Rating</option>
-      </select>
-  </form>
         <div class="header-action-right">
           <div class="header-action-2">
             <div class="header-action-icon-2">
               <a href="/wishlist">
-                <img
-                  class="svgInject"
-                  alt="Evara"
-                  src="/user/assets/imgs/theme/icons/icon-heart.svg"
-                />
+                <img class="svgInject" alt="Evara" src="/user/assets/imgs/theme/icons/icon-heart.svg" />
                 <span class="pro-count blue">4</span>
               </a>
             </div>
             <div class="header-action-icon-2">
               <a class="mini-cart-icon" href="/cart">
-                <img
-                  alt="Evara"
-                  src="/user/assets/imgs/theme/icons/icon-cart.svg"
-                />
+                <img alt="Evara" src="/user/assets/imgs/theme/icons/icon-cart.svg" />
                 <span class="pro-count blue">2</span>
               </a>
-              <!-- <div class="cart-dropdown-wrap cart-dropdown-hm2">
-                <ul>
-                  <li>
-                    <div class="shopping-cart-img">
-                      <a href="shop-product-right.html"
-                        ><img
-                          alt="Evara"
-                          src="/user/assets/imgs/shop/thumbnail-3.jpg"
-                      /></a>
-                    </div>
-                    <div class="shopping-cart-title">
-                      <h4>
-                        <a href="shop-product-right.html">Daisy Casual Bag</a>
-                      </h4>
-                      <h4><span>1 × </span>$800.00</h4>
-                    </div>
-                    <div class="shopping-cart-delete">
-                      <a href="#"><i class="fi-rs-cross-small"></i></a>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="shopping-cart-img">
-                      <a href="shop-product-right.html"
-                        ><img
-                          alt="Evara"
-                          src="/user/assets/imgs/shop/thumbnail-2.jpg"
-                      /></a>
-                    </div>
-                    <div class="shopping-cart-title">
-                      <h4>
-                        <a href="shop-product-right.html">Corduroy Shirts</a>
-                      </h4>
-                      <h4><span>1 × </span>$3200.00</h4>
-                    </div>
-                    <div class="shopping-cart-delete">
-                      <a href="#"><i class="fi-rs-cross-small"></i></a>
-                    </div>
-                  </li>
-                </ul>
-                <div class="shopping-cart-footer">
-                  <div class="shopping-cart-total">
-                    <h4>Total <span>$4000.00</span></h4>
-                  </div>
-                  <div class="shopping-cart-button">
-                    <a href="shop-cart.html" class="outline">View cart</a>
-                    <a href="shop-checkout.html">Checkout</a>
-                  </div>
-                </div>
-              </div> -->
             </div>
           </div>
         </div>

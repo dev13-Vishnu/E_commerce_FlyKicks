@@ -21,6 +21,11 @@
    <!-- sweetalert   -->
     <!-- <link rel="stylesheet" type="text/css" href="https://common.olemiss.edu/_js/sweet-alert/sweet-alert.css"> -->
     <style>
+
+.product-price .offer-details .offer-name .offer-discount{
+    color: green !important;
+    font-size: 0.9rem !important;
+}
       .item-name {
             display: inline-block;
             max-width: 370px; /* Adjust as needed */
@@ -712,9 +717,17 @@
                               </span>
                             </div>
                             <div class="product-price">
-                              <span>₹
-                                <%=product.promo_price%>/-</span>
-                              <span class="old-price">₹<%=product.price %>/-</span>
+                              <% if (product.offer) { %>
+                                <span>₹<%=product.discountedPrice%>/-</span>
+                                <span class="old-price">₹<%=product.price%>/-</span>
+                                <div class="offer-details">
+                                  <span class="offer-details" style="font-size: .9rem;">Offer:  <% if (product.appliedOffer) { %>
+                                    <p>Offer: <%= product.appliedOffer %></p>
+                                <% } %></span>
+                                </div>
+                              <% } else { %>
+                                <span>₹<%=product.price%>/-</span>
+                              <% } %>
                             </div>
                             <div class="product-action-1 show">
                               <a
@@ -740,7 +753,7 @@
                     <ul class="pagination justify-content-start">
                       <% for(let j = 1; j<= totalPages; j++){ %>
 
-                        <li class="page-item <%=currentUrl == j ? "active" : "" %>"><a class="page-link" href="?page=<%=j%><%= searchQuery ? '&q=' + searchQuery : '' %>"><i class="material-icons md-chevron_right"><%=j %></i></a></li>
+                        <li class="page-item <%=currentUrl == j ? "active" : "" %>"><a class="page-link" href="?page=<%=j%><%= searchQuery ? '&q=' + searchQuery : '' %>& <%= sortQuery ? '&sort=' + sortQuery : '' %>"><i class="material-icons md-chevron_right"><%=j %></i></a></li>
                         <% } %>
                     </ul>
                 </nav>
@@ -1970,6 +1983,21 @@
       <!-- <script src="https://common.olemiss.edu/_js/sweet-alert/sweet-alert.min.js"></script> -->
 
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- JavaScript for Clear Button -->
+<script>
+  document.getElementById('clearButton')?.addEventListener('click', function () {
+    // Clear the search input
+    document.getElementById('searchInput').value = '';
+    
+    // Reset the category and sort dropdowns
+    document.getElementById('categorySelect').selectedIndex = 0;
+    document.getElementById('sortSelect').selectedIndex = 0;
+
+    // Submit the form to refresh the page with default filters
+    document.getElementById('searchSortForm').submit();
+  });
+</script>
 
       //search
       <script>

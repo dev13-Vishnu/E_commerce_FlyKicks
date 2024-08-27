@@ -385,13 +385,16 @@
                             >
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#track-orders" role="tab" aria-controls="track-orders" aria-selected="false"><i class="fi-rs-shopping-cart-check mr-10"></i>Reffer A Friend</a>
+                        </li>
+                        <li class="nav-item">
                             <a
                             class="nav-link"
-                            id="track-orders-tab"
+                            id="wallet-tab"
                             data-bs-toggle="tab"
-                            href="#track-orders"
+                            href="#wallet"
                             role="tab"
-                            aria-controls="track-orders"
+                            aria-controls="wallet"
                             aria-selected="false"
                             ><i class="fi-rs-shopping-cart-check mr-10"></i>Wallet</a
                             >
@@ -514,11 +517,38 @@
                             </div>
                         </div>
                         </div>
+
+                        <div class="tab-pane fade" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Reffer A Friend</h5>
+                                </div>
+                                <div class="card-body contact-from-area">
+                                    <p>Reffer a Friend by Typing their email Id and submit. As the peson made a valid purchase the gift amount of 500/- will be credited to your wallet</p>
+                                    <div class="row">
+                                        <div class="col-lg-8">
+                                            <form class="contact-form-style mt-30 mb-50" 
+                                            id="referralForm" 
+                                            >
+                                            
+                                                <div class="input-style mb-20">
+                                                    <label>Email</label>
+                                                    <input name="email" placeholder="Email " type="email" class="square">
+                                                </div>
+                                                <button class="submit submit-auto-width" type="submit">Submit</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
                         <div
                         class="tab-pane fade"
-                        id="track-orders"
+                        id="wallet"
                         role="tabpanel"
-                        aria-labelledby="track-orders-tab"
+                        aria-labelledby="wallet-tab"
                         >
                         <div class="card">
                             <div class="card-header">
@@ -1353,6 +1383,48 @@
 
             
         </script>
+
+        // refferal offer email submission
+        <script>
+        document.getElementById('referralForm').addEventListener('submit',async function (e) {
+            e.preventDefault();
+
+            const email = document.querySelector('input[name = "email"]').value;
+
+            try {
+                console.log('runnning')
+                const response = await  fetch ('/track-referral', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email})
+                });
+
+                const data = await response.text();
+
+                if(response.ok) {
+                    alert('submitted')
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: data,
+
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Server Error',
+                    text: 'Something went wrong. Please try again later.',
+                });
+            }
+        })
+
+
+            
+        </script>
+        
         
     </body>
     </html>

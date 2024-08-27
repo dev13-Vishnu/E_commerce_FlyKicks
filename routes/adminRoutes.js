@@ -62,9 +62,9 @@ adminRoutes.get('/offers/products',auth.isLogin,offerController.loadProductModal
 adminRoutes.get('/offers/categories',auth.isLogin,offerController.loadCategoryModal)
 adminRoutes.post('/products-offer-apply', auth.isLogin,offerController.applyOfferToProduct)
 adminRoutes.delete('/offers/products/remove', auth.isLogin,offerController.removeOfferFromProduct );
-adminRoutes.get('/edit-offer/:id',auth.isLogin,offerController.loadEditProductOfferPage);
-adminRoutes.put('/edit-product-offers/:id',auth.isLogin,offerController.editProductOffer);
-adminRoutes.put('/offers/delete/:offerId', auth.isLogin,offerController.deleteOffer)
+adminRoutes.get('/edit-offer/:id',auth.isLogin,offerController.loadEditOfferPage);
+adminRoutes.put('/edit-product-offers/:id',auth.isLogin,offerController.editOffer);
+adminRoutes.delete('/offers/delete/:offerId', auth.isLogin,offerController.deleteOffer)
 adminRoutes.put('/categories-offer-apply',auth.isLogin,offerController.applyCategoryOffer);
 adminRoutes.delete('/offers/categories/remove',auth.isLogin,offerController.removeCategoryOffer)
 

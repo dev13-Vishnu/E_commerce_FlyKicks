@@ -19,9 +19,6 @@ const addProduct = async (req, res) => {
                 return res.status(500).send(err.message);
             }
 
-            console.log('Request body:', req.body);
-            console.log('Uploaded files:', req.files);
-
             const { product_name, description, product_Aprice, product_Pprice, product_category, stock } = req.body;
 
             // Validate file uploads
@@ -31,12 +28,12 @@ const addProduct = async (req, res) => {
 
             // Extract file URLs
             const imageUrls = req.files.map(file => path.join('uploads', path.basename(file.path)).replace(/\\/g, '/'));
-            console.log('Image URLs:', imageUrls); // Added logging
+            console.log('Image URLs:', imageUrls);
 
             const newProduct = new Product({
                 name: product_name,
                 description: description,
-                images: imageUrls, // Use an array for images
+                image: imageUrls, // Use the array of cropped images
                 price: product_Aprice,
                 promo_price: product_Pprice,
                 category: new mongoose.Types.ObjectId(product_category),
@@ -50,12 +47,11 @@ const addProduct = async (req, res) => {
                 }
             });
 
-            console.log('New product:', newProduct);
             await newProduct.save();
             console.log('New product added');
 
             res.render('admin/addproduct', {
-                Smessage: 'Products added successfully!',
+                Smessage: 'Product added successfully!',
                 data: categoryData,
                 currentUrl: req.url
             });
@@ -65,7 +61,6 @@ const addProduct = async (req, res) => {
         res.status(500).send(error.message);
     }
 };
-
 
 
 

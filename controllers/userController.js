@@ -10,6 +10,7 @@ const forgetPassword = require('../helpers/forgotPassword');
 const Order = require('../models/orderModel');
 const productModel = require("../models/productModel");
 const mongoose = require('mongoose');
+const Referral = require('../models/referralModel')
 
 
 const loadSuccessGoogle = async (req, res) => {
@@ -131,6 +132,8 @@ const insertUser = async (req, res) => {
 
       console.log("OTP:" + req.session.otp);
 
+      req.session.referralId = req.query.referralId
+
       await otp
         .sendOtp(req.session.email, otpCode)
         .then((result) => {
@@ -178,6 +181,9 @@ const verifyOtp = async (req, res) => {
 
       const sessionOtp = req.session.otp;
       const expOtp = req.session.otpExpire;
+
+      const referralId = req.session.referralId;
+
       console.log("entered otp" + enterOtp);
       console.log("session otp" + sessionOtp);
       console.log("expire in session" + expOtp);
@@ -202,6 +208,29 @@ const verifyOtp = async (req, res) => {
         if (userInfo) {
           req.session.user = userInfo;
           req.session.tempUser = null;
+
+        // Referral Logic
+          if (referralId) {
+            const referral = await Referral.findById(referralId).populate('userId');
+
+            if (referral && referral.email === userData.email && !referral.referred) {
+                // Mark the referral as completed
+                referral.referred = true;
+                await referral.save();
+
+                // Find the referrer user and update their wallet
+                const referrerUserId = referral.userId._id;
+                // Find the referred user's order and update the wallet
+                const referredUserOrders = await Order.findOne({ userId: referrerUserId });
+
+                console.log('userController verify otp refferedUserOrder',referredUserOrders);
+                if (referredUserOrders) {
+                    referredUserOrders.wallet += 100;
+                    await referredUserOrders.save();
+                }
+            }
+          }
+
           res.redirect("/home");
           console.log("saved user in mongo db");
         }
@@ -272,95 +301,112 @@ const verifyLogin = async (req, res) => {
     console.log('error from userController verify login',error);
   }
 };
-const loadHome = async (req, res,next) => {
+
+
+const loadHome = async (req, res, next) => {
   try {
-      const searchQuery = req.query.q;
-      const sortQuery = req.query.sort;
-      let products = [];
-      let name = "";
-      
-      if (req.session.user) {
-          name = req.session.user.username;
-      }
-      
-      const userId = req.session.user._id;
-      const userData = await User.findById(userId);
+    const searchQuery = req.query.q || '';
+    const sortQuery = req.query.sort || '';
+    const categoryQuery = req.query.category || '';
 
-      // Pagination
-      let page = 1;
-      if (req.query.page) {
-          page = req.query.page;
-      }
+    console.log('userControllre load home categoryquery:',categoryQuery);
 
-      const limit = 3;
-      let count;
+    const userId = req.session.user._id;
+    const userData = await User.findById(userId);
 
-      // Sorting
-      let sortCriteria = {};
-      if (sortQuery) {
-          if (sortQuery === 'price-asc') {
-              sortCriteria = { price: 1 };
-          } else if (sortQuery === 'price-desc') {
-              sortCriteria = { price: -1 };
-          } else if (sortQuery === 'rating') {
-              sortCriteria = { rating: -1 };
-          } else if (sortQuery === 'name-asc') {
-            sortCriteria = { name: 1 };
-          }
-      }
+    let page = parseInt(req.query.page) || 1;
+    const limit = 3;
+    let count;
 
+    let sortCriteria = {};
+    if (sortQuery === 'price-asc') {
+      sortCriteria.price = 1;
+    } else if (sortQuery === 'price-desc') {
+      sortCriteria.price = -1;
+    } else if (sortQuery === 'rating') {
+      sortCriteria.rating = -1;
+    } else if (sortQuery === 'name-asc') {
+      sortCriteria.name = 1;
+    }
 
-      console.log("userController loadhome Sort Query:", sortQuery);
-      console.log("userController loadhome Sort Criteria:", sortCriteria);
-
-      // Search and pagination
-      if (searchQuery) {
-          products = await Product.find({
-              name: { $regex: searchQuery, $options: 'i' },
-              delete: false
-          })
-          .sort(sortCriteria)
-          .limit(limit * 1)
-          .skip((page - 1) * limit)
-          .exec();
-
-          count = await Product.find({
-              name: { $regex: searchQuery, $options: 'i' },
-              delete: false
-          }).countDocuments();
-      } else {
-          products = await Product.find({ delete: false })
-          .sort(sortCriteria)
-          .limit(limit * 1)
-          .skip((page - 1) * limit)
-          .exec();
-
-          count = await Product.find({ delete: false })
-          .countDocuments();
-      }
-
-      // console.log("userController loadhome Sorted Products:", products);
-
+    const filter = { delete: false };
+    if (searchQuery) {
+      filter.name = { $regex: searchQuery, $options: 'i' };
+    }
     
+    // Convert category name to ObjectId
+    if (categoryQuery) {
+      const category = await Category.findOne({ name: categoryQuery });
+       
+      console.log("Category found:", category); // Debugging line
+      if (category) {
+        filter.category = category._id; // Use the ObjectId
+      } else {
+        filter.category = null; // Set to null if the category is not found
+      }
+    }
 
-      products.forEach(product => {
-          product.image = product.image.map(img => img.replace(/\\/g, '/'));
-      });
+    const products = await Product.find(filter)
+      .populate('offer')
+      .populate({
+        path: 'category',
+        populate: { path: 'offer', model: 'offer' }
+      })
+      .sort(sortCriteria)
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .exec();
 
-      // console.log('usercontroller.loadhome products:', products);
-      res.render('user/home', {
-          products,
-          totalPages: Math.ceil(count / limit),
-          currentPage: page,
-          currentUrl: req.url,
-          userData,
-          searchQuery,
-          sortQuery
-      });
+    count = await Product.find(filter).countDocuments();
+
+    products.forEach(product => {
+      let productDiscountedPrice = product.price;
+      let categoryDiscountedPrice = product.price;
+
+      let productOfferName = '';
+      let categoryOfferName = '';
+
+      if (product.category && product.category.offer) {
+        const categoryDiscount = parseFloat(product.category.offer.discount);
+        categoryDiscountedPrice = product.price - (product.price * categoryDiscount) / 100;
+        categoryOfferName = product.category.offer.offerName;
+      }
+
+      if (product.offer) {
+        const productDiscount = parseFloat(product.offer.discount);
+        productDiscountedPrice = product.price - (product.price * productDiscount) / 100;
+        productOfferName = product.offer.offerName;
+      }
+
+      if (product.offer && productDiscountedPrice < categoryDiscountedPrice) {
+        product.discountedPrice = productDiscountedPrice;
+        product.appliedOffer = productOfferName;
+      } else if (product.category && product.category.offer) {
+        product.discountedPrice = categoryDiscountedPrice;
+        product.appliedOffer = categoryOfferName;
+      } else if (product.offer) {
+        product.discountedPrice = productDiscountedPrice;
+        product.appliedOffer = productOfferName;
+      }
+
+      product.image = product.image.map(img => img.replace(/\\/g, '/'));
+    });
+
+    res.render('user/home', {
+      products,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      currentUrl: req.url,
+      userData,
+      searchQuery,
+      sortQuery,
+      categoryQuery
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
+
 
 
 const logout = async(req,res)=> {
@@ -439,6 +485,7 @@ const loadAccount = async (req, res) => {
     const searchQuery = req.query.q;
     const sortQuery = req.query.sort;
     const userId = req.session.user._id;
+    const categoryQuery = req.query.category || '';
 
     // Fetch user data, addresses, and orders
     const userData = await User.findById(userId);
@@ -452,12 +499,12 @@ const loadAccount = async (req, res) => {
       { $project: { _id: 0, totalWallet: 1 } } // Return only the totalWallet
     ]);
 
-    console.log('userController loadAccount walletBalance:',walletBalance);
+    // console.log('userController loadAccount walletBalance:',walletBalance);
 
     // Handle case where no orders exist
     const totalWallet = walletBalance.length > 0 ? walletBalance[0].totalWallet : 0;
 
-    console.log('user Controller load accound total wallet:',totalWallet);
+    // console.log('user Controller load accound total wallet:',totalWallet);
 
     // Render the view with the data
     res.render('user/userAccount', {
@@ -466,7 +513,8 @@ const loadAccount = async (req, res) => {
       addressData,
       orderData,
       searchQuery,
-      sortQuery
+      sortQuery,
+      categoryQuery
     });
 
   } catch (error) {
