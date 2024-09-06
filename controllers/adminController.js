@@ -55,31 +55,38 @@ const verifyLogin = async(req,res)=>{
 
 const loadDashboard = async (req, res, next) => {
     try {
-        // Fetch Orders
-        let orders = await Order.find({})
-            .populate('userId', 'username email')
-            .populate('products.productId', 'name')
-            .sort({ orderDate: -1 });
 
-        // Add discount calculation to each order
-        orders = orders.map(order => {
-            // Calculate the total product price
-            const totalProductPrice = order.products.reduce((acc, product) => acc + product.price, 0);
+        // Set pagination variables
+const page = parseInt(req.query.page) || 1; // Current page number
+const limit = parseInt(req.query.limit) || 10; // Number of records per page
+const skip = (page - 1) * limit; // Number of records to skip
 
-            // Calculate the discount (excluding shipping cost if freeShipping is true)
-            const discount = totalProductPrice - (order.freeShipping ? order.payableAmount : order.payableAmount - 500);
+// Fetch orders with pagination
+let orders = await Order.find({paymentStatus: 'Success'})
+    .populate('userId', 'username email')
+    .populate('products.productId', 'name')
+    .sort({ orderDate: -1 })
+    .skip(skip)
+    .limit(limit);
 
-            return {
-                ...order._doc,
-                discount: discount
-            };
-        });
+// Count total orders for pagination
+const totalOrdersPagination = await Order.countDocuments();
+
+const totalPages = Math.ceil(totalOrdersPagination / limit);
+
+
+
+        
 
         // Get Dates for Filters
         const today = moment().endOf('day');
         const last7Days = moment().subtract(6, 'days').startOf('day');
         const startOfMonth = moment().startOf('month');
         const startOfYear = moment().startOf('year');
+
+
+        
+
 
         // Aggregate Sales Data for Last 7 Days
         const salesDataLast7Days = await Order.aggregate([
@@ -176,17 +183,130 @@ const loadDashboard = async (req, res, next) => {
             ? monthlyEarnings.reduce((sum, month) => sum + month.totalSales, 0) / totalMonths
             : 0;
 
+            const bestSellingProducts = await Order.aggregate([
+                { $unwind: "$products" }, // Deconstruct the products array
+                {
+                    $group: {
+                        _id: "$products.productId", // Group by productId
+                        totalSold: { $sum: "$products.quantity" }, // Sum the quantity for each product
+                    },
+                },
+                { $sort: { totalSold: -1 } }, // Sort by totalSold in descending order
+                { $limit: 10 }, // Limit the result to the top 10 best-selling products
+                {
+                    $lookup: {
+                        from: "products",
+                        localField: "_id",
+                        foreignField: "_id",
+                        as: "productDetails",
+                    },
+                },
+                { $unwind: "$productDetails" },
+                {
+                    $project: {
+                        _id: 0,
+                        productId: "$_id",
+                        totalSold: 1,
+                        productName: "$productDetails.name",
+                        productImage: { $arrayElemAt: ["$productDetails.image", 0] }, // Get the first image from the array
+                        productPrice: "$productDetails.price",
+                    },
+                },
+            ]);
+            
+
+            const topSellingCategories = await Order.aggregate([
+        { $unwind: '$products' },
+        {
+            $lookup: {
+                from: 'products',
+                localField: 'products.productId',
+                foreignField: '_id',
+                as: 'productDetails'
+            }
+        },
+        { $unwind: '$productDetails' },
+        {
+            $group: {
+                _id: '$productDetails.category',
+                totalSold: { $sum: '$products.quantity' }
+            }
+        },
+        {
+            $lookup: {
+                from: 'categories',
+                localField: '_id',
+                foreignField: '_id',
+                as: 'categoryDetails'
+            }
+        },
+        { $unwind: '$categoryDetails' },
+        {
+            $project: {
+                _id: 0,
+                categoryName: '$categoryDetails.name',
+                totalSold: 1
+            }
+        },
+        { $sort: { totalSold: -1 } },
+        { $limit: 5 }  // Adjust the number as needed
+    ]);
+
+    
+    const discounts = await Order.aggregate([
+    {
+      $unwind: "$products",  // Deconstructs the products array
+    },
+    {
+      $group: {
+        _id: "$_id",  // Group by each order ID
+        totalProductPrice: { $sum: "$products.productPrice" },  // Sum of productPrice fields
+        totalPayableAmount: { $first: "$payableAmount" },  // Get the payableAmount for each order
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        totalProductPrice: 1,
+        totalPayableAmount: 1,
+        deduction: {
+          $subtract: ["$totalProductPrice", "$totalPayableAmount"],  // Calculate the difference
+        },
+      },
+    },
+  ]);
+
+  // Map discounts to orders
+  orders = orders.map(order => {
+    const discount = discounts.find(d => d._id.toString() === order._id.toString());
+    return {
+        ...order.toObject(), // Convert mongoose document to plain object
+        discount: discount ? discount.deduction : 0
+    };
+});
+console.log('admin controller loaddashboard orders:',orders);
+
+          
+
         // Render Dashboard View and Pass Data
         res.render('admin/dashboard', {
             currentUrl: req.url,
             orders,
+            totalOrdersPagination,
+            currentPage: page,
+            totalPages,
+            limit,
             overallRevenue,
             totalOrders,
             totalProducts,
             averageMonthlyEarning,
             salesDataLast7Days: JSON.stringify(salesDataLast7Days),
             salesDataThisMonth: JSON.stringify(salesDataThisMonth),
-            salesDataThisYear: JSON.stringify(salesDataThisYear)
+            salesDataThisYear: JSON.stringify(salesDataThisYear),
+            bestSellingProducts,
+            topSellingCategories,
+            // discount: JSON.stringify(discounts) // Pass discount data to the template
+
         });
     } catch (error) {
         console.error('Error loading dashboard:', error);

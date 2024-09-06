@@ -603,7 +603,7 @@
                                             <p class="font-xs">Size : <%=product.size%>
                                             </p>
                                         </td>
-                                        <td class="price" data-title="Price"><span>₹<%=product.productId.promo_price %>/- </span></td>
+                                        <td class="price" data-title="Price"><span>₹<%=product.productId.price %>/- </span></td>
                                         <td class="text-center" data-title="Stock">
                                             <div class="detail-qty border radius  m-auto">
                                                 <a href="#" class="qty-down"
@@ -818,11 +818,14 @@
                     icon: 'error',
                     title: 'Limit Reached',
                     text: 'Cannot increase quantity beyond available stock or purchasing limit.',
-                }).then(()=>{
-                    window.location.reload();
-                });
-                return;
-            }
+                }).then(() => {
+                    newQuantity = Math.min(stock, 10);
+                qtyValElement.textContent = newQuantity;
+                updateSubtotal(cartItemElement, newQuantity);
+                updateTotal();
+            });
+            return;
+        }
     
             try {
                 const response = await fetch('/update-cart', {
@@ -834,7 +837,9 @@
                 });
     
                 if (response.ok) {
-                    window.location.reload();
+                qtyValElement.textContent = newQuantity;
+                updateSubtotal(cartItemElement, newQuantity);
+                updateTotal();
                 } else {
                     const errorData = await response.json();
                     Swal.fire({
@@ -869,7 +874,11 @@
                     title: 'Invalid Quantity',
                     text: 'Quantity cannot be less than 1.',
                 });
-                return;
+            newQuantity = 1;
+            qtyValElement.textContent = newQuantity;
+            updateSubtotal(cartItemElement, newQuantity);
+            updateTotal();
+            return;
             }
     
             try {
@@ -882,7 +891,9 @@
                 });
     
                 if (response.ok) {
-                    window.location.reload();
+                qtyValElement.textContent = newQuantity;
+                updateSubtotal(cartItemElement, newQuantity);
+                updateTotal();
                 } else {
                     const errorData = await response.json();
                     Swal.fire({
@@ -901,7 +912,36 @@
             }
         });
     });
-    
+
+
+
+function updateSubtotal(cartItemElement, quantity) {
+    const priceElement = cartItemElement.querySelector('.price span');
+    const price = parseInt(priceElement.textContent.replace('₹', '').replace('/-', ''), 10);
+    const subtotalElement = cartItemElement.querySelector('[data-title="Cart"] span');
+    subtotalElement.textContent = `₹${price * quantity}/-`;
+}
+
+function updateTotal() {
+    let total = 0; // Reset the total
+
+    document.querySelectorAll('.cart-item').forEach(item => {
+        const subtotalElement = item.querySelector('[data-title="Cart"] span');
+        total += parseInt(subtotalElement.textContent.replace('₹', '').replace('/-', ''), 10);
+    });
+
+    const totalElement = document.querySelector('.cart_total_amount span.font-lg');
+    if (totalElement) {
+        totalElement.textContent = `₹${total}/-`;
+    }
+
+    // Update the final total with shipping
+    const shippingElement = document.querySelector('.cart_total_amount span.font-xl');
+    if (shippingElement) {
+        const finalTotal = total < 10000 ? total + 500 : total;
+        shippingElement.textContent = `₹${finalTotal}/-`;
+    }
+}
 
         document.querySelectorAll('.remove-from-cart').forEach(button => {
     button.addEventListener('click', async () => {

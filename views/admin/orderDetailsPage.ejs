@@ -205,11 +205,24 @@
                                                         </dd>
                                                     </dl>
                                                     <dl class="dlist">
-                                                        <dt class="text-muted">Payment Status:</dt>
+                                                        <dt class="text-muted">Payment Status:
+                                                        </dt>
                                                         <dd>
-                                                            <span class="badge rounded-pill alert-<%= order.paymentStatus === 'Failed' ? 'danger' : 'success' %> text-<%= order.paymentStatus === 'Failed' ? 'danger' : 'success' %>">
-                                                                <%= order.paymentStatus === 'Failed' ? 'Payment Failed' : 'Payment done' %>
-                                                            </span>
+                                                            <span class="badge rounded-pill alert-<%= 
+                                                            order.paymentStatus == 'Failed' ? 'danger' : 
+                                                            order.paymentStatus == 'Pending' ? 'warning' : 
+                                                            'success' 
+                                                        %> text-<%= 
+                                                            order.paymentStatus == 'Failed' ? 'danger' : 
+                                                            order.paymentStatus == 'Pending' ? 'warning' : 
+                                                            'success' 
+                                                        %>">
+                                                            <%= 
+                                                                order.paymentStatus == 'Failed' ? 'Payment Failed' : 
+                                                                order.paymentStatus == 'Pending' ? 'Payment Pending' : 
+                                                                'Payment Done' 
+                                                            %>
+                                                        </span>
                                                         </dd>
                                                     </dl>
                                                 </article>

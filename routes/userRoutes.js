@@ -98,14 +98,18 @@ userRoute.delete('/wishlist/remove',isLoggedIn,wishlistController.removeFromWish
 //order routes
 userRoute.post('/place-order-cod',isLoggedIn,orderController.placeOrderCOD);
 userRoute.post('/place-order-razorpay',isLoggedIn,orderController.placeOrderRazorPay)
+userRoute.post('/api/retry-payment',isLoggedIn,orderController.retryPayment);
+
 userRoute.post('/place-order-wallet',isLoggedIn,orderController.placeOrderWallet);
 userRoute.put('/apply-coupon',isLoggedIn,couponController.applyCoupon)
 userRoute.post('/remove-coupon',isLoggedIn,couponController.removeCoupon);
 userRoute.post('/verify-payment', isLoggedIn,orderController.verifyPayment);
+userRoute.get('/payment-failure',isLoggedIn,orderController.payment_failure)
 userRoute.get('/order-details',isLoggedIn,orderController.loadUserOrderDetails)
 userRoute.post('/cancel-product',isLoggedIn,orderController.cancelIndividualProduct);
 userRoute.post('/return-product',isLoggedIn,orderController.returnProduct);
 userRoute.post('/track-referral',isLoggedIn,offerController.referANewUser)
+userRoute.get('/download-invoice/:orderId',isLoggedIn,orderController.downloadInvoice)
 
 module.exports = userRoute;
  

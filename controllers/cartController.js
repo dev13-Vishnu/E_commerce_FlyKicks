@@ -7,11 +7,11 @@ const Address = require('../models/addressModel');
 
 
 const addToCart = async (req, res) => {
-  const { productId, size, quantity } = req.body;
+  const { productId, size, quantity, price } = req.body; // Get price from request body
   const userId = req.session.user._id;
 
-  if (!productId || !size) {
-      return res.status(400).send('Product ID and size are required.');
+  if (!productId || !size || !price) {
+      return res.status(400).send('Product ID, size, and price are required.');
   }
 
   try {
@@ -21,7 +21,7 @@ const addToCart = async (req, res) => {
           return res.status(404).send('Product or size not found.');
       }
 
-      const productTotalPrice = product.promo_price * quantity;
+      const productTotalPrice = price * quantity;
 
       const cart = await Cart.findOne({ userId });
 
@@ -68,13 +68,13 @@ const addToCart = async (req, res) => {
   }
 };
 
-
   
   const loadCart = async (req,res) =>{
   
     try {
       const searchQuery = req.query.q;
       const sortQuery = req.query.sort;
+      const categoryQuery = req.query.category || '';
       const userId = req.session.user._id;
       const userData = await User.findById(userId);
   
@@ -84,7 +84,8 @@ const addToCart = async (req, res) => {
         userData,
         cart,
         searchQuery,
-        sortQuery
+        sortQuery,
+        categoryQuery
       });
     } catch (error) {
       console.log('Error from cartController.loadCart',error);

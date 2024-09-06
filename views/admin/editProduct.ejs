@@ -179,14 +179,21 @@
                                 </div>
                             
                                     </div>
-                                </div> card end//
+                                </div> 
+                                <!-- card end -->
                                 
-                    <div class="row">
+
+
+                    <div class="">
+                                <div>
+                                    <h4>Images</h4>
+                                    <div class="row">
                                         <% for(let i = 0; i < productData.image.length; i++) { %>
                                             <div class="col-sm-6 mb-4">
                                                 <div class="card mb-4">
                                                     <div class="card-body d-flex justify-content-between align-items-center">
-                                                        <img src="/<%= productData.image[i].replace(/\\/g, '/') %>" alt="product image" style="max-width: 100px; max-height: 100px;">
+                                                        
+                                                        <img src="/<%= productData.image[i].replace(/\\/g, '/') %>" alt="product image" style="max-width: 130px; max-height: 130px;">
                                                         <a style="background-color: rgb(210, 0, 0);color: white;" class="btn btn-sm ml-2 btn-danger rounded remove-image-btn" 
                                                         
                                                         data-product-id="<%= productData._id %>" 
@@ -197,6 +204,9 @@
                                                 </div>
                                             </div>
                                         <% } %>
+
+                                    </div>
+                                </div>
                                     </div>
                                     
                                     
@@ -244,7 +254,7 @@
                                                 
 
                                                 <div class="mb-4">
-                                                    <label for="imageUplad" class="form-label">Upload Images</label>
+                                                    <label for="imageUpload" class="form-label">Upload Images</label>
                                                     <input type="file" class="form-control" id="imageUpload" name="images" accept="image/*" >
                                                 </div>
                                                 

@@ -8,6 +8,7 @@ const loadWishlist = async (req,res) => {
     try {
         const sortQuery = req.query.sort;
         const searchQuery = req.query.q;
+        const categoryQuery = req.query.category || '';
         const userId = req.session.user._id;
         const userData = await User.findById(userId);
         const wishlist = await Wishlist.findOne({ userId }).populate('products.productId');
@@ -25,6 +26,7 @@ const loadWishlist = async (req,res) => {
             userData,
             searchQuery,
             sortQuery,
+            categoryQuery,
             wishlist: wishlist.products
         });
     } catch (error) {

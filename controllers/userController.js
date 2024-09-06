@@ -430,16 +430,59 @@ const loadProductDetails = async (req,res) =>{
   try {
     const searchQuery = req.query.q;
     const sortQuery = req.query.sort;
+    const categoryQuery = req.query.category || '';
     console.log('passed id:',req.query.id);
 
     const userId = req.session.user._id;
         const userData = await User.findById(userId);
     const id = req.query.id;
     
-    const product = await Product.findById(id);
+    const product = await Product.findById(id)
+    .populate('offer')
+    .populate({
+      path: 'category',
+      populate: { path: 'offer', model: 'offer' }
+    });
     if(!product){
       return res.status(404).send('product not found');
     }
+
+
+
+    // Apply offer logic
+    let productDiscountedPrice = parseFloat(product.price);
+    let categoryDiscountedPrice = parseFloat(product.price);
+    let productOfferName = '';
+    let categoryOfferName = '';
+
+    if (product.category && product.category.offer) {
+      const categoryDiscount = parseFloat(product.category.offer.discount);
+      categoryDiscountedPrice = product.price - (product.price * categoryDiscount) / 100;
+      categoryOfferName = product.category.offer.offerName;
+    }
+
+    if (product.offer) {
+      const productDiscount = parseFloat(product.offer.discount);
+      productDiscountedPrice = product.price - (product.price * productDiscount) / 100;
+      productOfferName = product.offer.offerName;
+    }
+
+    if (product.offer && productDiscountedPrice < categoryDiscountedPrice) {
+      product.discountedPrice = productDiscountedPrice;
+      product.appliedOffer = productOfferName;
+    } else if (product.category && product.category.offer) {
+      product.discountedPrice = categoryDiscountedPrice;
+      product.appliedOffer = categoryOfferName;
+    } else if (product.offer) {
+      product.discountedPrice = productDiscountedPrice;
+      product.appliedOffer = productOfferName;
+    }
+
+console.log('userController loadProductDetaislpage product.pice:',product.price)
+console.log('userController loadProductDetaislpage:',product.price);
+console.log('userController loadProductDetaislpage productDiscountedPrice:',productDiscountedPrice);
+console.log('userController loadProductDetaislpage categoryDiscountedPrice: ',categoryDiscountedPrice);
+ 
 
     //product image 
     product.image = product.image.map(img => img.replace(/\\/g,'/'));
@@ -466,6 +509,7 @@ const loadProductDetails = async (req,res) =>{
       searchQuery,
       sortQuery,
       userData,
+      categoryQuery,
       stock: product.stock,
       relatedProducts,
       breadcrumbs: [
@@ -506,9 +550,37 @@ const loadAccount = async (req, res) => {
 
     // console.log('user Controller load accound total wallet:',totalWallet);
 
+
+    // Fetch wallet transactions
+    const walletTransactions = await Order.aggregate([
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+          wallet: { $exists: true,  $ne: 0.00 } // Only consider orders with a non-zero wallet value
+        }
+      },
+      {
+        $project: {
+          orderId: 1,
+          orderDate: 1,
+          paymentStatus: 1,
+          wallet: 1,
+          transactionType: {
+            $cond: { if: { $gte: ["$wallet", 0] }, then: "Credit", else: "Debit" } // Determine if the transaction is a credit or debit
+          }
+        }
+      },
+      {
+        $sort: { orderDate: -1 } // Sort transactions by orderDate in descending order (most recent first)
+      }
+    ]);
+    
+
+    console.log('userController.loadAccount walletTransactions:',walletTransactions);
     // Render the view with the data
     res.render('user/userAccount', {
       totalWallet,
+      walletTransactions,  // Pass the wallet transactions to the view
       userData,
       addressData,
       orderData,

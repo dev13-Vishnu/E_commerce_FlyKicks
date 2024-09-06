@@ -6,6 +6,8 @@ const User = require('../models/userModel');
 const Razorpay = require('razorpay');
 const crypto = require('crypto')  
 const mongoose = require('mongoose');
+const fs = require ('fs');
+const PDFDocument = require('pdfkit');
 
 
 
@@ -45,6 +47,7 @@ const loadCheckout = async(req,res) =>{
     try {
       const searchQuery = req.query.q;
       const sortQuery = req.query.sort;
+      const categoryQuery = req.query.category || '';
 
       const userId = req.session.user._id;
       const addressData = await Address.find({userId});
@@ -58,6 +61,7 @@ const loadCheckout = async(req,res) =>{
         cart,
         addressData,
         searchQuery,
+        categoryQuery,
         sortQuery
       });
     } catch (error) {
@@ -154,99 +158,6 @@ const placeOrderRazorPay = async (req, res) => {
   }
 };
 
-// payment method wallet
-const placeOrderWallet = async (req, res) => {
-    try {
-        const userId = req.session.user._id;
-        const {selectedAddress, orderTotalAmount} = req.body;
-
-        const userOrder = await Order.findOne({ userId });
-        if (!userOrder) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
-
-        // Calculate wallet balance
-    const walletBalance = await Order.aggregate([
-        { $match: { userId: new mongoose.Types.ObjectId(userId) } }, // Filter orders by userId
-        { $group: { _id: null, totalWallet: { $sum: "$wallet" } } }, // Sum the wallet field
-        { $project: { _id: 0, totalWallet: 1 } } // Return only the totalWallet
-      ]);
-  
-      console.log('userController loadAccount walletBalance:',walletBalance);
-  
-      // Handle case where no orders exist
-      const totalWallet = walletBalance.length > 0 ? walletBalance[0].totalWallet : 0;
-
-      if(totalWallet < orderTotalAmount) {
-        return res.status(400).json({success: false, message: 'Insufficeint wallet balance'})
-      }
-
-      // Deduct the order amount from the wallet
-      const newWalletValue = -orderTotalAmount; // Negative to reflect deduction
-      
-      console.log('orderControll placeOrderWallet newWalletValue:',newWalletValue);
-
-        const addressDoc  = await Address.findOne ({userId, 'address._id':selectedAddress}, {'address.$': 1});
-
-        const address = addressDoc.address[0];
-        
-        //Fetch the user's cart
-        const cart = await  Cart.findOne({userId}).populate('products.productId'); 
-        if(!cart) return res.status(404).json({success:false,message:'Cart not found'});
-
-        //Determine if the order qualifies for free shipping
-        const freeShipping = orderTotalAmount >= 10000;
-
-        //Prepare the order date
-
-        const orderData = {
-            userId,
-            cartId: cart._id,
-            products: cart.products.map(product => ({
-                productId: product.productId._id,
-                size: product.size,
-                quantity: product.quantity,
-                productPrice: product.productId.promo_price,
-            })),
-            address: {
-                name: address.name,
-                street: address.street,
-                country: address.country,
-                city: address.city,
-                state: address.state,
-                pincode: address.pincode,
-                mobile: address.mobile.toString(),
-                email: '',
-            },
-            payableAmount:orderTotalAmount,
-            freeShipping: freeShipping,
-            paymentMethod: 'Wallet',
-            paymentStatus: 'Success',
-            wallet: newWalletValue,  // Initialize the wallet field with the deducted amount
-        };
-
-        // Save the order to the database
-        const order = new Order(orderData);
-        const savedOrder = await order.save();
-
-        console.log('orderController placeOrderWallet savedOrder:',savedOrder);
-        //Update the  prodduct stock
-        for (const product of cart.products) {
-            const updateField = `stock.${product.size}`;
-            await Product.findByIdAndUpdate(product.productId._id,{
-                $inc: {[updateField]: -product.quantity},
-            });
-        }
-        //Clear the cart after the order is placed
-        await Cart.findOneAndDelete({userId});
-        res.status(200).json({ success: true, message:'Order placed successfully', order});
-
-    } catch (error) {
-        console.error('Error during checkout:', error);
-        res.status(500).json({ success: false, message: 'Failed to place order'});
-    }
-}
-
 // Controller to verify Razorpay payment
 const verifyPayment = async (req, res) => {
   try {
@@ -322,6 +233,99 @@ const verifyPayment = async (req, res) => {
   }
 };
 
+// payment method wallet
+const placeOrderWallet = async (req, res) => {
+    try {
+        const userId = req.session.user._id;
+        const {selectedAddress, orderTotalAmount} = req.body;
+
+        const userOrder = await Order.findOne({ userId });
+        if (!userOrder) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Calculate wallet balance
+    const walletBalance = await Order.aggregate([
+        { $match: { userId: new mongoose.Types.ObjectId(userId) } }, // Filter orders by userId
+        { $group: { _id: null, totalWallet: { $sum: "$wallet" } } }, // Sum the wallet field
+        { $project: { _id: 0, totalWallet: 1 } } // Return only the totalWallet
+      ]);
+  
+      console.log('userController loadAccount walletBalance:',walletBalance);
+  
+      // Handle case where no orders exist
+      const totalWallet = walletBalance.length > 0 ? walletBalance[0].totalWallet : 0;
+
+      if(totalWallet < orderTotalAmount) {
+        return res.status(400).json({success: false, message: 'Insufficeint wallet balance'})
+      }
+
+      // Deduct the order amount from the wallet
+      const newWalletValue = -orderTotalAmount; // Negative to reflect deduction
+      
+      console.log('orderControll placeOrderWallet newWalletValue:',newWalletValue);
+
+        const addressDoc  = await Address.findOne ({userId, 'address._id':selectedAddress}, {'address.$': 1});
+
+        const address = addressDoc.address[0];
+        
+        //Fetch the user's cart
+        const cart = await  Cart.findOne({userId}).populate('products.productId'); 
+        if(!cart) return res.status(404).json({success:false,message:'Cart not found'});
+
+        //Determine if the order qualifies for free shipping
+        const freeShipping = orderTotalAmount >= 10000;
+
+        //Prepare the order date
+
+        const orderData = {
+            userId,
+            cartId: cart._id,
+            products: cart.products.map(product => ({
+                productId: product.productId._id,
+                size: product.size,
+                quantity: product.quantity,
+                productPrice: product.productId.promo_price,
+            })),
+            address: {
+                name: address.name,
+                street: address.street,
+                country: address.country,
+                city: address.city,
+                state: address.state,
+                pincode: address.pincode,
+                mobile: address.mobile.toString(),
+                email: '',
+            },
+            payableAmount:orderTotalAmount,
+            freeShipping: freeShipping,
+            paymentMethod: 'Wallet',
+            paymentStatus: 'Success',
+            wallet: newWalletValue,  // Initialize the wallet field with the deducted amount
+        };
+
+        // Save the order to the database
+        const order = new Order(orderData);      
+        const savedOrder = await order.save();
+
+        console.log('orderController placeOrderWallet savedOrder:',savedOrder);
+        //Update the  prodduct stock
+        for (const product of cart.products) {
+            const updateField = `stock.${product.size}`;
+            await Product.findByIdAndUpdate(product.productId._id,{
+                $inc: {[updateField]: -product.quantity},
+            });
+        }
+        //Clear the cart after the order is placed
+        await Cart.findOneAndDelete({userId});
+        res.status(200).json({ success: true, message:'Order placed successfully', order});
+
+    } catch (error) {
+        console.error('Error during checkout:', error);
+        res.status(500).json({ success: false, message: 'Failed to place order'});
+    }
+}
+
   
 const orderStatus = async (req, res) => {
     const { orderId, productId, newStatus } = req.body;
@@ -331,7 +335,7 @@ const orderStatus = async (req, res) => {
             { _id: orderId, "products._id": productId },
             { $set: { "products.$.status": newStatus } },
             { new: true }
-        );
+    );
 
         if (!order) {
             return res.status(404).json({ success: false, message: "Order or Product not found." });
@@ -344,27 +348,131 @@ const orderStatus = async (req, res) => {
     }
 };
 
+const payment_failure = async (req,res) => {
+    try {
+        const { address, amount } = req.query;
+        const userId = req.session.user._id;
+
+        const cart = await Cart.findOne({ userId }).populate('products.productId');
+        if (!cart) return res.status(404).json({ success: false, message: 'Cart not found' });
+
+        const addressDoc = await Address.findOne({ userId, 'address._id': address }, { 'address.$': 1 });
+        if (!addressDoc) return res.status(404).json({ success: false, message: 'Address not found' });
+
+        const addressFound = addressDoc.address[0];
+
+        const orderData = {
+            userId,
+            cartId: cart._id,
+            products: cart.products.map(product => ({
+                productId: product.productId._id,
+                size: product.size,
+                quantity: product.quantity,
+                productPrice: product.productId.promo_price,
+                product_orderStatus: 'payment pending',
+                payment_method: { method: 'RazorPay' },
+                payment_status: 'Failed',
+            })),
+            address: {
+                name: addressFound.name,
+                street: addressFound.street,
+                country: addressFound.country,
+                city: addressFound.city,
+                state: addressFound.state,
+                pincode: addressFound.pincode,
+                mobile: addressFound.mobile.toString(),
+                email: '',
+            },
+            payableAmount: amount,
+            freeShipping: amount >= 10000,
+            paymentMethod: 'RazorPay',
+            paymentStatus: 'Pending',
+        };
+
+        const order = new Order(orderData);
+        await order.save();
+
+          // Update the product stock
+          for (const product of cart.products) {
+            const updateField = `stock.${product.size}`;
+            await Product.findByIdAndUpdate(product.productId._id, {
+                $inc: { [updateField]: -product.quantity },
+            });
+        }
+
+        // Clear the cart after the order is placed
+        await Cart.findOneAndDelete({ userId });
+
+        res.status(200).json({ success: true, message: 'Order created with payment pending status', order });
+    } catch (error) {
+        console.error('Error during payment failure handling:', error);
+        res.status(500).json({ success: false, message: 'Failed to handle payment failure' });
+    }
+}
+
+const retryPayment = async (req, res) => {
+    try {
+        const { orderId, amount, paymentDetails } = req.body;
+        
+        // Find the existing order
+        const order = await Order.findById(orderId);
+        if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+        // Create a new Razorpay order for retrying payment
+        const razorpayOrder = await razorpayInstance.orders.create({
+            amount: amount, // Razorpay expects the amount in paisa
+            currency: 'INR',
+            receipt: `retry-order-rcpt-${Date.now()}`,
+        });
+
+        // Verify the payment signature
+        let hmac = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY);
+        hmac.update(razorpayOrder.id + "|" + paymentDetails.razorpay_payment_id);
+        hmac = hmac.digest("hex");
+
+        if (hmac === paymentDetails.razorpay_signature) {
+            // Update order with the successful payment details
+            order.paymentStatus = 'Success';
+            order.paymentMethod = 'RazorPay';
+            order.razorpayOrderId = razorpayOrder.id;
+            order.razorpayPaymentId = paymentDetails.razorpay_payment_id;
+            await order.save();
+
+            res.status(200).json({ success: true, message: 'Payment retried and order updated successfully', order });
+        } else {
+            res.status(400).json({ success: false, message: 'Payment verification failed' });
+        }
+    } catch (error) {
+        console.error('Error during payment retry:', error);
+        res.status(500).json({ success: false, message: 'Failed to retry payment' });
+    }
+};
+
+
 const loadUserOrderDetails = async (req,res) =>{
     try {
         
         const searchQuery = req.query.q;
         const sortQuery = req.query.sort;
+        const categoryQuery = req.query.category || '';
         
         const userId = req.session.user._id;
         const userData = await User.findById(userId);
         const orderId = req.query.orderObjectId;
-        console.log('ordersListController.loadOrderDetaisl orderId:',orderId);
+        // console.log('ordersListController.loadOrderDetaisl orderId:',orderId);
 
 
         const order = await Order.findById(orderId).populate('products.productId');
 
-        console.log('ordersListController.loadOrderDetaisl order:',order);
+        // console.log('ordersListController.loadOrderDetaisl order:',order);
 
          
         res.render('user/userOrderDetailsPage',{
             userData,
             searchQuery,
             sortQuery,
+            
+      categoryQuery,
             order
         })
     } catch (error) {
@@ -408,9 +516,9 @@ const cancelIndividualProduct = async (req, res) => {
         // Update the stock for the specific size
         const size = productInOrder.size;
 
-        if (!product.stock[size]) {
-            return res.status(400).json({ message: `Size '${size}' not found in product stock` });
-        }
+        // if (!product.stock[size]) {
+        //     return res.status(400).json({ message: `Size '${size}' not found in product stock` });
+        // }
 
         product.stock[size] += productInOrder.quantity;
         await product.save();
@@ -531,6 +639,71 @@ const returnProduct = async (req,res)=> {
 }
 
 
+const downloadInvoice = async (req,res) => {
+    try {
+        const orderId = req.params.orderId;
+        
+        // Fetch order details from the database
+        const order = await Order.findById(orderId)
+        .populate('products.productId') // Populate product details
+        .populate('userId'); // Populate user details
+
+        if (!order) {
+            return res.status(404).send('Order not found');
+        }
+
+        // Create a new PDF document
+        const doc = new PDFDocument();
+
+        // Set response headers to download the PDF
+        res.setHeader('Content-disposition', `attachment; filename=invoice-${orderId}.pdf`);
+        res.setHeader('Content-type', 'application/pdf');
+
+        // Pipe the PDF into the response
+        doc.pipe(res);
+
+        // Add title and order information
+        doc.fontSize(25).text(`Invoice for Order ${orderId}`, { align: 'center' });
+        doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`);
+        doc.text(`User: ${order.userId.username}`);
+        doc.moveDown();
+
+        // Draw table headers
+        doc.fontSize(12);
+        doc.text('Date', 50, 100);
+        doc.text('User', 150, 100);
+        doc.text('Product Name', 250, 100);
+        doc.text('Product Price', 400, 100);
+        doc.text('Discount', 500, 100);
+        doc.text('Quantity', 550, 100);
+        doc.text('Total', 600, 100);
+        doc.text('Status', 650, 100);
+
+        // Draw a horizontal line below the headers
+        doc.moveTo(50, 115).lineTo(650, 115).stroke();
+
+        // Add table rows
+        let yPosition = 130;
+        order.products.forEach(product => {
+            doc.text(new Date(order.createdAt).toLocaleDateString(), 50, yPosition);
+            doc.text(order.userId.username, 150, yPosition);
+            doc.text(product.productId.name, 250, yPosition);
+            doc.text(`₹${product.productPrice.toFixed(2)}`, 400, yPosition);
+            doc.text(`₹${product.discount.toFixed(2)}`, 500, yPosition);
+            doc.text(product.quantity, 550, yPosition);
+            doc.text(`₹${(product.productPrice * product.quantity - product.discount).toFixed(2)}`, 600, yPosition);
+            doc.text(product.status, 650, yPosition);
+            yPosition += 20; // Move down for next row
+        });
+
+        // Finalize the PDF
+        doc.end();
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
 module.exports = {
     cancelOrder,
     placeOrderCOD,
@@ -541,5 +714,8 @@ module.exports = {
     loadUserOrderDetails,
     cancelIndividualProduct,
     returnProduct,
-    placeOrderWallet
+    placeOrderWallet,
+    downloadInvoice,
+    payment_failure,
+    retryPayment
 } 

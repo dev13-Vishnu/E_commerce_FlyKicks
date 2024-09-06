@@ -17,6 +17,116 @@
     <link href="/admin/assets/css/main.css" rel="stylesheet" type="text/css" />
 
     <style>
+
+.top-selling-categories {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.top-selling-categories h2 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.top-selling-categories ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.top-selling-categories li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.top-selling-categories li:last-child {
+    border-bottom: none;
+}
+
+.category-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    flex-grow: 1;
+}
+
+.category-card h3 {
+    font-size: 1.2em;
+    margin: 0 0 5px 0;
+    color: #007bff;
+}
+
+.category-card p {
+    font-size: 0.9em;
+    margin: 0;
+    color: #666;
+}
+
+.category-card h3:hover {
+    text-decoration: underline;
+}
+
+.category-card {
+    margin-right: 20px;
+}
+
+
+
+      
+
+      .best-selling-products {
+    margin: 20px 0;
+}
+
+.best-selling-products ul {
+    list-style: none;
+    padding: 0;
+}
+
+.best-selling-products li {
+    display: inline-block;
+    /* margin: 10px; */
+}
+.product-card {
+    border: 1px solid #ddd;
+    padding: 10px;
+    width: 200px;
+    text-align: center;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ensure proper spacing */
+    height: 410px; /* Set a fixed height for the card */
+}
+
+.product-card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.product-card h3 {
+    font-size: 16px;
+    margin: 10px 0;
+    min-height: 40px; /* Set a minimum height for the product name */
+}
+
+.product-card p {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+
       .date-range-filter {
             margin-bottom: 20px;
         }
@@ -163,249 +273,49 @@
 
               </article>
             </div>
-            <!-- <div class="row">
-              <div class="col-lg-5">
-                <div class="card mb-4">
-                  <article class="card-body">
-                    <h5 class="card-title">New Members</h5>
-                    <div class="new-member-list">
-                      <div
-                        class="d-flex align-items-center justify-content-between mb-4"
-                      >
-                        <div class="d-flex align-items-center">
-                          <img
-                            src="/admin/assets/imgs/people/avatar4.jpg"
-                            alt=""
-                            class="avatar"
-                          />
-                          <div>
-                            <h6>Patric Adams</h6>
-                            <p class="text-muted font-xs">Sanfrancisco</p>
-                          </div>
-                        </div>
-                        <a href="#" class="btn btn-xs"
-                          ><i class="material-icons md-add"></i> Add</a
-                        >
-                      </div>
-                      <div
-                        class="d-flex align-items-center justify-content-between mb-4"
-                      >
-                        <div class="d-flex align-items-center">
-                          <img
-                            src="/admin/assets/imgs/people/avatar2.jpg"
-                            alt=""
-                            class="avatar"
-                          />
-                          <div>
-                            <h6>Dilan Specter</h6>
-                            <p class="text-muted font-xs">Sanfrancisco</p>
-                          </div>
-                        </div>
-                        <a href="#" class="btn btn-xs"
-                          ><i class="material-icons md-add"></i> Add</a
-                        >
-                      </div>
-                      <div
-                        class="d-flex align-items-center justify-content-between mb-4"
-                      >
-                        <div class="d-flex align-items-center">
-                          <img
-                            src="/admin/assets/imgs/people/avatar3.jpg"
-                            alt=""
-                            class="avatar"
-                          />
-                          <div>
-                            <h6>Tomas Baker</h6>
-                            <p class="text-muted font-xs">Sanfrancisco</p>
-                          </div>
-                        </div>
-                        <a href="#" class="btn btn-xs"
-                          ><i class="material-icons md-add"></i> Add</a
-                        >
-                      </div>
-                    </div>
-                  </article>
-                </div>
-              </div>
-              <div class="col-lg-7">
-                <div class="card mb-4">
-                  <article class="card-body">
-                    <h5 class="card-title">Recent activities</h5>
-                    <ul class="verti-timeline list-unstyled font-sm">
-                      <li class="event-list">
-                        <div class="event-timeline-dot">
-                          <i
-                            class="material-icons md-play_circle_outline font-xxl"
-                          ></i>
-                        </div>
-                        <div class="media">
-                          <div class="me-3">
-                            <h6>
-                              <span>Today</span>
-                              <i
-                                class="material-icons md-trending_flat text-brand ml-15 d-inline-block"
-                              ></i>
-                            </h6>
-                          </div>
-                          <div class="media-body">
-                            <div>Lorem ipsum dolor sit amet consectetur</div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="event-list active">
-                        <div class="event-timeline-dot">
-                          <i
-                            class="material-icons md-play_circle_outline font-xxl animation-fade-right"
-                          ></i>
-                        </div>
-                        <div class="media">
-                          <div class="me-3">
-                            <h6>
-                              <span>17 May</span>
-                              <i
-                                class="material-icons md-trending_flat text-brand ml-15 d-inline-block"
-                              ></i>
-                            </h6>
-                          </div>
-                          <div class="media-body">
-                            <div>
-                              Debitis nesciunt voluptatum dicta reprehenderit
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="event-list">
-                        <div class="event-timeline-dot">
-                          <i
-                            class="material-icons md-play_circle_outline font-xxl"
-                          ></i>
-                        </div>
-                        <div class="media">
-                          <div class="me-3">
-                            <h6>
-                              <span>13 May</span>
-                              <i
-                                class="material-icons md-trending_flat text-brand ml-15 d-inline-block"
-                              ></i>
-                            </h6>
-                          </div>
-                          <div class="media-body">
-                            <div>Accusamus voluptatibus voluptas.</div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="event-list">
-                        <div class="event-timeline-dot">
-                          <i
-                            class="material-icons md-play_circle_outline font-xxl"
-                          ></i>
-                        </div>
-                        <div class="media">
-                          <div class="me-3">
-                            <h6>
-                              <span>05 April</span>
-                              <i
-                                class="material-icons md-trending_flat text-brand ml-15 d-inline-block"
-                              ></i>
-                            </h6>
-                          </div>
-                          <div class="media-body">
-                            <div>
-                              At vero eos et accusamus et iusto odio dignissi
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="event-list">
-                        <div class="event-timeline-dot">
-                          <i
-                            class="material-icons md-play_circle_outline font-xxl"
-                          ></i>
-                        </div>
-                        <div class="media">
-                          <div class="me-3">
-                            <h6>
-                              <span>26 Mar</span>
-                              <i
-                                class="material-icons md-trending_flat text-brand ml-15 d-inline-block"
-                              ></i>
-                            </h6>
-                          </div>
-                          <div class="media-body">
-                            <div>Responded to need “Volunteer Activities</div>
-                          </div>
-                        </div>
-                      </li>
-                    </ul>
-                  </article>
-                </div>
-              </div>
-            </div> -->
+          
           </div>
-          <!-- <div class="col-xl-4 col-lg-12">
-            <div class="card mb-4">
-              <article class="card-body">
-                <h5 class="card-title">Revenue Base on Area</h5>
-                <canvas id="myChart2" height="217"></canvas>
-              </article>
-            </div>
-            <div class="card mb-4">
-              <article class="card-body">
-                <h5 class="card-title">Marketing Chanel</h5>
-                <span class="text-muted font-xs">Facebook</span>
-                <div class="progress mb-3">
-                  <div
-                    class="progress-bar"
-                    role="progressbar"
-                    style="width: 15%"
-                  >
-                    15%
-                  </div>
-                </div>
-                <span class="text-muted font-xs">Instagram</span>
-                <div class="progress mb-3">
-                  <div
-                    class="progress-bar"
-                    role="progressbar"
-                    style="width: 65%"
-                  >
-                    65%
-                  </div>
-                </div>
-                <span class="text-muted font-xs">Google</span>
-                <div class="progress mb-3">
-                  <div
-                    class="progress-bar"
-                    role="progressbar"
-                    style="width: 51%"
-                  >
-                    51%
-                  </div>
-                </div>
-                <span class="text-muted font-xs">Twitter</span>
-                <div class="progress mb-3">
-                  <div
-                    class="progress-bar"
-                    role="progressbar"
-                    style="width: 80%"
-                  >
-                    80%
-                  </div>
-                </div>
-                <span class="text-muted font-xs">Other</span>
-                <div class="progress mb-3">
-                  <div
-                    class="progress-bar"
-                    role="progressbar"
-                    style="width: 80%"
-                  >
-                    80%
-                  </div>
-                </div>
-              </article>
-            </div>
-          </div> -->
+        
         </div>
+        <div class="card mb-4">
+          <div class="best-selling-products">
+            <h2>Best-Selling Products</h2>
+            <ul>
+                <% bestSellingProducts.forEach(function(product) { %>
+                    <li>
+                        <div class="product-card">
+                            <a href="#" class="img-wrap"> 
+                                <img src="/<%= product.productImage.replace(/\\/g, '/') %>" alt="<%= product.productName %>">
+                            </a>
+                            <h3 class="text-brand"><%= product.productName %></h3>
+                            <p>₹<%= product.productPrice %></p>
+                            <p class="text-brand">Sold: <%= product.totalSold %> units</p>
+                        </div>
+                    </li>
+                <% }); %>
+            </ul>
+        </div>
+        
+
+          
+        </div>
+
+        <div class="card mb-4">
+          <div class="top-selling-categories">
+            <h2>Top-Selling Categories</h2>
+            <ul>
+                <% topSellingCategories.forEach(function(category) { %>
+                    <li>
+                        <div class="category-card">
+                            <h3><%= category.categoryName %></h3>
+                            <p>Sold: <%= category.totalSold %> units</p>
+                        </div>
+                    </li>
+                <% }); %>
+            </ul>
+          </div>
+        </div>
+        
         <div class="card mb-4">
           <header class="card-header">
             <h4 class="card-title">Latest orders</h4>
@@ -479,7 +389,7 @@
                       <th class="align-middle" scope="col">Billing Name</th>
                       <th class="align-middle" scope="col">Date</th>
                       <th class="align-middle" scope="col">Total</th>
-                      <th class="align-middle" scope="col">Discount</th> <!-- New Discount Column -->
+                      <th class="align-middle" scope="col">Discount</th> New Discount Column
                       <th class="align-middle" scope="col">Payment Status</th>
                       <th class="align-middle" scope="col">Payment Method</th>
                       <th class="align-middle" scope="col">View Details</th>
@@ -532,26 +442,36 @@
             <!-- table-responsive end// -->
           </div>
         </div>
+        
+        <!-- pagination -->
         <div class="pagination-area mt-30 mb-50">
           <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-start">
-              <li class="page-item active">
-                <a class="page-link" href="#">01</a>
-              </li>
-              <li class="page-item"><a class="page-link" href="#">02</a></li>
-              <li class="page-item"><a class="page-link" href="#">03</a></li>
-              <li class="page-item">
-                <a class="page-link dot" href="#">...</a>
-              </li>
-              <li class="page-item"><a class="page-link" href="#">16</a></li>
-              <li class="page-item">
-                <a class="page-link" href="#"
-                  ><i class="material-icons md-chevron_right"></i
-                ></a>
-              </li>
-            </ul>
+              <ul class="pagination justify-content-start">
+                  <% if (currentPage > 1) { %>
+                      <li class="page-item">
+                          <a class="page-link" href="?page=<%= currentPage - 1 %>&limit=<%= limit %>">
+                              <i class="material-icons md-chevron_left"></i>
+                          </a>
+                      </li>
+                  <% } %>
+                  <% for (let i = 1; i <= totalPages; i++) { %>
+                      <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                          <a class="page-link" href="?page=<%= i %>&limit=<%= limit %>"><%= i %></a>
+                      </li>
+                  <% } %>
+                  <% if (currentPage < totalPages) { %>
+                      <li class="page-item">
+                          <a class="page-link" href="?page=<%= currentPage + 1 %>&limit=<%= limit %>">
+                              <i class="material-icons md-chevron_right"></i>
+                          </a>
+                      </li>
+                  <% } %>
+              </ul>
           </nav>
         </div>
+        
+      
+        
       </section>
       <!-- content-main end// -->
       <footer class="main-footer font-xs">
@@ -581,11 +501,74 @@
       type="text/javascript"
     ></script>
 
+    <!-- paginatiion -->
+     <script>
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Adjust the limit if necessary (default is 10)
+    const limit = 10;
+    let currentPage = 1; // To keep track of the current page
+
+    // Example orders array (replace with actual data)
+    const orders = [
+        /* Array of order objects */
+    ];
+
+    // Function to render orders based on the current page and limit
+    function renderOrders(orders) {
+        // Calculate the start and end index for slicing the orders array
+        const start = (currentPage - 1) * limit;
+        const end = start + limit;
+
+        // Slice the orders array to get the current page's orders
+        const paginatedOrders = orders.slice(start, end);
+
+        // Render the paginated orders (replace with your rendering logic)
+        const ordersContainer = document.querySelector('#orders-container');
+        ordersContainer.innerHTML = ''; // Clear the previous orders
+        paginatedOrders.forEach(order => {
+            const orderElement = document.createElement('div');
+            orderElement.textContent = `Order ID: ${order.id}`; // Adjust based on your order structure
+            ordersContainer.appendChild(orderElement);
+        });
+
+        // Update the pagination controls
+        updatePaginationControls(orders.length);
+    }
+
+    // Function to update pagination controls
+    function updatePaginationControls(totalOrdersPagination) {
+        const totalPages = Math.ceil(totalOrdersPagination / limit);
+        const paginationContainer = document.querySelector('#pagination-controls');
+        paginationContainer.innerHTML = ''; // Clear previous pagination controls
+
+        for (let i = 1; i <= totalPages; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.textContent = i;
+            pageButton.classList.add('page-button');
+            if (i === currentPage) {
+                pageButton.classList.add('active');
+            }
+            pageButton.addEventListener('click', () => {
+                currentPage = i;
+                renderOrders(orders);
+            });
+            paginationContainer.appendChild(pageButton);
+        }
+    }
+
+    // Initial render of orders and pagination
+    renderOrders(orders);
+});
+
+
+     </script>
+
     <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.6.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<!-- Include jsPDF AutoTable -->
+<!-- Include jsPDF AutoTable --> 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.22/jspdf.plugin.autotable.min.js"></script>
 
 

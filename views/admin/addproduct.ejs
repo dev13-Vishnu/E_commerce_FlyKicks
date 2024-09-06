@@ -84,10 +84,12 @@
                                 <div class="mb-4">
                                     <label for="product_name" class="form-label">Product title</label>
                                     <input type="text" name="product_name" placeholder="Type here" class="form-control" id="product_name">
+                                    <div class="text-danger error-message" id="error_product_name"></div>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Full description</label>
                                     <textarea placeholder="Type here" name="description" class="form-control" rows="4"></textarea>
+                                    <div class="text-danger error-message" id="error_description"></div>
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-4">
@@ -115,6 +117,7 @@
                                             <% } %>
                                             <% } %>
                                         </select>
+                                        <div class="text-danger error-message" id="error_category"></div>
                                     </div>
                                 </div>
                                 <div>
@@ -136,11 +139,11 @@
                             <div class="mb-4">
                                 <label for="images" class="form-label">Select Image</label>
                                 <input type="file" class="form-control" id="images" name="images" accept="image/*" multiple required>
-                                <div id="previewContainer"></div>
                             </div>
                         </div>
                         <div class="container">
                             <div id="previewContainer"></div>
+                                <div class="text-danger error-message" id="error_image"></div>
                         </div> 
                     </div>
                     <div class="card mb-4">
@@ -150,21 +153,27 @@
                         <div class="card-body">
                             <label for="7">7 Stock:</label>
                             <input type="number" class="form-control" id="7" name="stock[7]" min="0">
+                            <div class="text-danger error-message" id="error_stock_7"></div>
                             <br>
                             <label for="8">8 Stock:</label>
                             <input type="number" min="0" name="stock[8]" class="form-control" id="8">
+                            <div class="text-danger error-message" id="error_stock_8"></div>
                             <br>
                             <label for="9">9 Stock:</label>
                             <input type="number" min="0" name="stock[9]" class="form-control" id="9">
+                            <div class="text-danger error-message" id="error_stock_9"></div>
                             <br>
                             <label for="10">10 Stock:</label>
                             <input type="number" min="0" name="stock[10]" class="form-control" id="10">
+                            <div class="text-danger error-message" id="error_stock_10"></div>
                             <br>
                             <label for="11">11 Stock:</label>
                             <input type="number" min="0" name="stock[11]" class="form-control" id="11">
+                            <div class="text-danger error-message" id="error_stock_11"></div>
                             <br>
                             <label for="12">12 Stock:</label>
                             <input type="number" min="0" name="stock[12]" class="form-control" id="12">
+                            <div class="text-danger error-message" id="error_stock_12"></div>
                         </div>
                     </div>
                 </div>
@@ -179,6 +188,9 @@
         </div>
     </main>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <!-- sweet alert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     let cropper;
 let croppedFiles = [];
@@ -232,6 +244,62 @@ $('#cropButton').on('click', function () {
 $('#imageForm').on('submit', function (e) {
     e.preventDefault();
 
+    let isValid =true;
+
+    // Clear previous error message
+    $('.error-message').text('');
+
+    //Validate image upload: Ensure at least two images are selected and cropped
+    if($('#previewContainer img').length < 2 ) {
+        $('#error_image').text('Please upload at least two images.');
+        isValid = false;
+    }
+
+    //Validate product name
+    if($('#product_name').val().trim()=== '') {
+        $('#error_product_name').text('Product name is required.');
+        isValid = false;
+    }
+
+    //Validate product name
+    if($('textarea[name = "description"]').val().trim() ==='') {
+        $('#error_description').text('Description is required.');
+        isValid = false;
+    }
+
+    //Valid Regular price
+    const actualPrice = $('#product_Aprice').val().trim();
+    if(actualPrice === '' || isNaN (actualPrice) || parseFloat(actualPrice) <= 0) {
+        $('#error_Paprice').text('Please enter a valid regular price.');
+        isValid = false;
+    }
+
+    //Validate promotional price (optional if entered it must be valid)
+    const promoPrice = $('#product_Pprice').val().trim();
+    if(promoPrice !== '' && (isNaN(promoPrice) || parseFloat(promoPrice) <= 0)){
+        $('#error_Ppprice').text('Please enter a valid promotional price.');
+        isValid = false;
+    }
+
+    // Validate stock inputs
+    const stockInputs = ['#7', '#8', '#9', '#10', '#11', '#12'];
+
+    stockInputs.forEach((id, index) => {
+        const value = $(id).val().trim();
+        if(value === '' || isNaN(value) || parseInt(value) < 0) {
+            $(`#error_stock_${index + 7}`).text(`Please enter a valid stock for size ${index + 7}.`);
+            isValid = false;
+        }
+    });
+
+    // If validation fails , don't proceed with the form submission
+    if(!isValid) {
+        return;
+    }
+
+    // Disable the submit button to prevent double submission
+    $('#imageForm button[type="submit"]').prop('disabled', true);
+
     const formData = new FormData(this);
 
     // Clear the input files from the form data and replace with cropped images
@@ -245,11 +313,23 @@ $('#imageForm').on('submit', function (e) {
         processData: false,
         contentType: false,
         success: function (response) {
-            alert('Product added successfully');
-            window.location.reload(); // Optional: Reload the page to reset the form
+            Swal.fire ({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Product added successfully.',
+            }).then(() => {
+                window.location.reload(); //Optional : Reload the page to reset the form
+            });
         },
         error: function (err) {
-            alert('Error adding product: ' + err.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error adding product: ' + err.responseText,
+            }).then(() => {
+                // Re-enable the submit button if there was an error
+                $('#imageForm button[type="submit"]').prop('disabled', false);
+            });; 
         }
     });
 });

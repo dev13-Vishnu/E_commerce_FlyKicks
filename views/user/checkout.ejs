@@ -997,34 +997,39 @@
 
                             <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                             <div class="payment_method">
-                                <div class="mb-25">
-                                    <h5>Payment</h5>
-                                </div>
-                                <div class="payment_option">
-                                <div class="custome-radio">
-                                    <input class="form-check-input" required="" type="radio" name="payment_option" value="cod" id="exampleRadios3">
-                                    <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse" data-target="#bankTranfer" aria-controls="bankTranfer">Cash on Delivery</label>
-                                    <div class="form-group collapse" id="bankTranfer">
-                                        <p class="text-muted mt-5">There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration. </p>
-                                    </div>
-                                </div>
-                                <div class="custome-radio">
-                                    <input class="form-check-input" required="" type="radio" name="payment_option" value="wallet" id="exampleRadios4">
-                                    <label class="form-check-label" for="exampleRadios4" data-bs-toggle="collapse" data-target="#checkPayment" aria-controls="checkPayment">Wallet</label>
-                                    <div class="form-group collapse" id="checkPayment">
-                                        <p class="text-muted mt-5">Please send your cheque to Store Name, Store Street, Store Town, Store State / County, Store Postcode. </p>
-                                    </div>
-                                </div>
-                                <div class="custome-radio">
-                                    <input class="form-check-input" required="" type="radio" name="payment_option" value="razorpay" id="exampleRadios5" checked="">
-                                    <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse" data-target="#paypal" aria-controls="paypal">Razor Pay</label>
-                                    <div class="form-group collapse" id="paypal">
-                                        <p class="text-muted mt-5">Pay via Razorpay; you can pay with your credit card or other supported methods.</p>
-                                    </div>
-                                </div>
-                            </div>
+    <div class="mb-25">
+        <h5>Payment</h5>
+    </div>
+    <div class="payment_option">
+        <div class="custome-radio">
+            <input class="form-check-input" required type="radio" name="payment_option" value="cod" id="exampleRadios3" <% if (cart.total < 10000) { %>disabled<% } %>>
+            <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse" data-target="#bankTranfer" aria-controls="bankTranfer">
+                Cash on Delivery
+            </label>
+            
+            
+        </div>
+        <div class="custome-radio">
+            <input class="form-check-input" required type="radio" name="payment_option" value="wallet" id="exampleRadios4">
+            <label class="form-check-label" for="exampleRadios4" data-bs-toggle="collapse" data-target="#checkPayment" aria-controls="checkPayment">
+                Wallet
+            </label>
+            <div class="form-group collapse" id="checkPayment">
+                <p class="text-muted mt-5">Please send your cheque to Store Name, Store Street, Store Town, Store State / County, Store Postcode.</p>
+            </div>
+        </div>
+        <div class="custome-radio">
+            <input class="form-check-input" required type="radio" name="payment_option" value="razorpay" id="exampleRadios5" checked>
+            <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse" data-target="#paypal" aria-controls="paypal">
+                Razor Pay
+            </label>
+            <div class="form-group collapse" id="paypal">
+                <p class="text-muted mt-5">Pay via Razorpay; you can pay with your credit card or other supported methods.</p>
+            </div>
+        </div>
+    </div>
+</div>
 
-                            </div>
                             <a href="#" class=" btn-place-order btn btn-fill-out btn-block mt-30">Place Order</a>
                         </div>
                     </div>
@@ -1121,7 +1126,29 @@
 
     <!-- sweetalert -->
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-// <!--apply coupon-->
+
+    // disable cash on Delivery
+
+    <script>
+    
+        document.addEventListener('DOMContentLoaded', function () {
+    var cartTotal = parseFloat(document.getElementById('subtotal').innerText.replace(/[^0-9.-]+/g,""));
+    var codOption = document.getElementById('exampleRadios3');
+    var codMessage = document.createElement('p');
+    
+    if (cartTotal < 10000) {
+        codOption.disabled = true;
+        codMessage.className = 'text-danger mt-2';
+        codMessage.innerText = 'Cash on Delivery is not available under ₹10,000.';
+        codOption.parentElement.appendChild(codMessage);
+    }
+});
+
+        
+    </script>
+
+
+<!--apply coupon-->
 <script>
 document.getElementById('couponForm').addEventListener('submit',function (event) {
     event.preventDefault();
@@ -1434,38 +1461,39 @@ return valid;
                                     "color": "#3399cc" // Customize the color scheme
                                 },
                                 "modal": {
-                                    "ondismiss":function() {
-                                        ///Handle payment failure or cancelation 
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Payment Failed',
-                                            text: 'The payment process was cancelled or failed.',
-                                            confirmButtonText: 'OK'
-                                        })
-                                        .then ((result)=> {
-                                            if(result.confirmed){
-                                                console.log('User confirmed the failure alert');
-                                                console.log(`Sending request to /payment-failure with orderId: ${orderAddressId},${orderTotalAmount}`);
-                                                fetch(`/payment-failure?address=${orderAddressId}&amount=${orderTotalAmount}`,{
-                                                    method: 'GET',
-                                                    headers: {
-                                                        'Content-Type': 'application/json'
-                                                    }
-                                                })
-                                                .then((response) => {
-                                                    if (response.ok) {
-                                                        console.log("Payment failure request succeeded");
-                                                        window.location.href = '/account';
-                                                    } else {
-                                                        console.error("Payment failure request failed with status:", response.status);
-                                                    }
-                                                })
-                                                .catch((error) =>{
-                                                    console.error('Error occured during fetch:',error);
-                                                });
-                                            }
-                                        });
+                                    "ondismiss": function() {
+                        console.log('Payment was canceled or failed.');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Payment Failed',
+                            text: 'The payment process was cancelled or failed.',
+                            confirmButtonText: 'OK'
+                        })
+                        .then((result) => {
+                            if (result.isConfirmed) {
+                                console.log('User confirmed the failure alert');
+                                console.log(`Sending request to /payment-failure with orderId: ${orderAddressId}, ${orderTotalAmount}`);
+                                
+                                fetch(`/payment-failure?address=${orderAddressId}&amount=${orderTotalAmount}`, {
+                                    method: 'GET',
+                                    headers: {
+                                        'Content-Type': 'application/json'
                                     }
+                                })
+                                .then((response) => {
+                                    if (response.ok) {
+                                        console.log("Payment failure request succeeded");
+                                        window.location.href = '/account';
+                                    } else {
+                                        console.error("Payment failure request failed with status:", response.status);
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.error('Error occurred during fetch:', error);
+                                });
+                            }
+                        });
+                    }
                                 }
                                 
                             };

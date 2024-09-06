@@ -15,6 +15,36 @@
     <link rel="shortcut icon" type="image/x-icon" href="/admin/assets/imgs/theme/favicon.svg">
     <!-- Template CSS -->
     <link href="/admin/assets/css/main.css" rel="stylesheet" type="text/css" />
+    <style>
+        .table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+    
+        .table th, .table td {
+            padding: 10px;
+            text-align: center; /* Center text horizontally */
+            vertical-align: middle; /* Center content vertically */
+            /* border-bottom: 1px solid #ddd; */
+        }
+    
+        .table th {
+            background-color: #f4f4f4;
+            margin-bottom: 5px;
+        }
+    
+        .table img {
+            width: 70px; /* Adjust width as needed */
+            height: auto;
+        }
+    
+        .table .btn {
+            margin: 0 5px; /* Space between buttons */
+        }
+    
+
+    </style>
 </head>
 
 <body>
@@ -59,36 +89,38 @@
                     </div>
                 </div>
             </header> card-header end// -->
-                <div class="row">
-            <% products.forEach(product => {%>
-                    <div class="col-md-4 mb-4">
-                        <div class="card card-product-grid">
-                            <a href="#" class="img-wrap"> <img src="/<%= product.image[0].replace(/\\/g, '/') %>" alt="Product"> </a>
-                            <div class="info-wrap">
-                                <div class="dropdown">
-                                    
-                                    <div class="dropdown-menu dropdown-menu-end">
-                                        
-                                    </div>
-                                </div>
-                                <a href="products/edit?productId=<%=product._id %>" class="title"><%=product.name%></a>
-                                <div class="price mt-1">₹
-                                    <%=product.promo_price%>/-</div><span style="text-decoration: line-through;"> ₹<%=product.price %>/-</span> <!-- price-wrap.// -->
-                            <div class="d-flex px-5 justify-content-between">
-                                <a class="btn btn-sm btn-brand mr-3 rounded" href="products/edit?productId=<%=product._id %>">Edit info</a>
-                                <% if(product.delete){ %>
-                                <a class="btn btn-sm ml-2 btn-success  rounded" onclick="addProduct('<%=product._id%>')">Add</a>
-
-                                    <% }else{ %>
-                                <a class="btn btn-sm ml-2 btn-danger rounded" onclick="deleteProduct('<%=product._id%>')">Delete</a>
+            
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Promo Price</th>
+                        <th>Regular Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% products.forEach(product => { %>
+                        <tr>
+                            <td><img src="/<%= product.image[0].replace(/\\/g, '/') %>" alt="Product" style="width: 100px; height: auto;"></td>
+                            <td><%= product.name %></td>
+                            <td>₹<%= product.promo_price %>/-</td>
+                            <td><span style="text-decoration: line-through;">₹<%= product.price %>/-</span></td>
+                            <td>
+                                <a class="btn btn-sm btn-brand mr-2" href="products/edit?productId=<%= product._id %>">Edit info</a>
+                                <% if (product.delete) { %>
+                                    <a class="btn btn-sm btn-success" onclick="addProduct('<%= product._id %>')">Add</a>
+                                <% } else { %>
+                                    <a class="btn btn-sm btn-danger" onclick="deleteProduct('<%= product._id %>')">Delete</a>
                                 <% } %>
-                            </div>
-                            </div>  
-                        </div> <!-- card-product  end// -->
-                    </div> <!-- col.// -->
-                    
-                
-            <%}); %>    
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            
+            
             <div class="pagination-area mt-15 mb-50">
                 <nav aria-label="Page navigation example">
                     <ul class="pagination justify-content-start">

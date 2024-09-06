@@ -718,7 +718,8 @@
                             </div>
                             <div class="product-price">
                               <% if (product.offer) { %>
-                                <span>₹<%=product.discountedPrice%>/-</span>
+                                <span id="discountedPrice-<%=product._id %>">₹<%=product.discountedPrice%>/-
+                                </span>
                                 <span class="old-price">₹<%=product.price%>/-</span>
                                 <div class="offer-details">
                                   <span class="offer-details" style="font-size: .9rem;">Offer:  <% if (product.appliedOffer) { %>
@@ -726,7 +727,7 @@
                                 <% } %></span>
                                 </div>
                               <% } else { %>
-                                <span>₹<%=product.price%>/-</span>
+                                <span id="price-<%=product._id %>">₹<%=product.price%>/-</span>
                               <% } %>
                             </div>
                             <div class="product-action-1 show">
@@ -2068,39 +2069,59 @@
     //add to cart
     <script>
     function addToCart(productId) {
-      const size = 8; // Specify the size you want to add to the cart
+
+      //Try to get the discounted price first
+      let priceElement = document.getElementById(`discountedPrice-${productId}`);
+
+      //if the discounted price doesn't exist , get the regular price
+      if(!priceElement) {
+        priceElement = document.getElementById(`price-${productId}`);
+      }
+      //Extract the numerical value from the price element
+    const price = parseFloat(priceElement.textContent.replace('₹', '').replace('/-', ''));
+      const size = 8;
       const quantity = 1;
-  
-      fetch('/cart/add', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ productId, size, quantity })
-      })
-      .then(response => {
-          if (response.ok) {
-              Swal.fire({
-                  title: 'Added to Cart!',
-                  text: 'Product has been added to your cart.',
-                  icon: 'success',
-                  showConfirmButton: false
-              });
-          } else {
-              return response.text().then(text => { throw new Error(text) });
-          }
-      })
-      .catch(error => {
-          console.error('Error:', error);
-          Swal.fire({
-              title: 'Error!',
-              text: 'There was an error adding the product to your cart. Please try again.',
-              icon: 'error',
-              confirmButtonText: 'Close'
-          });
-      });
-  }
-  
+
+    console.log("Product ID:", productId);
+    console.log("Size:", size);
+    console.log("Quantity:", quantity);
+    
+    fetch('/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            productId: productId,
+            price, // Send the discounted price to the backend
+            size,
+            quantity
+        }),
+    })
+    .then(response => {
+        if (response.ok) {
+            Swal.fire({
+                title: 'Success!',  
+                text: 'Product added to cart.',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } else {
+            return response.text().then(text => { throw new Error(text) });
+        }
+    })
+    .catch(error => {
+        console.error('Error adding to cart:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Error adding to cart. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'Close'
+        });
+    });
+}
+
     </script>
 
     </body>
