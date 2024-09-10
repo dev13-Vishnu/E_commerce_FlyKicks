@@ -1,21 +1,34 @@
 const Coupon = require('../models/couponModel');
 const Cart = require('../models/cartModel');
 
-const loadCouponsPage = async(req,res) =>{
+const loadCouponsPage = async (req, res) => {
     try {
-        const couponData = await  Coupon.find();
-        if(couponData) {
-        res.render('admin/couponPage',{
-            couponData,
-            currentUrl:req.url
-        });
-    }else{
-        console.log('couponController loadCouponPage: no coupons to find');
-    }
+        const itemsPerPage = 2;  // Number of coupons per page
+        const page = req.query.page ? parseInt(req.query.page) : 1;  // Get the page number from the query parameter, default to 1
+        const totalCoupons = await Coupon.countDocuments();  // Get the total number of coupons
+
+        // Fetch only the coupons needed for the current page
+        const couponData = await Coupon.find()
+            .skip((page - 1) * itemsPerPage)
+            .limit(itemsPerPage);
+
+        const totalPages = Math.ceil(totalCoupons / itemsPerPage);  // Calculate the total number of pages
+
+        if (couponData) {
+            res.render('admin/couponPage', {
+                couponData,
+                currentUrl: req.url,
+                currentPage: page,
+                totalPages: totalPages
+            });
+        } else {
+            console.log('couponController loadCouponPage: no coupons to find');
+        }
     } catch (error) {
-        console.log('Error from couponController',error);
+        console.log('Error from couponController', error);
     }
-}
+};
+
 
 const loadAddcouponPage = async(req,res) => {
     try {
