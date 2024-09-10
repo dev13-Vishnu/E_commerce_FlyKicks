@@ -9,25 +9,35 @@ const User = require('../models/userModel');
 
 const {sendReferralMail} = require('../helpers/sendRefferalMail');
 
-const PORT = process.env.PORT
+const PORT = process.env.PORTconst ;
 const loadOfferPage = async (req, res) => {
     try {
+        const itemsPerPage = 2;  // Number of offers per page
+        const page = req.query.page ? parseInt(req.query.page) : 1;  // Get the page number from the query parameter, default to 1
+        const totalOffers = await Offer.countDocuments();  // Get the total number of offers
 
-        const products = await Product.find({delete:false});
-        
-        const categories = await Category.find({delete:false})
+        // Calculate how many offers to skip based on the current page
+        const offers = await Offer.find({})
+            .skip((page - 1) * itemsPerPage)
+            .limit(itemsPerPage);
 
-        const offers = await Offer.find({});
-        res.render('admin/offer',{
+        const totalPages = Math.ceil(totalOffers / itemsPerPage);  // Calculate the total number of pages
+
+        const products = await Product.find({ delete: false });
+        const categories = await Category.find({ delete: false });
+
+        res.render('admin/offer', {
             currentUrl: req.url,
             offers,
             products,
-            categories
-        })
+            categories,
+            currentPage: page,
+            totalPages: totalPages
+        });
     } catch (error) {
-        console.log('Error fom the offeController. load offer page :',error);
+        console.log('Error from the offerController. load offer page :', error);
     }
-}
+};
 
 
 const loadAddCategoryOfferPage = async (req,res) => {
