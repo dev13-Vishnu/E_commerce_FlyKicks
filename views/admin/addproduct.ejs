@@ -111,12 +111,17 @@
                                     <div class="col-sm-6 mb-3">
                                         <label class="form-label">Category</label>
                                         <select name="product_category" id="product_category" class="form-select">
+                                            <!-- Placeholder option -->
+                                            <option value="" selected disabled>Select a category</option>
+                                            
+                                            <!-- Loop through categories -->
                                             <% for (let i = 0; i < data.length; i++) { %>
                                             <% if (!data[i].delete) { %>
                                             <option value="<%= data[i]._id %>"><%= data[i].name %></option>
                                             <% } %>
                                             <% } %>
                                         </select>
+                                        
                                         <div class="text-danger error-message" id="error_category"></div>
                                     </div>
                                 </div>
