@@ -776,14 +776,18 @@ const returnProduct = async (req,res)=> {
 const downloadInvoice = async (req, res) => {
     try {
         const { orderId } = req.params;
-        console.log('ordercontroller downloadInvoice orderId:',orderId);
+        console.log('orderController downloadInvoice orderId:', orderId);
 
         // Fetch the order details
         const order = await Order.findById(orderId).populate('userId').exec();
-        console.log('orderController download invoice order:',order);
+        console.log('orderController download invoice order:', order);
         if (!order) {
             return res.status(404).send('Order not found');
         }
+
+        // Path to your custom fonts
+        const robotoRegular = path.join(__dirname, '../fonts/Roboto-Regular.ttf');
+        const robotoBold = path.join(__dirname, '../fonts/Roboto-Bold.ttf');
 
         // Create a new PDF document
         const doc = new PDFDocument();
@@ -794,18 +798,39 @@ const downloadInvoice = async (req, res) => {
 
         doc.pipe(res);
 
-        // Add content to the PDF
-        doc.fontSize(18).text('Invoice', { align: 'center' });
-        doc.fontSize(12).text(`Order ID: ${order.orderId}`);
+        // Register custom fonts
+        doc.registerFont('Roboto-Regular', robotoRegular);
+        doc.registerFont('Roboto-Bold', robotoBold);
+
+        // Use custom fonts in the PDF
+        doc.font('Roboto-Bold').fontSize(18).text('Invoice', { align: 'center' });
+        doc.font('Roboto-Regular').fontSize(12).text(`Order ID: ${order.orderId}`);
         doc.text(`User: ${order.userId ? order.userId.username : 'N/A'}`); // Adjust as needed
-        doc.text(`Order Date: ${order.orderDate}`);
+        doc.text(`Order Date: ${new Date(order.orderDate).toDateString()}`);
         doc.text(`Payable Amount: ₹${order.payableAmount.toFixed(2)}`);
         doc.text(`Discounts: ₹${order.discounts.toFixed(2)}`);
         doc.text(`Coupon: ${order.coupon || 'N/A'}`);
         doc.text(`Free Shipping: ${order.freeShipping ? 'Yes' : 'No'}`);
-        
-        // Add more details as needed
-        // ...
+
+        doc.moveDown();
+        doc.font('Roboto-Bold').fontSize(15).text('Shipping Address', { underline: true });
+        doc.font('Roboto-Regular').fontSize(12).text(`${order.address[0].name}`);
+        doc.text(`${order.address[0].street}, ${order.address[0].city}`);
+        doc.text(`${order.address[0].state}, ${order.address[0].country} - ${order.address[0].pincode}`);
+        doc.text(`Mobile: ${order.address[0].mobile}`);
+
+        // Add Products Table
+        doc.moveDown();
+        doc.font('Roboto-Bold').fontSize(15).text('Products', { underline: true });
+        doc.font('Roboto-Regular').fontSize(12);
+
+        order.products.forEach(product => {
+            const productName = product.productId ? product.productId.name : 'Unknown';
+            const productPrice = product.productPrice ? `₹${product.productPrice}` : 'N/A';
+            doc.text(`Product: ${productName}, Quantity: ${product.quantity}, Price: ${productPrice}`);
+            doc.text(`Discounts: ₹${order.discounts.toFixed(2)}`);
+            doc.text(`Total: ₹${order.payableAmount.toFixed(2)}`);
+        });
 
         // End the document
         doc.end();
@@ -814,6 +839,7 @@ const downloadInvoice = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+
 
 module.exports = {
     cancelOrder,
