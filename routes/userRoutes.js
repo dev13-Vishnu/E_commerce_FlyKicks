@@ -98,8 +98,8 @@ userRoute.delete('/wishlist/remove',isLoggedIn,wishlistController.removeFromWish
 //order routes
 userRoute.post('/place-order-cod',isLoggedIn,orderController.placeOrderCOD);
 userRoute.post('/place-order-razorpay',isLoggedIn,orderController.placeOrderRazorPay)
-userRoute.post('/api/retry-payment',isLoggedIn,orderController.retryPayment);
-
+userRoute.post('/retry-payment',isLoggedIn,orderController.retryPayment);
+userRoute.post('/verify-retry-payment',isLoggedIn,orderController.verifyRetryPayment)
 userRoute.post('/place-order-wallet',isLoggedIn,orderController.placeOrderWallet);
 userRoute.put('/apply-coupon',isLoggedIn,couponController.applyCoupon)
 userRoute.post('/remove-coupon',isLoggedIn,couponController.removeCoupon);

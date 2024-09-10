@@ -38,6 +38,7 @@ const addToCart = async (req, res) => {
                   productId: product._id,
                   size,
                   quantity,
+                  product_price:price,
                   total_price: productTotalPrice
               });
           }
@@ -134,47 +135,42 @@ const addToCart = async (req, res) => {
     }
   }
 
-  const updateQuantity = async(req,res) =>{
-    const {productId, size, newQuantity} = req.body;
-
-    console.log('cartControllre. updateQuantity:',productId, size, newQuantity);
+  const updateQuantity = async(req, res) => {
+    const { productId, size, newQuantity } = req.body;
     const userId = req.session.user._id;
 
-  console.log('cartController.updateQuantity userId',userId);
     try {
-      const cart = await Cart.findOne({userId});
-      console.log('cartController.updateQuantity cart:',cart);
+        const cart = await Cart.findOne({ userId });
 
+        if (!cart) {
+            return res.status(400).json({ message: 'Cart not found' });
+        }
 
-      if(!cart){
-        return res.status(400).json({message:'Cart not found'});
-      }
+        // Find the product in the cart
+        const product = cart.products.find(p => p.productId.toString() === productId && p.size === size);
 
-      //find the product in the cart
-      const product  = cart.products.find(p => p.productId.toString() === productId && p.size === size);
-      
-      if(!product) {
-        return res.status(400).json({message:'Product not found in cart'});
-      }
+        if (!product) {
+            return res.status(400).json({ message: 'Product not found in cart' });
+        }
 
-      console.log('cartControll updateQuantity product:',product)
+        // Update the quantity and total price based on `product_price` (which could be an offer price)
+        product.quantity = newQuantity;
+        product.total_price = newQuantity * product.product_price;  // Use `product_price` from cart
 
-      //Update the quantity and total price
-      product.quantity = newQuantity;
-      product.total_price = newQuantity * (await Product.findById(productId)).price;
+        // Update the cart total
+        cart.total = cart.products.reduce((acc, p) => acc + p.total_price, 0);
 
-      //Update the cart total
-      cart.total = cart.products.reduce((acc,p) => + p.total_price, 0);
+        // Save the cart
+        await cart.save();
 
-      //save the cart
-      await cart.save();
-
-      //Respond with success
-      res.status(200).json({message:'Server Error'});
+        // Respond with success
+        res.status(200).json({ message: 'Quantity updated successfully', cart });
     } catch (error) {
-      
+        console.log('Error from cartController.updateQuantity:', error);
+        res.status(500).json({ message: 'Server Error' });
     }
-  }
+};
+
   
   module.exports = {
     

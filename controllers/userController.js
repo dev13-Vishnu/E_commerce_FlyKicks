@@ -576,7 +576,7 @@ const loadAccount = async (req, res) => {
     ]);
     
 
-    console.log('userController.loadAccount walletTransactions:',walletTransactions);
+    // console.log('userController.loadAccount walletTransactions:',walletTransactions);
     // Render the view with the data
     res.render('user/userAccount', {
       totalWallet,

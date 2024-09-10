@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
 const Category = require('../models/Category'); // Adjust the path to your model
+require('dotenv').config()
+
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/your-database', {
+mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })

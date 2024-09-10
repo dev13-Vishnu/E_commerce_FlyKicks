@@ -21,6 +21,11 @@ const cartSchema = mongoose.Schema({
             required:true,
             default:1
         },
+        product_price: {
+            type: Number,
+            default:0
+        },
+
         total_price:{
             type:Number,
             default:0

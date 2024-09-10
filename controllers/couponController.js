@@ -172,6 +172,8 @@ const applyCoupon = async (req, res) => {
     const discountAmount = (coupon.offer_percentage / 100) * totalPrice;
         const newTotal = totalPrice - discountAmount;
 
+        //save coupon Id in session
+        req.session.appliedCouponId = coupon._id;
         return res.status(200).json({ success: true, newTotal });
     } catch (error) {
         console.error('Error applying coupon:', error);
@@ -194,7 +196,9 @@ const removeCoupon  = async (req,res) => {
 
         // Extract the total amount from the cart
         const totalPrice = cart.total;
-
+        
+        //Remove couponId from session
+        req.session.appliedCouponId = null;
 
         return res.json({success:true, totalPrice});
     } catch (error) {

@@ -253,37 +253,7 @@ const totalPages = Math.ceil(totalOrdersPagination / limit);
     ]);
 
     
-    const discounts = await Order.aggregate([
-    {
-      $unwind: "$products",  // Deconstructs the products array
-    },
-    {
-      $group: {
-        _id: "$_id",  // Group by each order ID
-        totalProductPrice: { $sum: "$products.productPrice" },  // Sum of productPrice fields
-        totalPayableAmount: { $first: "$payableAmount" },  // Get the payableAmount for each order
-      },
-    },
-    {
-      $project: {
-        _id: 1,
-        totalProductPrice: 1,
-        totalPayableAmount: 1,
-        deduction: {
-          $subtract: ["$totalProductPrice", "$totalPayableAmount"],  // Calculate the difference
-        },
-      },
-    },
-  ]);
-
-  // Map discounts to orders
-  orders = orders.map(order => {
-    const discount = discounts.find(d => d._id.toString() === order._id.toString());
-    return {
-        ...order.toObject(), // Convert mongoose document to plain object
-        discount: discount ? discount.deduction : 0
-    };
-});
+    
 console.log('admin controller loaddashboard orders:',orders);
 
           

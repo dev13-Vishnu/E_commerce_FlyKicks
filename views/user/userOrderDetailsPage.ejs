@@ -564,9 +564,9 @@ form .inputBox input:valid ~ i {
                                                     </div>
                                                 </a>
                                             </td>
-                                            <td style="border: none;" class="text-center"> ₹<%= (product.productPrice).toFixed(2) %> </td>
+                                            <td style="border: none;" class="text-center"> ₹<%= (order.freeShipping ? order.payableAmount : (order.payableAmount - 500)).toFixed(2) %></td>
                                             <td style="border: none;" class="text-center"> <%= product.quantity %> </td>
-                                            <td style="border: none;" class="text-end">₹<%= (product.productPrice * product.quantity).toFixed(2) %> </td>
+                                            <td style="border: none;" class="text-end"> ₹<%= ((order.freeShipping ? order.payableAmount : (order.payableAmount - 500)) * product.quantity).toFixed(2) %></td>
                                             <td style="border: none;" class="text-center">
                                               <%=product.status %> |
                                               <% if (product.status === 'Pending' || product.status === 'Processing') { %>
@@ -620,7 +620,7 @@ form .inputBox input:valid ~ i {
                                                         </dd>
                                                         </dl>
                                                         
-                                                        <% if (order.paymentStatus === 'Failed') { %>
+                                                        <% if (order.paymentStatus === 'Pending') { %>
                                                             <button class="btn btn-primary mt-2" onclick="retryPayment('<%= order._id %>', '<%= order.payableAmount %>')">Retry Payment</button>
                                                         <% } %>
                                                 </article>
@@ -697,42 +697,122 @@ form .inputBox input:valid ~ i {
 
     // razorpay
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script>function retryPayment(orderId, orderTotalAmount) {
-    // Example Razorpay payment options
-    const options = {
-        key: "rzp_test_PzzQcMyTJaFFpy",
-        amount: orderTotalAmount * 100, // Convert to paisa
-        currency: "INR",
-        order_id: orderId,
-        handler: function (response) {
-            // Send payment details to the backend
-            fetch('/api/retry-payment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
+    <script>
+      async function retryPayment(orderId, amount) {
+    try {
+      
+        const retryResponse = await fetch('/retry-payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ orderId, amount })
+        });
+
+        if (retryResponse.ok) {
+          console.log("Retry payment response:", retryResponse);
+            const retryData = await retryResponse.json();
+            console.log("Retry payment data:", retryData);
+
+            // Construct options for the Razorpay payment modal
+            // Razorpay options with handler for successful payment
+            const options = {
+                key: 'rzp_test_PzzQcMyTJaFFpy',
+                amount: retryData.razorpayOrder.amount,
+                currency: 'INR',
+                name: 'Fly_kickz',
+                description: 'Retry Payment',
+                order_id: retryData.razorpayOrder.id,  // Ensure order_id is sent
+                prefill: {
+                    contact: '9000090000',
+                    email: 'customer@example.com',
+                    name: 'Customer Name',
                 },
-                body: JSON.stringify({
-                    orderId: orderId,
-                    amount: orderTotalAmount * 100,
-                    paymentDetails: response
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Payment retried successfully');
-                    // Optionally reload the page or update the UI
-                } else {
-                    alert('Payment retry failed: ' + data.message);
+                theme: {
+                    color: '#3399cc'
+                },
+                handler: async function (response) {
+                    // Log Razorpay payment response
+                    console.log('Razorpay payment response:', response);
+
+                    // Now capture the payment response and retry data to send for verification
+                    const payment = {
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_order_id: response.razorpay_order_id, // Capture the razorpay_order_id
+                        razorpay_signature: response.razorpay_signature, // Capture the signature for verification
+                    };
+
+                    // Log the payment object before sending it to the backend
+                    console.log('Payment object:', payment);
+                    console.log('Retry data object:', retryData);
+
+                    // Send to verify-retry-payment endpoint
+                    verifyRetryPayment(payment, retryData);
                 }
-            })
-            .catch(err => console.error('Error during payment retry:', err));
-        },
-        // Additional Razorpay options here...
+            };
+
+            // Creating a new Razorpay payment instance
+            const rzp = new Razorpay(options);
+            rzp.open();
+
+        } else {
+            console.error("Failed to initiate retry payment");
+        }
+    } catch (error) {
+        console.error('Error during retry payment:', error);
+    }
+}
+
+// Function to verify retry payment
+async function verifyRetryPayment(payment, retryData) {
+    // Log the payment and retryData before sending the request
+    console.log('Payment object:', payment);        // Log payment details
+    console.log('Retry data object:', retryData);   // Log retry data details
+
+    // Assuming order._id is available
+    const payload = {
+      payment: {
+        razorpay_payment_id: payment.razorpay_payment_id, // Use payment object here
+        razorpay_order_id: payment.razorpay_order_id,     // Use payment object here
+        razorpay_signature: payment.razorpay_signature    // Use payment object here
+      },
+      order: {
+        _id: '<%=order._id%>', // Send order._id
+        success: true,
+        razorpayOrder: retryData.razorpayOrder,  // Ensure you send the correct retryOrder data
+        message: 'Retry payment order created successfully'
+      }
     };
-    
-    const rzp = new Razorpay(options);
-    rzp.open();
+
+    console.log('Payload for verify-retry-payment:', payload);  // Log full payload
+
+    const response = await fetch('/verify-retry-payment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    });
+
+    // Check the response status to debug the error
+    if (response.ok) {
+        console.log('Payment verification successful:', await response.json());
+        Swal.fire({
+            icon: 'success',
+            title: 'Payment Successful',
+            text: 'Your payment has been completed.',
+            confirmButtonText: 'OK'
+        }).then(() => {
+            window.location.href = '/account';
+        });
+    } else {
+        console.error('Payment verification failed:', await response.json());
+        Swal.fire({
+            icon: 'error',
+            title: 'Payment Failed',
+            text: 'Please try again.',
+        });
+    }
 }
 
 </script>

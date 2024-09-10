@@ -120,6 +120,10 @@ const orderSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    discounts: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

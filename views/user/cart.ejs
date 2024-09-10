@@ -603,7 +603,15 @@
                                             <p class="font-xs">Size : <%=product.size%>
                                             </p>
                                         </td>
-                                        <td class="price" data-title="Price"><span>₹<%=product.productId.price %>/- </span></td>
+                                        <td class="price" data-title="Price">
+                                            <% if (product.productId.offer && product.productId.offer.isActive) { %>
+                                              <span class="original-price text-muted" style="text-decoration: line-through;">₹<%= product.productId.price %>/-</span>
+                                              <span class="discounted-price">₹<%= product.product_price %>/-</span>
+                                            <% } else { %>
+                                              <span>₹<%= product.product_price %>/-</span>
+                                            <% } %>
+                                        </td>
+                                        
                                         <td class="text-center" data-title="Stock">
                                             <div class="detail-qty border radius  m-auto">
                                                 <a href="#" class="qty-down"
@@ -622,6 +630,7 @@
                                         <td class="text-right" data-title="Cart">
                                             <span>₹<%=product.total_price%>/-</span>
                                         </td>
+                                        
                                         <td class="action" data-title="Remove">
                                             <button class="btn bg-dark btn-sm remove-from-cart"
                                             data-product-id="<%=product.productId._id    %>"
@@ -644,56 +653,7 @@
                         </div>
                         <div class="divider center_icon mt-50 mb-50"><i class="fi-rs-fingerprint"></i></div>
                         <div class="row mb-50">
-                            <!-- <div class="col-lg-6 col-md-12">
-                                <div class="heading_s1 mb-3">
-                                    <h4>Calculate Shipping</h4>
-                                </div>
-                                <p class="mt-15 mb-30">Flat rate: <span class="font-xl text-brand fw-900">5%</span></p>
-                                <form class="field_form shipping_calculator">
-                                    <div class="form-row">
-                                        <div class="form-group col-lg-12">
-                                            <div class="custom_select">
-                                                <select class="form-control select-active">
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-row row">
-                                        <div class="form-group col-lg-6">
-                                            <input required="required" placeholder="State / Country" name="name" type="text">
-                                        </div>
-                                        <div class="form-group col-lg-6">
-                                            <input required="required" placeholder="PostCode / ZIP" name="name" type="text">
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group col-lg-12">
-                                            <button class="btn  btn-sm"><i class="fi-rs-shuffle mr-10"></i>Update</button>
-                                        </div>
-                                    </div>
-                                </form>
-                                <div class="mb-30 mt-50">
-                                    <div class="heading_s1 mb-3">
-                                        <h4>Apply Coupon</h4>
-                                    </div>
-                                    <div class="total-amount">
-                                        <div class="left">
-                                            <div class="coupon">
-                                                <form action="#" target="_blank">
-                                                    <div class="form-row row justify-content-center">
-                                                        <div class="form-group col-lg-6">
-                                                            <input class="font-medium" name="Coupon" placeholder="Enter Your Coupon">
-                                                        </div>
-                                                        <div class="form-group col-lg-6">
-                                                            <button class="btn  btn-sm"><i class="fi-rs-label mr-10"></i>Apply</button>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> -->
+                            
                             <div class="col-lg-6 col-md-12">
                                 <div class="border p-md-4 p-30 border-radius cart-totals">
                                     <div class="heading_s1 mb-3">
@@ -801,8 +761,7 @@
     <!-- sweetalert -->
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <script>
-    document.querySelectorAll('.qty-up').forEach(button => {
+    <script>document.querySelectorAll('.qty-up').forEach(button => {
         button.addEventListener('click', async function (event) {
             event.preventDefault();
             const productId = this.dataset.productId;
@@ -820,12 +779,12 @@
                     text: 'Cannot increase quantity beyond available stock or purchasing limit.',
                 }).then(() => {
                     newQuantity = Math.min(stock, 10);
-                qtyValElement.textContent = newQuantity;
-                updateSubtotal(cartItemElement, newQuantity);
-                updateTotal();
-            });
-            return;
-        }
+                    qtyValElement.textContent = newQuantity;
+                    updateSubtotal(cartItemElement, newQuantity);
+                    updateTotal();
+                });
+                return;
+            }
     
             try {
                 const response = await fetch('/update-cart', {
@@ -837,9 +796,9 @@
                 });
     
                 if (response.ok) {
-                qtyValElement.textContent = newQuantity;
-                updateSubtotal(cartItemElement, newQuantity);
-                updateTotal();
+                    qtyValElement.textContent = newQuantity;
+                    updateSubtotal(cartItemElement, newQuantity);
+                    updateTotal();
                 } else {
                     const errorData = await response.json();
                     Swal.fire({
@@ -874,11 +833,11 @@
                     title: 'Invalid Quantity',
                     text: 'Quantity cannot be less than 1.',
                 });
-            newQuantity = 1;
-            qtyValElement.textContent = newQuantity;
-            updateSubtotal(cartItemElement, newQuantity);
-            updateTotal();
-            return;
+                newQuantity = 1;
+                qtyValElement.textContent = newQuantity;
+                updateSubtotal(cartItemElement, newQuantity);
+                updateTotal();
+                return;
             }
     
             try {
@@ -891,9 +850,9 @@
                 });
     
                 if (response.ok) {
-                qtyValElement.textContent = newQuantity;
-                updateSubtotal(cartItemElement, newQuantity);
-                updateTotal();
+                    qtyValElement.textContent = newQuantity;
+                    updateSubtotal(cartItemElement, newQuantity);
+                    updateTotal();
                 } else {
                     const errorData = await response.json();
                     Swal.fire({
@@ -913,37 +872,75 @@
         });
     });
 
+    
+    function updateSubtotal(cartItemElement, quantity) {
+    if (!cartItemElement) {
+        console.error('Cart item element not found');
+        return;
+    }
 
+    // console.log('Cart Item Element:', cartItemElement);
 
-function updateSubtotal(cartItemElement, quantity) {
+    // Adjust selector to match the current HTML structure
     const priceElement = cartItemElement.querySelector('.price span');
-    const price = parseInt(priceElement.textContent.replace('₹', '').replace('/-', ''), 10);
+    if (!priceElement) {
+        console.error('Price element not found in:', cartItemElement);
+        console.log('Current HTML:', cartItemElement.innerHTML);  // Log HTML structure
+        return;
+    }
+
+    // Parse price from the text content
+    const priceText = priceElement.textContent.replace('₹', '').replace('/-', '').trim();
+    const price = parseFloat(priceText);
+
+    if (isNaN(price)) {
+        console.error('Invalid price value:', priceText);
+        return;
+    }
+
+    // Find the subtotal element and update its text content
     const subtotalElement = cartItemElement.querySelector('[data-title="Cart"] span');
-    subtotalElement.textContent = `₹${price * quantity}/-`;
+    if (!subtotalElement) {
+        console.error('Subtotal element not found in:', cartItemElement);
+        return;
+    }
+
+    subtotalElement.textContent = `₹${(price * quantity).toFixed(2)}/-`;
 }
 
+
+
 function updateTotal() {
-    let total = 0; // Reset the total
+    let subtotal = 0; // Reset the subtotal
 
     document.querySelectorAll('.cart-item').forEach(item => {
         const subtotalElement = item.querySelector('[data-title="Cart"] span');
-        total += parseInt(subtotalElement.textContent.replace('₹', '').replace('/-', ''), 10);
+        subtotal += parseFloat(subtotalElement.textContent.replace('₹', '').replace('/-', '').trim());
     });
 
-    const totalElement = document.querySelector('.cart_total_amount span.font-lg');
-    if (totalElement) {
-        totalElement.textContent = `₹${total}/-`;
+    const subtotalElement = document.querySelector('.cart_total_amount span.font-lg');
+    if (subtotalElement) {
+        subtotalElement.textContent = `₹${subtotal.toFixed(2)}/-`;
     }
 
     // Update the final total with shipping
     const shippingElement = document.querySelector('.cart_total_amount span.font-xl');
     if (shippingElement) {
-        const finalTotal = total < 10000 ? total + 500 : total;
-        shippingElement.textContent = `₹${finalTotal}/-`;
+        const finalTotal = subtotal < 10000 ? subtotal + 500 : subtotal;
+        shippingElement.textContent = `₹${finalTotal.toFixed(2)}/-`;
+    }
+
+    // Update the shipping text
+    const shippingTextElement = document.querySelector('.cart_total_amount i.ti-gift');
+    if (shippingTextElement) {
+        shippingTextElement.nextSibling.textContent = subtotal < 10000 
+            ? '₹500/- (Free shipping for orders above ₹10000/-)' 
+            : 'Free Shipping';
     }
 }
 
-        document.querySelectorAll('.remove-from-cart').forEach(button => {
+//remove from cart
+document.querySelectorAll('.remove-from-cart').forEach(button => {
     button.addEventListener('click', async () => {
         const productId = button.getAttribute('data-product-id');
         const size = button.getAttribute('data-size');
