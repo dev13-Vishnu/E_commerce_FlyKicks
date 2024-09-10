@@ -254,7 +254,7 @@ const totalPages = Math.ceil(totalOrdersPagination / limit);
 
     
     
-console.log('admin controller loaddashboard orders:',orders);
+// console.log('admin controller loaddashboard orders:',orders);
 
           
 

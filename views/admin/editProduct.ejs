@@ -80,6 +80,42 @@
             background-color : red;
             
         }
+/* Style for image container and position the remove button */
+.img-preview-container {
+    position: relative;
+    display: inline-block;
+    margin: 10px;
+}
+
+.cropped-image {
+    width: 150px; /* Adjust as needed */
+    height: 150px; /* Adjust as needed */
+    object-fit: cover; /* Ensures image fits the container */
+    border: 1px solid #ddd; /* Optional styling */
+}
+
+/* Position the remove button in the top-right corner */
+.remove-preImage-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: #ff4d4d; /* Optional: make the button more visible */
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    font-size: 16px;
+    line-height: 25px;
+    text-align: center;
+    padding: 0;
+    cursor: pointer;
+}
+
+/* Optional: Hover effect for the remove button */
+.remove-preImage-btn:hover {
+    background-color: #e60000;
+}
 
 
     </style>
@@ -149,12 +185,16 @@
                                     <div class="col-sm-6 mb-3">
                                         <label class="form-label">Category</label>
                                         <select name="product_category" id="product_category" class="form-select">
-                                            <% for(let i=0 ; i < categoryData.length ; i++ ) { %>
+                                            <% for(let i = 0; i < categoryData.length; i++) { %>
                                                 <% if(!categoryData[i].delete) { %>
-                                            <option value="<%= categoryData[i]._id %>"><%= categoryData[i].name %></option>
+                                                    <option value="<%= categoryData[i]._id %>" 
+                                                        <%= categoryData[i]._id.equals(productData.category._id) ? 'selected' : '' %>>
+                                                        <%= categoryData[i].name %>
+                                                    </option>
                                                 <% } %>
                                             <% } %>
                                         </select>
+                                        
                                     </div>
                                     <!-- <div class="col-lg-4">
                                         <label class="form-label">Currency</label>
@@ -257,13 +297,14 @@
                                                     <label for="imageUpload" class="form-label">Upload Images</label>
                                                     <input type="file" class="form-control" id="imageUpload" name="images" accept="image/*" >
                                                 </div>
-                                                
+                                                <!-- Image Preview Container -->
+                                    <div class="container">
+                                        <div id="previewContainer"></div>
+                                    </div>
 
                                             </div>
-                                    <!-- Image Preview Container -->
-                                        <div class="container">
-                                        <div id="previewContainer"></div>
-                                        </div>
+                                    
+
                                         </div> 
                                         <div class="card mb-4">
                                             <div class="card-header">
@@ -387,22 +428,52 @@
         });
     
         $('#cropButton').on('click', function () {
-            const file = $(this).data('file');
-            const canvas = cropper.getCroppedCanvas();
-    
-            canvas.toBlob(function (blob) {
-                const uniqueName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${file.name}`;
-                const croppedFile = new File([blob], uniqueName, { type: 'image/jpeg', lastModified: Date.now() });
-                croppedFiles.push(croppedFile);
-    
-                const url = URL.createObjectURL(blob);
-                const img = document.createElement('img');
-                img.src = url;
-                $('#previewContainer').append(img);
-    
-                $('#cropModal').css('display', 'none');
-            }, 'image/jpeg');
-        });
+    const file = $(this).data('file');
+    const canvas = cropper.getCroppedCanvas();
+
+    canvas.toBlob(function (blob) {
+        const uniqueName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${file.name}`;
+        const croppedFile = new File([blob], uniqueName, { type: 'image/jpeg', lastModified: Date.now() });
+        croppedFiles.push(croppedFile);
+
+        const url = URL.createObjectURL(blob);
+
+        const imgContainer = document.createElement('div');
+        imgContainer.classList.add('img-preview-container','position-relative');
+        
+        const img = document.createElement('img');
+        img.src = url;
+        img.classList.add('cropped-image'); // add class to image for styling
+        imgContainer.appendChild(img);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = 'X';
+        removeBtn.classList.add('btn','btn-sm','remove-preImage-btn','position-absolute','top-0','end-0');
+        removeBtn.setAttribute('data-index', croppedFiles.length - 1);
+
+        imgContainer.appendChild(removeBtn);
+        $('#previewContainer').append(imgContainer);
+
+        $('#cropModal').css('display', 'none');
+    }, 'image/jpeg');
+});
+
+// Remove Image Functionality
+$(document).on('click', '.remove-preImage-btn', function () {
+    const index = $(this).data('index');
+
+    // Remove the preImage from the croppedFiles array
+    croppedFiles.splice(index, 1);
+
+    // Remove the preview preImage container
+    $(this).parent('.img-preview-container').remove();
+
+    // Update the indexes of remaining remove buttons
+    $('.remove-preImage-btn').each(function (i) {
+        $(this).data('index', i);
+    });
+});
+
     
         document.getElementById('submitBtn').addEventListener('click', async function () {
             const form = document.getElementById('editProductForm');
@@ -424,7 +495,9 @@
                 const result = await response.json();
     
                 if (response.ok) {
+                    alert('success')
                     Swal.fire(
+
                         'Success!',
                         'The product has been updated.',
                         'success'

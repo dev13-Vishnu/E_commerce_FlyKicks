@@ -87,6 +87,8 @@ const placeOrderCOD = async (req, res) => {
 
       const address = addressDoc.address[0];
 
+      let numOfItems = 0;
+
       // Fetch the user's cart
       const cart = await Cart.findOne({ userId }).populate('products.productId');
       if (!cart) return res.status(404).json({ success: false, message: 'Cart not found' });

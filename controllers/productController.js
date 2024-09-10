@@ -113,10 +113,9 @@ const loadProducts = async(req,res)=>{
 const loadEditProduct = async (req, res) => {
     try {
         const productId = req.query.productId;
-        console.log
 
 
-        console.log('loadEditProduct req.query:',req.query);
+        // console.log('loadEditProduct req.query:',req.query);
         // console.log('loadEditProduct req.query.id:',id);
         // console.log('loadEditProduct req.query.id:',id);
         const categoryData = await Category.find({});
@@ -202,6 +201,7 @@ const editProduct = async (req, res) => {
             const { product_name, description, product_Aprice, product_Pprice, product_category, stock } = req.body;
             const imageFiles = req.files;
             let images = [];
+            console.log('productController editProduct req.body:',req.body);
 
             if (imageFiles && imageFiles.length > 0) {
                 images = imageFiles.map(file => path.join('uploads', path.basename(file.path)).replace(/\\/g, '/'));
@@ -209,6 +209,7 @@ const editProduct = async (req, res) => {
 
             const productData = await Product.findOne({ _id: productId });
 
+            console.log('productController editProduct productData:',productData);
             if (!productData) {
                 return res.status(404).json({ message: 'Product not found' });
             }
