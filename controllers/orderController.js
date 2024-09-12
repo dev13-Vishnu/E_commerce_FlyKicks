@@ -45,20 +45,52 @@ const cancelOrder = async(req,res) =>{
         res.status(500).json({success:false,message: 'Failed to cancel order'})
     }
 }
-const loadCheckout = async(req,res) =>{ 
+const loadCheckout = async(req, res) => { 
     try {
       const searchQuery = req.query.q;
       const sortQuery = req.query.sort;
       const categoryQuery = req.query.category || '';
-
+  
       const userId = req.session.user._id;
       const addressData = await Address.find({userId});
       const userData = await User.findById(userId);
-      const cart = await Cart.findOne({userId}).populate('products.productId')
-
-      
-    //   console.log('cartControl.loadCheckout cart:',cart);
-      res.render('user/checkout',{
+      const cart = await Cart.findOne({userId}).populate('products.productId');
+  
+      // Calculate the actual total price (without any discount)
+      let actualTotalPrice = 0;
+      cart.products.forEach(product => {
+        actualTotalPrice += product.productId.price * product.quantity;
+      });
+  
+      // Calculate the order total amount after discount (or get from the cart)
+      let orderTotalAmount = 0;
+      cart.products.forEach(product => {
+        orderTotalAmount += product.product_price * product.quantity;
+      });
+  
+      // Determine if the order qualifies for free shipping
+      const freeShipping = orderTotalAmount >= 10000;
+  
+      // Calculate the discount amount for each product and map it to the cart
+      cart.products = cart.products.map(product => {
+        const productTotal = product.productId.price * product.quantity;
+        const discountedTotal = product.product_price * product.quantity;
+        
+        // Calculate discount amount per product
+        const discountAmount = productTotal - discountedTotal;
+  
+        // Attach discount amount to the product object
+        return {
+          ...product.toObject(), // Convert to plain object
+          discountAmount: discountAmount.toFixed(2) // Format to 2 decimal places
+        };
+      });
+  
+      // Log to see the modified cart with discount amounts
+      console.log('Modified Cart:', cart.products);
+  
+      // Render the checkout page
+      res.render('user/checkout', {
         userData,
         cart,
         addressData,
@@ -67,11 +99,10 @@ const loadCheckout = async(req,res) =>{
         sortQuery
       });
     } catch (error) {
-      
-      console.log('Error from cartController.loadCheckout',error);
+      console.log('Error from cartController.loadCheckout', error);
     }
-  }
-
+  };
+  
   
   // Controller to handle COD orders
 const placeOrderCOD = async (req, res) => {
@@ -105,7 +136,7 @@ const placeOrderCOD = async (req, res) => {
       //Calculate the discount Amount
       let discountAmount ;
     
-      if(freeshipping) {
+      if(freeShipping) {
         discountAmount =  actualTotalPrice - orderTotalAmount;
       }else{
         discountAmount = (actualTotalPrice+500) - orderTotalAmount;
@@ -218,7 +249,7 @@ const verifyPayment = async (req, res) => {
       //Calculate the discount Amount
       let discountAmount ;
     
-      if(freeshipping) {
+      if(freeShipping) {
         discountAmount =  actualTotalPrice - orderTotalAmount;
       }else{
         discountAmount = (actualTotalPrice+500) - orderTotalAmount;
@@ -400,7 +431,7 @@ const placeOrderWallet = async (req, res) => {
       //Calculate the discount Amount
       let discountAmount ;
     
-      if(freeshipping) {
+      if(freeShipping) {
         discountAmount =  actualTotalPrice - orderTotalAmount;
       }else{
         discountAmount = (actualTotalPrice+500) - orderTotalAmount;

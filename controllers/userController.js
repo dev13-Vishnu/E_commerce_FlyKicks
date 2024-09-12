@@ -309,8 +309,6 @@ const loadHome = async (req, res, next) => {
     const sortQuery = req.query.sort || '';
     const categoryQuery = req.query.category || '';
 
-    console.log('userControllre load home categoryquery:',categoryQuery);
-
     const userId = req.session.user._id;
     const userData = await User.findById(userId);
 
@@ -333,12 +331,10 @@ const loadHome = async (req, res, next) => {
     if (searchQuery) {
       filter.name = { $regex: searchQuery, $options: 'i' };
     }
-    
+
     // Convert category name to ObjectId
     if (categoryQuery) {
       const category = await Category.findOne({ name: categoryQuery });
-       
-      console.log("Category found:", category); // Debugging line
       if (category) {
         filter.category = category._id; // Use the ObjectId
       } else {
@@ -366,28 +362,40 @@ const loadHome = async (req, res, next) => {
       let productOfferName = '';
       let categoryOfferName = '';
 
+      // Apply category offer if it exists
       if (product.category && product.category.offer) {
         const categoryDiscount = parseFloat(product.category.offer.discount);
         categoryDiscountedPrice = product.price - (product.price * categoryDiscount) / 100;
         categoryOfferName = product.category.offer.offerName;
       }
 
+      // Apply product offer if it exists
       if (product.offer) {
         const productDiscount = parseFloat(product.offer.discount);
         productDiscountedPrice = product.price - (product.price * productDiscount) / 100;
         productOfferName = product.offer.offerName;
       }
 
+      // If both product and category offers exist, apply the better offer
       if (product.offer && productDiscountedPrice < categoryDiscountedPrice) {
         product.discountedPrice = productDiscountedPrice;
         product.appliedOffer = productOfferName;
-      } else if (product.category && product.category.offer) {
+      } 
+      // Apply category offer if it exists alone or if it's better than product offer
+      else if (product.category && product.category.offer) {
         product.discountedPrice = categoryDiscountedPrice;
         product.appliedOffer = categoryOfferName;
-      } else if (product.offer) {
+      } 
+      // If only product offer exists, apply it
+      else if (product.offer) {
         product.discountedPrice = productDiscountedPrice;
         product.appliedOffer = productOfferName;
+      } else {
+        product.discountedPrice = product.price; // No offer applied
       }
+
+      console.log('userController load home product.price',product.price);
+      console.log('userController load home product.discountedPrice',product.discountedPrice);
 
       product.image = product.image.map(img => img.replace(/\\/g, '/'));
     });
@@ -406,6 +414,7 @@ const loadHome = async (req, res, next) => {
     next(error);
   }
 };
+
 
 
 

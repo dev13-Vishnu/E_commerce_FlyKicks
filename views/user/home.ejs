@@ -717,19 +717,26 @@
                               </span>
                             </div>
                             <div class="product-price">
-                              <% if (product.offer) { %>
-                                <span id="discountedPrice-<%=product._id %>">₹<%=product.discountedPrice%>/-
-                                </span>
-                                <span class="old-price">₹<%=product.price%>/-</span>
-                                <div class="offer-details">
-                                  <span class="offer-details" style="font-size: .9rem;">Offer:  <% if (product.appliedOffer) { %>
-                                    <p>Offer: <%= product.appliedOffer %></p>
-                                <% } %></span>
+                              <% if (product.discountedPrice < product.price) { %>
+                                <!-- Display discounted price with two decimal places -->
+                                <span id="discountedPrice-<%= product._id %>">₹<%= product.discountedPrice.toFixed(2) %>/-</span>
+                                
+                                <!-- Display old price with two decimal places -->
+                                <span class="old-price">₹<%= product.price.toFixed(2) %>/-</span>
+                                
+                                <!-- Show offer name and discount percentage -->
+                                <div class="offer-details" style="font-size: .9rem;">
+                                  <p>Offer: <%= product.appliedOffer %> (<%= 
+                                    Math.round(((product.price - product.discountedPrice) / product.price) * 100) 
+                                  %>%)</p>
                                 </div>
+                            
                               <% } else { %>
-                                <span id="price-<%=product._id %>">₹<%=product.price%>/-</span>
+                                <!-- Display original price if no discount is applied -->
+                                <span id="price-<%= product._id %>">₹<%= product.price.toFixed(2) %>/-</span>
                               <% } %>
                             </div>
+                            
                             <div class="product-action-1 show">
                               <a
                                 aria-label="Add To Cart"
