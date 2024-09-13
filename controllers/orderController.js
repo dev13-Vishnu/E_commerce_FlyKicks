@@ -87,7 +87,7 @@ const loadCheckout = async(req, res) => {
       });
   
       // Log to see the modified cart with discount amounts
-      console.log('Modified Cart:', cart.products);
+    //   console.log('Modified Cart:', cart.products);
   
       // Render the checkout page
       res.render('user/checkout', {
@@ -130,6 +130,7 @@ const placeOrderCOD = async (req, res) => {
         actualTotalPrice += product.productId.price * product.quantity
       })
 
+      
       // Determine if the order qualifies for free shipping
       const freeShipping = orderTotalAmount >= 10000;
 
@@ -243,6 +244,7 @@ const verifyPayment = async (req, res) => {
         actualTotalPrice += product.productId.price * product.quantity
       })
 
+      let orderTotalAmount = data.amount;
       // Determine if the order qualifies for free shipping
       const freeShipping = orderTotalAmount >= 10000;
 

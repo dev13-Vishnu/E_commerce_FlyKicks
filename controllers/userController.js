@@ -487,10 +487,10 @@ const loadProductDetails = async (req,res) =>{
       product.appliedOffer = productOfferName;
     }
 
-console.log('userController loadProductDetaislpage product.pice:',product.price)
-console.log('userController loadProductDetaislpage:',product.price);
-console.log('userController loadProductDetaislpage productDiscountedPrice:',productDiscountedPrice);
-console.log('userController loadProductDetaislpage categoryDiscountedPrice: ',categoryDiscountedPrice);
+// console.log('userController loadProductDetaislpage product.pice:',product.price)
+// console.log('userController loadProductDetaislpage:',product.price);
+// console.log('userController loadProductDetaislpage productDiscountedPrice:',productDiscountedPrice);
+// console.log('userController loadProductDetaislpage categoryDiscountedPrice: ',categoryDiscountedPrice);
  
 
     //product image 
