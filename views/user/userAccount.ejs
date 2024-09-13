@@ -477,7 +477,7 @@
                                             <th>Status</th>
                                             <th>Total</th>
                                             <th>Details</th> <!-- New Details column -->
-                                            <th>Actions</th>
+                                            <!-- <th>Actions</th> -->
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -498,13 +498,13 @@
                                                         <a href="order-details?orderObjectId=<%= order._id %>" class="btn btn-sm btn-brand">View</a>
                                                     </td>
                                 
-                                                    <td>
+                                                    <!-- <td>
                                                         <% if(order.products[0].status === 'Pending'){ %>
                                                             <a href="#" onclick="cancelOrder('<%= order._id %>')" class="btn-small d-block">Cancel</a>
                                                         <% } else { %>
                                                             <span class="text-muted">Cannot Cancel</span>
                                                         <% } %>
-                                                    </td>
+                                                    </td> -->
                                                 </tr>
                                             <% }); %>
                                         <% } else { %>

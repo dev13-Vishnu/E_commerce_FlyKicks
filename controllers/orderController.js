@@ -151,7 +151,7 @@ const placeOrderCOD = async (req, res) => {
               productId: product.productId._id,
               size: product.size,
               quantity: product.quantity,
-              productPrice: product.productId.promo_price,
+              productPrice: product.product_price,
           })),
           address: {
               name: address.name,
@@ -269,7 +269,7 @@ const verifyPayment = async (req, res) => {
                   productId: product.productId._id,
                   size: product.size,
                   quantity: product.quantity,
-                  productPrice: product.productId.promo_price,
+                  productPrice: product.product_price,
               })),
               address: {
                   name: address.name,
@@ -336,7 +336,7 @@ const payment_failure = async (req,res) => {
                 productId: product.productId._id,
                 size: product.size,
                 quantity: product.quantity,
-                productPrice: product.productId.promo_price,
+                productPrice: product.product_price,
                 product_orderStatus: 'payment pending',
                 payment_method: { method: 'RazorPay' },
                 payment_status: 'Failed',
@@ -447,7 +447,7 @@ const placeOrderWallet = async (req, res) => {
                 productId: product.productId._id,
                 size: product.size,
                 quantity: product.quantity,
-                productPrice: product.productId.promo_price,
+                productPrice: product.product_price,
             })),
             address: {
                 name: address.name,
@@ -690,7 +690,7 @@ const cancelIndividualProduct = async (req, res) => {
         await product.save();
 
         // Calculate cost reduction
-        const productCost = productInOrder.quantity * product.promo_price;
+        const productCost = productInOrder.quantity * productInOrder.productPrice;
         console.log('orderController cancelIndividualProduct productCost:',productCost);
         order.payableAmount -= productCost;
 
@@ -769,7 +769,7 @@ const returnProduct = async (req,res)=> {
         await product.save();
 
         //Adjust the payable amount
-        const productCost = productInOrder.quantity * product.promo_price;
+        const productCost = productInOrder.quantity * productInOrder.productPrice;
         order.payableAmount -= productCost;
 
          // Add product cost to the wallet if payment status is 'Success'

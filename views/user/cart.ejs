@@ -605,10 +605,10 @@
                                         </td>
                                         <td class="price" data-title="Price">
                                             <% if (product.productId.offer && product.productId.offer.isActive) { %>
-                                              <span class="original-price text-muted" style="text-decoration: line-through;">₹<%= product.productId.price %>/-</span>
-                                              <span class="discounted-price">₹<%= product.product_price %>/-</span>
+                                              <span class="original-price text-muted" style="text-decoration: line-through;">₹<%= product.productId.price.toFixed(2) %>/-</span>
+                                              <span class="discounted-price">₹<%= product.product_price.toFixed(2) %>/-</span>
                                             <% } else { %>
-                                              <span>₹<%= product.product_price %>/-</span>
+                                              <span>₹<%= product.product_price.toFixed(2) %>/-</span>
                                             <% } %>
                                         </td>
                                         
@@ -664,7 +664,7 @@
                                             <tbody>
                                                 <tr>
                                                     <td class="cart_total_label">Cart Subtotal</td>
-                                                    <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">₹<%=cart.total %>/-</span></td>
+                                                    <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">₹<%=cart.total.toFixed(2) %>/-</span></td>
                                                 </tr>
                             
                                                 <% if (cart.total < 10000) { %>
@@ -675,7 +675,7 @@
                                                 <tr>
                                                     <td class="cart_total_label">Total</td>
                                                     <td class="cart_total_amount">
-                                                        <strong><span class="font-xl fw-900 text-brand">₹<%=cart.total.toFixed(2) %>/-</span></strong>
+                                                        <strong><span class="font-xl fw-900 text-brand">₹<%=(cart.total+500).toFixed(2) %>/-</span></strong>
                                                     </td>
                                                 </tr>
                                                 <% } else { %>
