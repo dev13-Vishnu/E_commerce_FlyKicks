@@ -774,7 +774,6 @@
                             <%});%>
                         <%} %>
 
-                        
                         </div>
                         <div class="pt-10 container">
                             <button
@@ -986,12 +985,12 @@
                         <!-- Shipping logic -->
                         <tr>
                             <th>Shipping</th>
-                            <td colspan="3"><em>₹500/-(Free shipping for orders above ₹10000/-)</em></td>
+                            <td colspan="3" id="shippingStatus"><em>₹500/-(Free shipping for orders above ₹10000/-)</em></td>
                         </tr>
                         <tr>
                             <th>Final Total with Shipping</th>
                             <td id="product_overall_subtotal" colspan="3" class="product-overall-subtotal">
-                                ₹<span id="subtotal" class="font-xl text-brand fw-900">
+                                <span id="subtotal" class="font-xl text-brand fw-900">₹
                                     <%= (cart.total + 500).toFixed(2) %>
                                 </span>/-
                             </td>
@@ -1000,12 +999,12 @@
                         <!-- Free shipping logic -->
                         <tr>
                             <th>Shipping</th>
-                            <td colspan="3"><em>Free Shipping</em></td>
+                            <td colspan="3" id="shippingStatus"><em>Free Shipping</em></td>
                         </tr>
                         <tr>
                             <th>Final Total with Shipping</th>
                             <td id="product_overall_subtotal" colspan="3" class="product-overall-subtotal">
-                                ₹<span id="subtotal" class="font-xl text-brand fw-900">
+                                <span id="subtotal" class="font-xl text-brand fw-900">₹
                                     <%=cart.total.toFixed(2) %>
                                 </span>/-
                             </td>
@@ -1200,15 +1199,23 @@ document.getElementById('couponForm').addEventListener('submit',function (event)
                 document.querySelector('#couponForm button').textContent = 'Remove Coupon';
                 document.querySelector('#couponForm button').style.backgroundColor = 'red';
                 document.getElementById('couponCode').style.display = 'none';
+
+                 // Update the discount amount in the DOM
+                document.getElementById('discount_amount').textContent = `₹${data.totalDiscount}/-`;
                 
-                // Update the UI with the new total price
+                // // Update the UI with the new total price
                 document.querySelector('.product-subtotal').innerText = `₹${data.newTotal}/-`;
 
                 
                 if(data.newTotal< 10000){
-                document.querySelector('.product-overall-subtotal').innerText = `₹${data.newTotal + 500}/-`;
+
+                    document.getElementById('shippingStatus').innerText = '₹500/-(Free shipping for orders above ₹10000/-)'
+
+                document.getElementById('subtotal').innerText = `₹${data.newTotal + 500}/-`;
                 }else{
-                    document.querySelector('.product-overall-subtotal').innerText = `₹${data.newTotal}/-`;
+                    document.getElementById('shippingStatus').innerText = 'Free shipping'
+
+                    document.getElementById('subtotal').innerText = `₹${data.newTotal}/-`;
                 }
             } else { 
                 Swal.fire({
@@ -1257,10 +1264,18 @@ document.querySelector('#couponForm button').addEventListener('click', function(
                         document.querySelector('.product-subtotal').innerText = `₹${data.totalPrice}/-`;
 
                         
+                        // Update the discount amount in the DOM
+                        document.getElementById('discount_amount').textContent = `₹${data.totalDiscount}/-`;
+                
+                        
                         if(data.totalPrice< 10000){
-                        document.querySelector('.product-overall-subtotal').innerText = `₹${data.totalPrice + 500}/-`;
+                    document.getElementById('shippingStatus').innerText = '₹500/-(Free shipping for orders above ₹10000/-)'
+
+                        document.getElementById('subtotal').innerText = `₹${data.totalPrice + 500}/-`;
                         }else{
-                            document.querySelector('.product-overall-subtotal').innerText = `₹${data.totalPrice}/-`;
+                    document.getElementById('shippingStatus').innerText = 'Free shipping'
+
+                            document.getElementById('subtotal').innerText = `₹${data.totalPrice}/-`;
 }
                     });
                 } else {

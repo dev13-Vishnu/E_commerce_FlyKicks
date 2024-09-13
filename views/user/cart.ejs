@@ -628,7 +628,7 @@
                                             <div class="qty-error-message text-danger " ></div>
                                         </td>
                                         <td class="text-right" data-title="Cart">
-                                            <span>₹<%=product.total_price%>/-</span>
+                                            <span>₹<%=(product.total_price).toFixed(2)%>/-</span>
                                         </td>
                                         
                                         <td class="action" data-title="Remove">
@@ -675,7 +675,7 @@
                                                 <tr>
                                                     <td class="cart_total_label">Total</td>
                                                     <td class="cart_total_amount">
-                                                        <strong><span class="font-xl fw-900 text-brand">₹<%=cart.total + 500 %>/-</span></strong>
+                                                        <strong><span class="font-xl fw-900 text-brand">₹<%=cart.total.toFixed(2) %>/-</span></strong>
                                                     </td>
                                                 </tr>
                                                 <% } else { %>
@@ -686,7 +686,7 @@
                                                 <tr>
                                                     <td class="cart_total_label">Total</td>
                                                     <td class="cart_total_amount">
-                                                        <strong><span class="font-xl fw-900 text-brand">₹<%=cart.total %>/-</span></strong>
+                                                        <strong><span class="font-xl fw-900 text-brand">₹<%=cart.total.toFixed(2) %>/-</span></strong>
                                                     </td>
                                                 </tr>
                                                 <% } %>
@@ -891,7 +891,7 @@
 
     // Parse price from the text content
     const priceText = priceElement.textContent.replace('₹', '').replace('/-', '').trim();
-    const price = parseFloat(priceText);
+    const price = parseFloat(priceText).toFixed(2);
 
     if (isNaN(price)) {
         console.error('Invalid price value:', priceText);

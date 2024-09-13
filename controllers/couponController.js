@@ -146,7 +146,7 @@ const applyCoupon = async (req, res) => {
         console.log('anything');
         const userId = req.session.user._id;
 
-        const cart = await Cart.findOne({userId});
+        const cart = await Cart.findOne({userId}).populate('products.productId');
         
         if (!cart) {
             return res.json({ success: false, message: 'Cart not found for the user' });
@@ -185,9 +185,17 @@ const applyCoupon = async (req, res) => {
     const discountAmount = (coupon.offer_percentage / 100) * totalPrice;
         const newTotal = totalPrice - discountAmount;
 
+        let actualTotalPrice = 0;
+        cart.products.forEach(product => {
+            actualTotalPrice += product.productId.price *product.quantity;
+        });
+        // console.log('couponController applycoupon actualTotalPrice:',actualTotalPrice);
+        const totalDiscount = actualTotalPrice - newTotal;
+
+
         //save coupon Id in session
         req.session.appliedCouponId = coupon._id;
-        return res.status(200).json({ success: true, newTotal });
+        return res.status(200).json({ success: true, newTotal, totalDiscount});
     } catch (error) {
         console.error('Error applying coupon:', error);
         return res.status(500).json({ success: false, message: 'An error occurred while applying the coupon' });
@@ -201,7 +209,7 @@ const removeCoupon  = async (req,res) => {
 
         const userId = req.session.user._id;
 
-        const cart = await Cart.findOne({userId});
+        const cart = await Cart.findOne({userId}).populate('products.productId');
         
         if (!cart) {
             return res.json({ success: false, message: 'Cart not found for the user' });
@@ -209,11 +217,18 @@ const removeCoupon  = async (req,res) => {
 
         // Extract the total amount from the cart
         const totalPrice = cart.total;
+
+        let actualTotalPrice = 0;
+        cart.products.forEach(product => {
+            actualTotalPrice += product.productId.price *product.quantity;
+        });
+        // console.log('couponController applycoupon actualTotalPrice:',actualTotalPrice);
+        const totalDiscount = actualTotalPrice - cart.total;
         
         //Remove couponId from session
         req.session.appliedCouponId = null;
 
-        return res.json({success:true, totalPrice});
+        return res.json({success:true, totalPrice, totalDiscount});
     } catch (error) {
         console.error('Error removing coupon:', error);
         return res.status(500).json({ success: false, message: 'An error occurred while removing the coupon' });
