@@ -192,16 +192,16 @@
                                                 <article class="float-end">
                                                     <dl class="dlist">
                                                         <dt>Subtotal:</dt>
-                                                        <dd>₹<%= (order.payableAmount).toFixed(2) %></dd>
+                                                        <dd>₹<%= (order.payableAmount-500).toFixed(2) %></dd>
                                                     </dl>
                                                     <dl class="dlist">
                                                         <dt>Shipping cost:</dt>
-                                                        <dd>₹<%= (order.freeShipping ? 0 : 50).toFixed(2) %></dd>
+                                                        <dd>₹<%= (order.freeShipping ? 0 : 500).toFixed(2) %></dd>
                                                     </dl>
                                                     <dl class="dlist">
                                                         <dt>Grand total:</dt>
                                                         <dd>
-                                                            <b class="h5">₹<%= (order.payableAmount + (order.freeShipping ? 0 : 50)).toFixed(2) %></b>
+                                                            <b class="h5">₹<%= (order.payableAmount ).toFixed(2) %></b>
                                                         </dd>
                                                     </dl>
                                                     <dl class="dlist">

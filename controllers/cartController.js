@@ -10,6 +10,9 @@ const addToCart = async (req, res) => {
   const { productId, size, quantity, price } = req.body; // Get price from request body
   const userId = req.session.user._id;
 
+
+  console.log('cartController addToCart req.body:',req.body);
+  console.log('cartController addToCart price:',price);
   if (!productId || !size || !price) {
       return res.status(400).send('Product ID, size, and price are required.');
   }
@@ -38,7 +41,7 @@ const addToCart = async (req, res) => {
                   productId: product._id,
                   size,
                   quantity,
-                  product_price:price,
+                  product_price:productTotalPrice/quantity,
                   total_price: productTotalPrice
               });
           }

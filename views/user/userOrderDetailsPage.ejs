@@ -564,9 +564,9 @@ form .inputBox input:valid ~ i {
                                                     </div>
                                                 </a>
                                             </td>
-                                            <td style="border: none;" class="text-center"> ₹<%= (order.freeShipping ? product.productPrice : (product.productPrice - 500)).toFixed(2) %></td>
+                                            <td style="border: none;" class="text-center"> ₹<%= product.productPrice.toFixed(2) %></td>
                                             <td style="border: none;" class="text-center"> <%= product.quantity %> </td>
-                                            <td style="border: none;" class="text-end"> ₹<%= ((order.freeShipping ? product.productPrice : (product.productPrice - 500)) * product.quantity).toFixed(2) %></td>
+                                            <td style="border: none;" class="text-end"> ₹<%=product.productPrice * product.quantity.toFixed(2) %></td>
                                             <td style="border: none;" class="text-center">
                                               <%=product.status %> |
                                               <% if (product.status === 'Pending' || product.status === 'Processing') { %>

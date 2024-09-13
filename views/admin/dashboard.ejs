@@ -446,7 +446,8 @@
                     </tr>
                   </thead>
                   <tbody id="ordersTableBody">
-                    <% orders.forEach(order => {%>
+                    
+                    <% orders.filter(order => order.products.every(product => product.status === 'Delivered')).forEach(order => {%>
                       <tr>
                       <!-- <td class="text-center">
                         <div class="form-check">
