@@ -468,7 +468,7 @@
                             <h5 class="mb-0">Your Orders</h5>
                             </div>
                             <div class="card-body">
-                            <div class="table-responsive">
+                            <div id="orders-section" class="table-responsive">
                                 <table class="table">
                                     <thead>
                                         <tr>
@@ -512,7 +512,16 @@
                                         <% } %>
                                     </tbody>
                                 </table>
-                                
+                                <!-- Pagination for orders -->
+                                <nav aria-label="Orders Pagination">
+                                    <ul class="pagination">
+                                    <% for (let i = 1; i <= totalOrderPages; i++) { %>
+                                        <li class="page-item <%= (i === orderPage) ? 'active' : '' %>">
+                                        <a class="page-link order-pagination-link" href="#" data-orderpage="<%= i %>"><%= i %></a>
+                                        </li>
+                                    <% } %>
+                                    </ul>
+                                </nav>
                             </div>
                             </div>
                         </div>
@@ -578,28 +587,40 @@
                               <div class="row mt-4">
                                 <div class="col-lg-12">
                                   <h3 class="text-center">Wallet Transactions</h3>
-                                  <table class="table table-bordered">
-                                    <thead>
-                                      <tr>
-                                        <th>Order ID</th>
-                                        <th>Date</th>
-                                        <th>Type</th>
-                                        <th>Amount</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <% walletTransactions.forEach(transaction => { %>
-                                        <tr>
-                                          <td><%= transaction.orderId %></td>
-                                          <td><%= new Date(transaction.orderDate).toLocaleDateString() %></td>
-                                          <td><%= transaction.transactionType %></td>
-                                          <td>
-                                            ₹<%= transaction.wallet ? Math.abs(transaction.wallet).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00' %> /-
-                                          </td>
-                                        </tr>
-                                      <% }) %>
-                                    </tbody>
-                                  </table>
+                                  <div id="wallet-section">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                          <tr>
+                                            <th>Order ID</th>
+                                            <th>Date</th>
+                                            <th>Type</th>
+                                            <th>Amount</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <% walletTransactions.forEach(transaction => { %>
+                                            <tr>
+                                              <td><%= transaction.orderId %></td>
+                                              <td><%= new Date(transaction.orderDate).toLocaleDateString() %></td>
+                                              <td><%= transaction.transactionType %></td>
+                                              <td>
+                                                ₹<%= transaction.wallet ? Math.abs(transaction.wallet).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00' %> /-
+                                              </td>
+                                            </tr>
+                                          <% }) %>
+                                        </tbody>
+                                      </table>
+                                  </div>
+                                  <!-- Pagination Controls -->
+                                  <nav aria-label="Wallet Transactions Pagination">
+                                    <ul class="pagination">
+                                      <% for (let i = 1; i <= totalPages; i++) { %>
+                                        <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                                          <a class="page-link wallet-page-link" href="#" data-page="<%= i %>"><%= i %></a>
+                                        </li>
+                                      <% } %>
+                                    </ul>
+                                  </nav>
                                 </div>
                               </div>
                               
@@ -1121,7 +1142,66 @@
         <script src="./user/assets/js/main.js?v=3.4"></script>
         <!-- sweetalert -->
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Bootstrap JavaScript -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     
+    //   ajax for wallet transactions pagination
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    // Handle page click event
+    $('.wallet-page-link').click(function(e) {
+      e.preventDefault(); // Prevent default page reload
+
+      const page = $(this).data('page'); // Get the page number from the link
+      const limit = 5; // Set the number of transactions per page, you can dynamically adjust this if needed
+
+      $.ajax({
+        url: '/account', // URL to your loadAccount route
+        method: 'GET',
+        data: {
+          page: page,
+          limit: limit
+        },
+        success: function(response) {
+          // Replace the content of the wallet section with the new content
+          $('#wallet-section').html($(response).find('#wallet-section').html());
+        },
+        error: function() {
+          alert('An error occurred while fetching wallet transactions.');
+        }
+      });
+    });
+  });
+</script>
+
+//ajax for order and pagination
+<script>
+    $(document).on('click', '.order-pagination-link', function(e) {
+  e.preventDefault(); // Prevent default link behavior
+  const orderPage = $(this).data('orderpage'); // Get the order page number
+  const orderLimit = 5; // Set the number of orders per page
+
+  $.ajax({
+    url: '/account', // Your loadAccount route
+    method: 'GET',
+    data: {
+      orderPage: orderPage,
+      orderLimit: orderLimit
+    },
+    success: function(response) {
+      // Replace the orders section content with new data
+      $('#orders-section').html($(response).find('#orders-section').html());
+    },
+    error: function() {
+      alert('An error occurred while fetching order data.');
+    }
+  });
+});
+    
+</script>
 
         <script>
         

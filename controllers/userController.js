@@ -532,67 +532,93 @@ const loadProductDetails = async (req,res) =>{
   }
 }
 
-//load account
 const loadAccount = async (req, res) => {
   try {
     const searchQuery = req.query.q;
     const sortQuery = req.query.sort;
     const userId = req.session.user._id;
     const categoryQuery = req.query.category || '';
+    
+    // Pagination for wallet transactions
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
 
-    // Fetch user data, addresses, and orders
+    // Pagination for orders
+    const orderPage = parseInt(req.query.orderPage) || 1;
+    const orderLimit = parseInt(req.query.orderLimit) || 5;
+    const orderSkip = (orderPage - 1) * orderLimit;
+
+    // Fetch user data, addresses
     const userData = await User.findById(userId);
     const addressData = await Address.find({ userId });
-    const orderData = await Order.find({ userId });
-
-    // Calculate wallet balance
-    const walletBalance = await Order.aggregate([
-      { $match: { userId: new mongoose.Types.ObjectId(userId) } }, // Filter orders by userId
-      { $group: { _id: null, totalWallet: { $sum: "$wallet" } } }, // Sum the wallet field
-      { $project: { _id: 0, totalWallet: 1 } } // Return only the totalWallet
-    ]);
-
-    // console.log('userController loadAccount walletBalance:',walletBalance);
-
-    // Handle case where no orders exist
-    const totalWallet = walletBalance.length > 0 ? walletBalance[0].totalWallet : 0;
-
-    // console.log('user Controller load accound total wallet:',totalWallet);
-
-
+    
     // Fetch wallet transactions
     const walletTransactions = await Order.aggregate([
       {
         $match: {
           userId: new mongoose.Types.ObjectId(userId),
-          wallet: { $exists: true,  $ne: 0.00 } // Only consider orders with a non-zero wallet value
+          wallet: { $exists: true, $ne: 0.00 }
         }
       },
-      {
-        $project: {
-          orderId: 1,
-          orderDate: 1,
-          paymentStatus: 1,
-          wallet: 1,
-          transactionType: {
-            $cond: { if: { $gte: ["$wallet", 0] }, then: "Credit", else: "Debit" } // Determine if the transaction is a credit or debit
-          }
-        }
-      },
-      {
-        $sort: { orderDate: -1 } // Sort transactions by orderDate in descending order (most recent first)
-      }
+      { $sort: { orderDate: -1 } },
+      { $skip: skip },
+      { $limit: limit }
     ]);
-    
 
-    // console.log('userController.loadAccount walletTransactions:',walletTransactions);
-    // Render the view with the data
+    // Total wallet transactions
+    const totalTransactions = await Order.countDocuments({
+      userId: new mongoose.Types.ObjectId(userId),
+      wallet: { $exists: true, $ne: 0.00 }
+    });
+    const totalPages = Math.ceil(totalTransactions / limit);
+
+    // Fetch paginated orders
+    const orderData = await Order.find({ userId })
+      .sort({ orderDate: -1 })
+      .skip(orderSkip)
+      .limit(orderLimit);
+
+    // Total orders for pagination
+    const totalOrders = await Order.countDocuments({ userId });
+    const totalOrderPages = Math.ceil(totalOrders / orderLimit);
+
+    const totalWallet = (await Order.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+      { $group: { _id: null, totalWallet: { $sum: "$wallet" } } },
+      { $project: { _id: 0, totalWallet: 1 } }
+    ]))[0]?.totalWallet || 0;
+
+    // Handle AJAX requests
+    if (req.xhr) {
+      return res.render('user/userAccount', {
+        totalWallet,
+        walletTransactions,
+        currentPage: page,
+        totalPages,
+        userData,
+        addressData,
+        orderData,
+        orderPage,
+        totalOrderPages,
+        searchQuery,
+        sortQuery,
+        categoryQuery,
+        layout: false
+      });
+    }
+
+    // Full page rendering
     res.render('user/userAccount', {
       totalWallet,
-      walletTransactions,  // Pass the wallet transactions to the view
+      walletTransactions,
+      currentPage: page,
+      totalPages,
       userData,
       addressData,
       orderData,
+      orderPage,
+      totalOrderPages,
       searchQuery,
       sortQuery,
       categoryQuery
@@ -603,6 +629,7 @@ const loadAccount = async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 };
+
 
 //edit account
 const editAccount = async(req,res) =>{
