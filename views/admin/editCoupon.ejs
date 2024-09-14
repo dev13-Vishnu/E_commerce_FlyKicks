@@ -108,7 +108,7 @@
                                             <label class="form-label">Expire Date</label>
                                             <input 
                                             value="<%= formatDate(couponData.ending_date) %>"
-                                            class="form-control" id="ExpireDate" name="expireDate" oninput="validate_coupon_end()" type="date">
+                                            class="form-control" id="expireDate" name="expireDate" oninput="validate_coupon_end()" type="date">
                                             <div id="error-couponend" class="text-danger"></div>
                                         </div>
                                     </div>
@@ -143,142 +143,139 @@
     <!-- sweetalert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-        function validate_coupon_code(){
-            const couponCode = document.getElementById('couponCode').value;
-            if (couponCode === "") {
-                document.getElementById('error-couponcode').innerHTML = "Please enter the code";
-                return false;
-            } else {
-                document.getElementById('error-couponcode').innerHTML = "";
-                return true;
-            }
-        }
-
-        function validate_coupon_description(){
-            const couponDescription = document.getElementById('couponDescription').value;
-            if (couponDescription === "") {
-                document.getElementById('error-coupondescription').innerHTML = "please enter the description";
-                return false;
-            } else {
-                document.getElementById('error-coupondescription').innerHTML = "";
-                return true;
-            }
-        }
-
-        function validate_coupon_offer(){
-            const couponoffer = document.getElementById('couponoffer').value;
-            if(couponoffer === "") {
-                document.getElementById('error-couponoffer').innerHTML = "Please enter the offer percentage";
-                return false;
-            } else {
-                document.getElementById('error-couponoffer').innerHTML = "";
-                return true;
-            }
-        }
-
-        function validate_coupon_count() {
-            const couponCount = document.getElementById('couponCount').value;
-            if (couponCount === "" || couponCount == 0) {
-                document.getElementById('error-couponcount').innerHTML = "Please enter a valid coupon count";
-                return false;
-            } else {
-                document.getElementById('error-couponcount').innerHTML = "";
-                return true;
-            }
-        }   
-
-        function validate_coupon_minimum() {
-    const minimum = parseFloat(document.getElementById('minimum').value)  ;
-    if (minimum === "" || minimum == 0|| isNaN(minimum)) {
-        document.getElementById('error-couponminimum').innerHTML = "Please enter a valid minimum order amount";
-        return false;
-    } else {
-        document.getElementById('error-couponminimum').innerHTML = "";
-        return true;
-    }
-}
-
-        function validate_coupon_maximum() {
-            const maximum = parseFloat(document.getElementById('maximum').value); const minimum = parseFloat(document.getElementById('minimum').value);
-
-
-            if (maximum === "" || maximum == 0 || isNaN(maximum)) {
-                document.getElementById('error-couponmaximum').innerHTML = "Please enter a valid maximum order amount";
-                return false;
-            }else if(maximum < minimum ){
-                document.getElementById('error-couponmaximum').innerHTML = "please Enter the Maximum Amount Greater Than minimum Amount ";
-                return false;
-            } 
-
-            else {
-                document.getElementById('error-couponmaximum').innerHTML = "";
-                return true;
-            }
-        }
-
-        function validate_coupon_start() {
-            const couponstart = document.getElementById('startDate').value;
-            let currentDate = new Date().toISOString().split('T')[0]; // get current date in YYYY-MM-DD format
-            if (couponstart === "")  {
-                document.getElementById('error-couponstart').innerHTML = "Please enter a valid start date";
-                return false;
-                
-            }
-            else if(couponstart < currentDate)
-            {
-
-                document.getElementById('error-couponstart').innerHTML = `The start date cannot be in the past. `;
-                return false;
-            }
-            else {
-                document.getElementById('error-couponstart').innerHTML = "";
-                return true;
-            }
-        }
-
-        function validate_coupon_end() {
-            const couponend = document.getElementById('expireDate').value;
-            const couponstart = document.getElementById('startDate').value;
-            if (couponend === "" ) {
-                document.getElementById('error-couponend').innerHTML = "Please enter a valid expiration date";
-                return false;
-            } else if( couponend < couponstart){
-                document.getElementById('error-couponend').innerHTML = "End Date Cannot be past of Start Date";
-                return false;
-
-            }
-            else {
-                document.getElementById('error-couponend').innerHTML = "";
-                return true;
-            }
-        }
-
-        
-
-        function validate_form() {
-            return validate_coupon_code() && validate_coupon_description()&& validate_coupon_offer() &&  validate_coupon_count() && validate_coupon_minimum() && validate_coupon_maximum() && validate_coupon_start() && validate_coupon_end()
-        }
-
-
-    </script>
-    <!-- submit form -->
-     
 <script>
+    function validate_coupon_code() {
+        const couponCodeElement = document.getElementById('couponCode');
+        couponCodeElement.value = couponCodeElement.value.toUpperCase(); // Convert to uppercase
+        const couponCode = couponCodeElement.value;
+        
+        if (couponCode === "") {
+            document.getElementById('error-couponcode').innerHTML = "Please enter the code";
+            return false;
+        } else {
+            document.getElementById('error-couponcode').innerHTML = "";
+            return true;
+        }
+    }
+
+    function validate_coupon_description() {
+        const couponDescription = document.getElementById('couponDescription').value;
+        if (couponDescription === "") {
+            document.getElementById('error-coupondescription').innerHTML = "Please enter the description";
+            return false;
+        } else {
+            document.getElementById('error-coupondescription').innerHTML = "";
+            return true;
+        }
+    }
+
+    function validate_coupon_offer() {
+        const couponOffer = document.getElementById('couponoffer').value;
+        if (couponOffer === "") {
+            document.getElementById('error-couponoffer').innerHTML = "Please enter the offer percentage";
+            return false;
+        } else {
+            document.getElementById('error-couponoffer').innerHTML = "";
+            return true;
+        }
+    }
+
+    function validate_coupon_count() {
+        const couponCount = document.getElementById('couponCount').value;
+        if (couponCount === "" || couponCount == 0) {
+            document.getElementById('error-couponcount').innerHTML = "Please enter a valid coupon count";
+            return false;
+        } else {
+            document.getElementById('error-couponcount').innerHTML = "";
+            return true;
+        }
+    }
+
+    function validate_coupon_minimum() {
+        const minimum = parseFloat(document.getElementById('minimum').value);
+        if (isNaN(minimum) || minimum <= 0) {
+            document.getElementById('error-couponminimum').innerHTML = "Please enter a valid minimum order amount";
+            return false;
+        } else {
+            document.getElementById('error-couponminimum').innerHTML = "";
+            return true;
+        }
+    }
+
+    function validate_coupon_maximum() {
+        const maximum = parseFloat(document.getElementById('maximum').value);
+        const minimum = parseFloat(document.getElementById('minimum').value);
+
+        if (isNaN(maximum) || maximum <= 0) {
+            document.getElementById('error-couponmaximum').innerHTML = "Please enter a valid maximum order amount";
+            return false;
+        } else if (maximum < minimum) {
+            document.getElementById('error-couponmaximum').innerHTML = "Maximum amount must be greater than minimum amount";
+            return false;
+        } else {
+            document.getElementById('error-couponmaximum').innerHTML = "";
+            return true;
+        }
+    }
+
+    function validate_coupon_start() {
+        const couponStart = document.getElementById('startDate').value;
+        const currentDate = new Date().toISOString().split('T')[0]; // get current date in YYYY-MM-DD format
+
+        if (couponStart === "") {
+            document.getElementById('error-couponstart').innerHTML = "Please enter a valid start date";
+            return false;
+        } else {
+            document.getElementById('error-couponstart').innerHTML = "";
+            return true;
+        }
+    }
+
+    function validate_coupon_end() {
+        const couponEnd = document.getElementById('expireDate').value;
+        const couponStart = document.getElementById('startDate').value;
+
+        if (couponEnd === "") {
+            document.getElementById('error-couponend').innerHTML = "Please enter a valid expiration date";
+            return false;
+        } else if (couponEnd < couponStart) {
+            document.getElementById('error-couponend').innerHTML = "End date cannot be earlier than start date";
+            return false;
+        } else {
+            document.getElementById('error-couponend').innerHTML = "";
+            return true;
+        }
+    }
+
+    function validate_form() {
+        return validate_coupon_code() &&
+               validate_coupon_description() &&
+               validate_coupon_offer() &&
+               validate_coupon_count() &&
+               validate_coupon_minimum() &&
+               validate_coupon_maximum() &&
+               validate_coupon_start() &&
+               validate_coupon_end();
+    }
+
     document.getElementById('couponForm').addEventListener('submit', async function (event) {
         event.preventDefault(); // Prevent the default form submission
 
+        if (!validate_form()) {
+            return; // Stop submission if validation fails
+        }
+
         const couponId = '<%= couponData._id %>'; // Get the coupon ID
 
-          // Form the data object correctly
-    const formData = {
+        // Form the data object correctly
+        const formData = {
             coupon_description: document.getElementById('couponDescription').value,
             offer_percentage: document.getElementById('couponoffer').value,
             coupon_count: document.getElementById('couponCount').value,
             minimum_order_amount: document.getElementById('minimum').value,
             maximum_order_amount: document.getElementById('maximum').value,
             start_date: document.getElementById('startDate').value,
-            ending_date: document.getElementById('ExpireDate').value
+            ending_date: document.getElementById('expireDate').value
         };
 
         try {
@@ -291,8 +288,15 @@
             });
 
             if (response.ok) {
-                Swal.fire('Success', 'Coupon updated successfully', 'success');
-                window.location.href ='/admin/coupons'
+                Swal.fire({
+                    title: 'Success',
+                    text: 'Coupon updated successfully',
+                    icon: 'success',
+                    timer: 2000, // Set the timer for 2 seconds (2000 milliseconds)
+                    showConfirmButton: false // Hide the confirm button to auto-close
+                }).then(() => {
+                    window.location.href = '/admin/coupons'; // Redirect after the timer
+                });
             } else {
                 Swal.fire('Error', 'Failed to update coupon', 'error');
             }
@@ -301,6 +305,7 @@
         }
     });
 </script>
+
 
 
     <script src="/admin/assets/js/vendors/jquery-3.6.0.min.js"></script>

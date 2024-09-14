@@ -119,15 +119,19 @@
 
     <script>
         function validate_coupon_code(){
-            const couponCode = document.getElementById('couponCode').value;
-            if (couponCode === "") {
-                document.getElementById('error-couponcode').innerHTML = "Please enter the code";
-                return false;
-            } else {
-                document.getElementById('error-couponcode').innerHTML = "";
-                return true;
-            }
-        }
+    const couponCodeElement = document.getElementById('couponCode');
+    couponCodeElement.value = couponCodeElement.value.toUpperCase(); // Convert to uppercase
+    const couponCode = couponCodeElement.value;
+    
+    if (couponCode === "") {
+        document.getElementById('error-couponcode').innerHTML = "Please enter the code";
+        return false;
+    } else {
+        document.getElementById('error-couponcode').innerHTML = "";
+        return true;
+    }
+}
+   
 
         function validate_coupon_description(){
             const couponDescription = document.getElementById('couponDescription').value;
