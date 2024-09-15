@@ -679,8 +679,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% if (wishlist.length > 0) { %>
-                                        <% wishlist.forEach(item => { %>
+                                    <% if (wishlist.products.length > 0) { %>
+                                        <% wishlist.products.forEach(item => { %>
                                             <tr>
                                                 <td class="image product-thumbnail">
                                                     <img src="/<%= item.productId.image[0].replace(/\\/g, '/') %>" alt="#">

@@ -12,9 +12,12 @@ const loadWishlist = async (req,res) => {
         const userId = req.session.user._id;
         const userData = await User.findById(userId);
         const wishlist = await Wishlist.findOne({ userId }).populate('products.productId');
+        const cart = await Cart.findOne({userId:userId});
+
         if(!wishlist){
             return res.render('user/wishlist',{
-                wishlist:[],
+                cart,
+                wishlist,
                 userData,
                 searchQuery,
                 sortQuery,
@@ -27,7 +30,8 @@ const loadWishlist = async (req,res) => {
             searchQuery,
             sortQuery,
             categoryQuery,
-            wishlist: wishlist.products
+            wishlist,
+            cart
         });
     } catch (error) {
         console.log('Error from wishlist contorller loadWishlist',error);
