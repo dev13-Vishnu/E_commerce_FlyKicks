@@ -2054,13 +2054,25 @@
     
               if (response.ok) {
                 // If successful, show the SweetAlert and increment the wishlist count
-                Swal.fire({
-                  icon: 'success',
-                  title: 'Added!',
-                  text: result,
-                  showConfirmButton: false,
-                  timer: 1500
-                });
+                if(result === 'Product already in wishlist'){
+                  
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Already in Wishlist',
+                        text: 'This product is already in your wishlist.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                
+                }else{
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Added!',
+                    text: result,
+                    showConfirmButton: false,
+                    timer: 1500
+                  });
+                }
     
                 // Update wishlist count in the DOM
                 let currentWishlistCount = parseInt(wishlistCountElement.textContent);

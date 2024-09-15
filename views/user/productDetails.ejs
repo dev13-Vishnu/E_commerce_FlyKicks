@@ -775,14 +775,32 @@
 
 </script>
 //add to wishlist
-    <script>
-     document.addEventListener('DOMContentLoaded', () => {
-    const wishlistButtons = document.querySelectorAll('.add-to-wishlist');
-
-    wishlistButtons.forEach(button => {
-        button.addEventListener('click', async (event) => {
-            event.preventDefault();
-            const productId = event.target.closest('.add-to-wishlist').dataset.productId;
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const wishlistButtons = document.querySelectorAll('.add-to-wishlist');
+        const wishlistCountElement = document.getElementById('wishlistCount');
+    
+        // Function to update the wishlist count in the DOM
+        const updateWishlistCount = () => {
+            if (wishlistCountElement) {
+                let currentWishlistCount = parseInt(wishlistCountElement.textContent) || 0;
+                wishlistCountElement.textContent = currentWishlistCount + 1;
+            }
+        };
+    
+        // Function to display SweetAlert notifications
+        const showAlert = (icon, title, text, timer = 1500) => {
+            Swal.fire({
+                icon: icon,
+                title: title,
+                text: text,
+                showConfirmButton: false,
+                timer: timer
+            });
+        };
+    
+        // Function to handle adding to wishlist
+        const handleWishlistAdd = async (productId) => {
             try {
                 const response = await fetch('/wishlist/add', {
                     method: 'POST',
@@ -791,38 +809,40 @@
                     },
                     body: JSON.stringify({ productId })
                 });
-
+    
                 const result = await response.text();
-
+    
                 if (response.ok) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Added!',
-                        text: result,
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
+                    if (result === 'Product already in wishlist') {
+                        showAlert('info', 'Already in Wishlist', 'This product is already in your wishlist.');
+                    } else {
+                        showAlert('success', 'Added!', result);
+                        updateWishlistCount();
+                    }
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Failed to add product to wishlist',
-                    });
+                    showAlert('error', 'Oops...', 'Failed to add product to wishlist');
                 }
             } catch (error) {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'An error occurred',
-                });
+                console.error('Error adding product to wishlist:', error);
+                showAlert('error', 'Oops...', 'An error occurred while adding to wishlist.');
             }
+        };
+    
+        // Attach event listeners to all wishlist buttons
+        wishlistButtons.forEach(button => {
+            button.addEventListener('click', async (event) => {
+                event.preventDefault();
+                const productId = button.dataset.productId; // Get product ID from the button itself
+                if (productId) {
+                    await handleWishlistAdd(productId);
+                } else {
+                    console.error('Product ID not found on the wishlist button.');
+                }
+            });
         });
     });
-});
-
     </script>
-
+    
 
 
 </body>

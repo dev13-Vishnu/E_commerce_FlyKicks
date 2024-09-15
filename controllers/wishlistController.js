@@ -57,7 +57,7 @@ const addToWishlist = async (req, res) => {
         );
 
         if (productExists) {
-            res.status(409).send('Product already in wishlist');
+            res.status(200).send('Product already in wishlist');
         } else {
             wishlist.products.push({ productId: new mongoose.Types.ObjectId(productId) });
             await wishlist.save();
