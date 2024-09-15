@@ -2032,108 +2032,144 @@
     //add to wishlist
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-    const wishlistButtons = document.querySelectorAll('.add-to-wishlist');
-
-    wishlistButtons.forEach(button => {
-        button.addEventListener('click', async (event) => {
+        const wishlistButtons = document.querySelectorAll('.add-to-wishlist');
+        const wishlistCountElement = document.getElementById('wishlistCount'); // Select the wishlist count element
+    
+        wishlistButtons.forEach(button => {
+          button.addEventListener('click', async (event) => {
             event.preventDefault();
+    
             const productId = event.target.closest('.add-to-wishlist').dataset.productId;
+    
             try {
-                const response = await fetch('/wishlist/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ productId })
-                });
-
-                const result = await response.text();
-
-                if (response.ok) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Added!',
-                        text: result,
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Failed to add product to wishlist',
-                    });
-                }
-            } catch (error) {
-                console.error('Error:', error);
+              const response = await fetch('/wishlist/add', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId })
+              });
+    
+              const result = await response.text();
+    
+              if (response.ok) {
+                // If successful, show the SweetAlert and increment the wishlist count
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'An error occurred',
+                  icon: 'success',
+                  title: 'Added!',
+                  text: result,
+                  showConfirmButton: false,
+                  timer: 1500
                 });
+    
+                // Update wishlist count in the DOM
+                let currentWishlistCount = parseInt(wishlistCountElement.textContent);
+                currentWishlistCount = isNaN(currentWishlistCount) ? 0 : currentWishlistCount;
+                wishlistCountElement.textContent = currentWishlistCount + 1;
+    
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: result||'Failed to add product to wishlist',
+                });
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'An error occurred',
+              });
             }
+          });
         });
-    });
-});
-
+      });
     </script>
+    
     //add to cart
     <script>
-    function addToCart(productId) {
-
-      //Try to get the discounted price first
-      let priceElement = document.getElementById(`discountedPrice-${productId}`);
-
-      //if the discounted price doesn't exist , get the regular price
-      if(!priceElement) {
-        priceElement = document.getElementById(`price-${productId}`);
+      // Add to Cart Function
+      function addToCart(productId) {
+          // Get the current cart count element
+          const cartCountElement = document.getElementById('cartCount');
+          
+          // Try to get the discounted price first
+          let priceElement = document.getElementById(`discountedPrice-${productId}`);
+          
+          // If the discounted price doesn't exist, get the regular price
+          if (!priceElement) {
+              priceElement = document.getElementById(`price-${productId}`);
+          }
+          
+          // If priceElement is not found, log error and return
+          if (!priceElement) {
+              console.error('Price element not found for product:', productId);
+              return;
+          }
+  
+          // Extract the numerical value from the price element
+          const price = parseFloat(priceElement.textContent.replace('₹', '').replace('/-', ''));
+          
+          // Assuming a default size and quantity for now
+          const size = 8;  // Set size as needed
+          const quantity = 1;  // Default quantity
+  
+          // Log the data to check before making the request
+          console.log("Product ID:", productId);
+          console.log("Size:", size);
+          console.log("Quantity:", quantity);
+          console.log("Price:", price);
+  
+          // Make the POST request to add the product to the cart
+          fetch('/cart/add', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  productId: productId,
+                  price: price,  // Send the price to the backend
+                  size: size,
+                  quantity: quantity
+              }),
+          })
+          .then(response => {
+              if (response.ok) {
+                  // Show success alert
+                  Swal.fire({
+                      title: 'Success!',
+                      text: 'Product added to cart.',
+                      icon: 'success',
+                      showConfirmButton: false,
+                      timer: 1500
+                  });
+  
+                  // Increment the cart count in the DOM by one
+                  let currentCartCount = parseInt(cartCountElement.textContent);
+                  currentCartCount = isNaN(currentCartCount) ? 0 : currentCartCount;
+                  cartCountElement.textContent = currentCartCount + 1;
+              } else {
+                  // If the response was not ok, show error alert
+                  return response.text().then(text => { throw new Error(text); });
+              }
+          })
+          .catch(error => {
+              // Log the error and show error alert
+              console.error('Error adding to cart:', error);
+              Swal.fire({
+                  title: 'Error!',
+                  text: 'Error adding to cart. Please try again.',
+                  icon: 'error',
+                  confirmButtonText: 'Close'
+              });
+          });
       }
-      //Extract the numerical value from the price element
-    const price = parseFloat(priceElement.textContent.replace('₹', '').replace('/-', ''));
-      const size = 8;
-      const quantity = 1;
-
-    console.log("Product ID:", productId);
-    console.log("Size:", size);
-    console.log("Quantity:", quantity);
-    
-    fetch('/cart/add', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            productId: productId,
-            price, // Send the discounted price to the backend
-            size,
-            quantity
-        }),
-    })
-    .then(response => {
-        if (response.ok) {
-            Swal.fire({
-                title: 'Success!',  
-                text: 'Product added to cart.',
-                icon: 'success',
-                showConfirmButton: false,
-                timer: 1500
-            });
-        } else {
-            return response.text().then(text => { throw new Error(text) });
-        }
-    })
-    .catch(error => {
-        console.error('Error adding to cart:', error);
-        Swal.fire({
-            title: 'Error!',
-            text: 'Error adding to cart. Please try again.',
-            icon: 'error',
-            confirmButtonText: 'Close'
-        });
-    });
-}
-
-    </script>
+  
+      // Ensure addToCart function is available globally if this is within a module or script tag
+      window.addToCart = addToCart;
+  </script>
+  
 
     </body>
   </html>
