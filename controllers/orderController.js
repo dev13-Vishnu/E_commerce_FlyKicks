@@ -10,6 +10,7 @@ const fs = require ('fs');
 const path= require('path');
 const PDFDocument = require('pdfkit');
 const productModel = require('../models/productModel');
+const Wishlist = require('../models/wishlistModel')
 
 
 
@@ -47,6 +48,7 @@ const cancelOrder = async(req,res) =>{
 }
 const loadCheckout = async(req, res) => { 
     try {
+
       const searchQuery = req.query.q;
       const sortQuery = req.query.sort;
       const categoryQuery = req.query.category || '';
@@ -55,6 +57,7 @@ const loadCheckout = async(req, res) => {
       const addressData = await Address.find({userId});
       const userData = await User.findById(userId);
       const cart = await Cart.findOne({userId}).populate('products.productId');
+      const wishlist = await Wishlist.findOne({userId:userId});
   
       // Calculate the actual total price (without any discount)
       let actualTotalPrice = 0;
@@ -93,6 +96,7 @@ const loadCheckout = async(req, res) => {
       res.render('user/checkout', {
         userData,
         cart,
+        wishlist,
         addressData,
         searchQuery,
         categoryQuery,
@@ -625,6 +629,9 @@ const loadUserOrderDetails = async (req,res) =>{
         const userId = req.session.user._id;
         const userData = await User.findById(userId);
         const orderId = req.query.orderObjectId;
+        const wishlist = await Wishlist.findOne({userId:userId});
+        const cart = await Cart.findOne({userId:userId});
+
         // console.log('ordersListController.loadOrderDetaisl orderId:',orderId);
 
 
@@ -634,11 +641,12 @@ const loadUserOrderDetails = async (req,res) =>{
 
          
         res.render('user/userOrderDetailsPage',{
+            wishlist,
+            cart,
             userData,
             searchQuery,
             sortQuery,
-            
-      categoryQuery,
+            categoryQuery,
             order
         })
     } catch (error) {

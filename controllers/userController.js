@@ -401,8 +401,8 @@ const loadHome = async (req, res, next) => {
         product.discountedPrice = product.price; // No offer applied
       }
 
-      console.log('userController load home product.price',product.price);
-      console.log('userController load home product.discountedPrice',product.discountedPrice);
+      // console.log('userController load home product.price',product.price);
+      // console.log('userController load home product.discountedPrice',product.discountedPrice);
 
       product.image = product.image.map(img => img.replace(/\\/g, '/'));
     });

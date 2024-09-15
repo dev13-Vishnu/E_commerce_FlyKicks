@@ -3,6 +3,7 @@ const Product = require("../models/productModel");
 const Cart = require("../models/cartModel");
 const Order = require("../models/orderModel");
 const Address = require('../models/addressModel');
+const Wishlist = require('../models/wishlistModel');
 
 
 
@@ -82,11 +83,14 @@ const addToCart = async (req, res) => {
       const userId = req.session.user._id;
       const userData = await User.findById(userId);
   
+      const wishlist = await Wishlist.findOne({userId:userId});
+
       const cart = await Cart.findOne({userId}).populate('products.productId');
       // console.log('cartController loadCart cart:',cart);
       res.render('user/cart',{
         userData,
         cart,
+        wishlist,
         searchQuery,
         sortQuery,
         categoryQuery
