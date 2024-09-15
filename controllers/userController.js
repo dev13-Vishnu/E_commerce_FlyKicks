@@ -11,7 +11,8 @@ const Order = require('../models/orderModel');
 const productModel = require("../models/productModel");
 const mongoose = require('mongoose');
 const Referral = require('../models/referralModel')
-
+const Wishlist = require('../models/wishlistModel');
+const Cart = require('../models/cartModel');
 
 const loadSuccessGoogle = async (req, res) => {
   try {
@@ -305,12 +306,16 @@ const verifyLogin = async (req, res) => {
 
 const loadHome = async (req, res, next) => {
   try {
+
     const searchQuery = req.query.q || '';
     const sortQuery = req.query.sort || '';
     const categoryQuery = req.query.category || '';
 
     const userId = req.session.user._id;
     const userData = await User.findById(userId);
+
+    const wishlist = await Wishlist.findOne({userId:userId});
+    const cart = await Cart.findOne({userId:userId})
 
     let page = parseInt(req.query.page) || 1;
     const limit = 3;
@@ -341,6 +346,8 @@ const loadHome = async (req, res, next) => {
         filter.category = null; // Set to null if the category is not found
       }
     }
+
+
 
     const products = await Product.find(filter)
       .populate('offer')
@@ -401,6 +408,8 @@ const loadHome = async (req, res, next) => {
     });
 
     res.render('user/home', {
+      cart,
+      wishlist,
       products,
       totalPages: Math.ceil(count / limit),
       currentPage: page,
@@ -446,6 +455,8 @@ const loadProductDetails = async (req,res) =>{
         const userData = await User.findById(userId);
     const id = req.query.id;
     
+    const cart = await Cart.findOne({userId:userId});
+    const wishlist = await Wishlist.findOne({userId:userId})
     const product = await Product.findById(id)
     .populate('offer')
     .populate({
@@ -514,7 +525,10 @@ const loadProductDetails = async (req,res) =>{
 
     console.log('stock:',product.stock);
     console.log('product data:',product)
-    res.render('user/productDetails',{product,
+    res.render('user/productDetails',{
+      cart,
+      wishlist,
+      product,
       searchQuery,
       sortQuery,
       userData,
@@ -536,8 +550,8 @@ const loadAccount = async (req, res) => {
   try {
     const searchQuery = req.query.q;
     const sortQuery = req.query.sort;
-    const userId = req.session.user._id;
     const categoryQuery = req.query.category || '';
+    const userId = req.session.user._id;
     
     // Pagination for wallet transactions
     const page = parseInt(req.query.page) || 1;
@@ -552,7 +566,10 @@ const loadAccount = async (req, res) => {
     // Fetch user data, addresses
     const userData = await User.findById(userId);
     const addressData = await Address.find({ userId });
-    
+
+    const cart = await Cart.findOne({userId:userId})
+    const wishlist = await Wishlist.findOne({userId:userId});
+
     // Fetch wallet transactions
     const walletTransactions = await Order.aggregate([
       {
@@ -592,6 +609,8 @@ const loadAccount = async (req, res) => {
     // Handle AJAX requests
     if (req.xhr) {
       return res.render('user/userAccount', {
+        cart,
+        wishlist,
         totalWallet,
         walletTransactions,
         currentPage: page,
@@ -610,6 +629,8 @@ const loadAccount = async (req, res) => {
 
     // Full page rendering
     res.render('user/userAccount', {
+      cart,
+      wishlist,
       totalWallet,
       walletTransactions,
       currentPage: page,
@@ -675,8 +696,16 @@ const editAccount = async(req,res) =>{
 
 const loadEditAddress = async(req,res) =>{
   try {
+    
+    const searchQuery = req.query.q;
+    const sortQuery = req.query.sort;
+    const categoryQuery = req.query.category || '';
+
     const userId = req.session.user._id;
     const userData = await User.findById(userId);
+
+    const cart = await Cart.findOne({userId:userId});
+    const wishlist = await Wishlist.findOne({userId:userId});
 
     const addressId = req.query.addressId;
     console.log('addressId userControl loadEditAddress:',addressId);
@@ -687,6 +716,11 @@ const loadEditAddress = async(req,res) =>{
       const addressDetails = addressDoc.address.find(addr => addr._id.toString() === addressId);
       // console.log('addressDetails userControl loadEditAddress:',addressDetails);
     res.render('user/editAddress',{
+      cart,
+      wishlist,
+      searchQuery,
+      sortQuery,
+      categoryQuery,
       userData,
       addressDetails
     });
