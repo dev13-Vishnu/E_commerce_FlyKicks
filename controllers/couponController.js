@@ -235,6 +235,29 @@ const removeCoupon  = async (req,res) => {
     }
 }
 
+
+const listCoupons =async (req,res) => {
+    try {
+        const coupons = await Coupon.find({isBlocked:false});
+        res.json(coupons);  
+    } catch (error) {
+        res.status(500).json({message:error.message});
+    }
+}
+
+const getCouponCode = async (req,res) => {
+    try {
+        const coupon =await Coupon.findOne({coupon_code: req.params.code,isBlocked:false});
+        if (coupon) {
+            res.json(coupon) ;
+        } else {
+            res.status(404).json({message:'Coupon not found'});
+        }
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
+
 module.exports = {
     loadCouponsPage,
     loadAddcouponPage,
@@ -243,5 +266,7 @@ module.exports = {
     loadEditCoupon,
     editCoupon,
     applyCoupon,
-    removeCoupon
+    removeCoupon,
+    listCoupons,
+    getCouponCode
 } 

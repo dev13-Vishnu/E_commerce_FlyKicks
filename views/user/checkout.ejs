@@ -15,6 +15,11 @@
     <link rel="shortcut icon" type="image/x-icon" href="/user/assets/imgs/theme/favicon.svg">
     <!-- Template CSS -->
     <link rel="stylesheet" href="/user/assets/css/main.css?v=3.4">
+    <style>
+        .card{
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 
 <body>
@@ -705,28 +710,29 @@
                     </div> -->
                     <div class="col-lg-6">
                         <div class="toggle_info">
-                            <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a coupon?</span> <a
-                                    href="#coupon" data-bs-toggle="collapse" class="collapsed"
-                                    aria-expanded="false">Click here to enter your code</a></span>
+                            <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a coupon?</span> 
+                                <a href="#coupon" data-bs-toggle="collapse" class="collapsed" aria-expanded="false">
+                                    Click here to enter your code
+                                </a>
+                            </span>
                         </div>
-                        <div class="panel-collapse collapse coupon_form " id="coupon">
+                        <div class="panel-collapse collapse coupon_form" id="coupon">
                             <div class="panel-body">
                                 <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
-                                <form id="couponForm" >
+                                <form id="couponForm">
                                     <div class="form-group">
-                                        <input type="text" 
-                                        id="couponCode"
-                                        placeholder="Enter Coupon Code..." style="text-transform: uppercase;">
+                                        <input type="text" id="couponCode" placeholder="Enter Coupon Code..." style="text-transform: uppercase;">
                                     </div>
                                     <div class="form-group">
-                                        <button class="btn  btn-md" 
-                                        type="submit"
-                                          name="login">Apply Coupon</button>
+                                        <button class="btn btn-md" type="submit">Apply Coupon</button>
                                     </div>
                                 </form>
+                                <ul id="couponList"></ul> <!-- List of available coupons -->
                             </div>
                         </div>
                     </div>
+                    
+
                 </div>
                 <div class="row">
                     <div class="col-12">
@@ -1166,6 +1172,59 @@
 
         
     </script>
+
+    //coupon list
+    <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Fetch available coupons and populate the coupon list
+        const couponListElement = document.getElementById('couponList');
+        
+        try {
+            const response = await fetch('/coupons');
+            const coupons = await response.json();
+            
+            couponListElement.innerHTML = coupons.map(coupon => `<div class='container d-flex flex-wrap card'>
+                <div class="card-body">
+                <li><a href="#" data-coupon-code="${coupon.coupon_code}">${coupon.coupon_code} - ${coupon.coupon_description}</a></li>
+                </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Error fetching coupons:', error);
+        }
+    });
+
+    document.getElementById('couponForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const couponCode = document.getElementById('couponCode').value.trim();
+        
+        try {
+            const response = await fetch(`/coupon/${couponCode}`);
+            const coupon = await response.json();
+
+            if (response.ok && coupon) {
+                // Display success message or apply coupon
+                Swal.fire('Success', `Coupon ${coupon.coupon_code} applied!`, 'success');
+                // You can also trigger additional logic here, e.g., applying discount
+            } else {
+                Swal.fire('Error', 'Invalid coupon code', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'Failed to apply coupon', 'error');
+        }
+    });
+
+    // Event delegation for clicking coupon links
+    document.getElementById('couponList').addEventListener('click', function(event) {
+        if (event.target.tagName === 'A') {
+            event.preventDefault();
+            const couponCode = event.target.dataset.couponCode;
+            document.getElementById('couponCode').value = couponCode;
+        }
+    });
+</script>
+
 
 
 <!--apply coupon-->

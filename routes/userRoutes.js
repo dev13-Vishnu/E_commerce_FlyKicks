@@ -101,6 +101,8 @@ userRoute.post('/place-order-razorpay',isLoggedIn,orderController.placeOrderRazo
 userRoute.post('/retry-payment',isLoggedIn,orderController.retryPayment);
 userRoute.post('/verify-retry-payment',isLoggedIn,orderController.verifyRetryPayment)
 userRoute.post('/place-order-wallet',isLoggedIn,orderController.placeOrderWallet);
+userRoute.get('/coupons',isLoggedIn,couponController.listCoupons);
+userRoute.get('/coupon/:code',isLoggedIn,couponController.getCouponCode);
 userRoute.put('/apply-coupon',isLoggedIn,couponController.applyCoupon)
 userRoute.post('/remove-coupon',isLoggedIn,couponController.removeCoupon);
 userRoute.post('/verify-payment', isLoggedIn,orderController.verifyPayment);
