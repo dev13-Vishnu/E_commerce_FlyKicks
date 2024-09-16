@@ -780,6 +780,7 @@
                 }).then(() => {
                     newQuantity = Math.min(stock, 10);
                     qtyValElement.textContent = newQuantity;
+
                     updateSubtotal(cartItemElement, newQuantity);
                     updateTotal();
                 });
@@ -797,6 +798,14 @@
     
                 if (response.ok) {
                     qtyValElement.textContent = newQuantity;
+
+                    
+
+                // Update cart count in the DOM
+                const cartCountElement = document.getElementById('cartCount');
+                const currentCartCount = parseInt(cartCountElement.textContent, 10);
+                cartCountElement.textContent = currentCartCount + 1;
+
                     updateSubtotal(cartItemElement, newQuantity);
                     updateTotal();
                 } else {
@@ -851,6 +860,12 @@
     
                 if (response.ok) {
                     qtyValElement.textContent = newQuantity;
+
+                    // Update cart count in the DOM
+                const cartCountElement = document.getElementById('cartCount');
+                const currentCartCount = parseInt(cartCountElement.textContent, 10);
+                cartCountElement.textContent = currentCartCount - 1;
+
                     updateSubtotal(cartItemElement, newQuantity);
                     updateTotal();
                 } else {
@@ -917,6 +932,8 @@
                             'The item has been removed from your cart.',
                             'success'
                         );
+                        updateTotal();
+
                     } else {
                         Swal.fire(
                             'Failed!',
