@@ -681,7 +681,7 @@
                                 <tbody>
                                     <% if (wishlist.products.length > 0) { %>
                                         <% wishlist.products.forEach(item => { %>
-                                            <tr>
+                                            <tr id="wishlist-item-<%= item.productId._id %>">
                                                 <td class="image product-thumbnail">
                                                     <img src="/<%= item.productId.image[0].replace(/\\/g, '/') %>" alt="#">
                                                 </td>
@@ -885,6 +885,8 @@
 
     <script>
     function removeFromWishlist(productId) {
+        const wishlistCountElement = document.getElementById('wishlistCount'); // Select cart count element
+
     Swal.fire({
         title: 'Are you sure?',
         text: "Do you really want to remove this item from your wishlist?",
@@ -910,9 +912,21 @@
                         'Removed!',
                         'The item has been removed from your wishlist.',
                         'success'
-                    ).then(() => {
-                        window.location.reload();
-                    });
+                    );
+
+                     // Remove the item from the DOM
+                     const wishlistItem = document.getElementById(`wishlist-item-${productId}`);
+                    if (wishlistItem) {
+                        wishlistItem.remove();
+                    }
+                    // .then(() => {
+                    //     window.location.reload();
+                    // });
+                    // Update cart count in DOM based on the added quantity
+                let currentWishlistCount = parseInt(wishlistCountElement.textContent);
+                currentWishlistCount = isNaN(currentWishlistCount) ? 0 : currentWishlistCount;
+                wishlistCountElement.textContent = currentWishlistCount - 1;
+            
                 } else {
                     Swal.fire(
                         'Failed!',
@@ -927,7 +941,7 @@
                     'Error!',
                     'An error occurred while removing the item.',
                     'error'
-                );
+                );  
             });
         }
     });
