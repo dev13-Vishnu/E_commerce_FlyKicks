@@ -11,65 +11,99 @@ const addToCart = async (req, res) => {
   const { productId, size, quantity, price } = req.body; // Get price from request body
   const userId = req.session.user._id;
 
+  console.log('cartController addToCart req.body:', req.body);
+  console.log('cartController addToCart price:', price);
 
-  console.log('cartController addToCart req.body:',req.body);
-  console.log('cartController addToCart price:',price);
   if (!productId || !size || !price) {
-      return res.status(400).send('Product ID, size, and price are required.');
+    return res.status(400).send('Product ID, size, and price are required.');
   }
 
   try {
-      const product = await Product.findById(productId);
+    const product = await Product.findById(productId);
 
-      if (!product) {
-          return res.status(404).send('Product or size not found.');
+    if (!product) {
+      return res.status(404).send('Product not found.');
+    }
+
+    // Check if the selected size has sufficient stock
+    const availableStock = product.stock[size];
+    if (!availableStock) {
+      return res.status(400).send('Selected size is not available.');
+    }
+
+    // Ensure that the maximum allowed quantity is not exceeded
+    const MAX_QUANTITY = 10;
+    const requestedQuantity = parseInt(quantity);
+
+    const cart = await Cart.findOne({ userId });
+
+    if (cart) {
+      const existingProductIndex = cart.products.findIndex(
+        (p) => p.productId.toString() === productId.toString() && p.size.toString() === size.toString()
+      );
+
+      let totalCartQuantity = requestedQuantity;
+
+      if (existingProductIndex !== -1) {
+        // If the product already exists in the cart, sum the current cart quantity with the requested quantity
+        totalCartQuantity += cart.products[existingProductIndex].quantity;
       }
 
-      const productTotalPrice = price * quantity;
+      // Check if the total quantity exceeds the available stock or the maximum quantity allowed
+      if (totalCartQuantity > availableStock) {
+        return res.status(400).send(`Cannot add more than ${availableStock} of size ${size} to the cart.`);
+      }
+      
+      if (totalCartQuantity > MAX_QUANTITY) {
+        return res.status(400).send(`Cannot add more than ${MAX_QUANTITY} of a single product to the cart.`);
+      }
 
-      const cart = await Cart.findOne({ userId });
-
-      if (cart) {
-          const existingProductIndex = cart.products.findIndex(
-              (p) => p.productId.toString() === productId.toString() && p.size.toString() === size.toString()
-          );
-
-          if (existingProductIndex !== -1) {
-              cart.products[existingProductIndex].quantity += parseInt(quantity);
-              cart.products[existingProductIndex].total_price += productTotalPrice;
-          } else {
-              cart.products.push({
-                  productId: product._id,
-                  size,
-                  quantity,
-                  product_price:productTotalPrice/quantity,
-                  total_price: productTotalPrice
-              });
-          }
-
-          const newTotal = cart.products.reduce((sum, product) => sum + product.total_price, 0);
-          cart.total = newTotal;
-
-          await cart.save();
+      if (existingProductIndex !== -1) {
+        cart.products[existingProductIndex].quantity += requestedQuantity;
+        cart.products[existingProductIndex].total_price += price * requestedQuantity;
       } else {
-          await Cart.create({
-              userId,
-              products: [
-                  {
-                      productId: product._id,
-                      size,
-                      quantity,
-                      total_price: productTotalPrice,
-                  },
-              ],
-              total: productTotalPrice,
-          });
+        cart.products.push({
+          productId: product._id,
+          size,
+          quantity: requestedQuantity,
+          product_price: price,
+          total_price: price * requestedQuantity,
+        });
       }
 
-      res.status(200).send('Product added to Cart.');
+      const newTotal = cart.products.reduce((sum, product) => sum + product.total_price, 0);
+      cart.total = newTotal;
+
+      await cart.save();
+    } else {
+      // Create a new cart if it doesn't exist
+      if (requestedQuantity > availableStock) {
+        return res.status(400).send(`Cannot add more than ${availableStock} of size ${size} to the cart.`);
+      }
+      
+      if (requestedQuantity > MAX_QUANTITY) {
+        return res.status(400).send(`Cannot add more than ${MAX_QUANTITY} of a single product to the cart.`);
+      }
+
+      await Cart.create({
+        userId,
+        products: [
+          {
+            productId: product._id,
+            size,
+            quantity: requestedQuantity,
+            product_price: price,
+            total_price: price * requestedQuantity,
+          },
+        ],
+        total: price * requestedQuantity,
+      });
+    }
+
+    res.status(200).send('Product added to Cart.');
   } catch (error) {
-      console.log('Error from cartController.addToCart:', error);
-      res.status(500).send('Server error.');
+    console.log('Error from cartController.addToCart:', error);
+    res.status(500).send('Server error.');
   }
 };
 
