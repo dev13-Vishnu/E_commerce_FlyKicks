@@ -425,7 +425,7 @@
                                             <div class="product-price primary-color float-left">
                                                 <ins><span class="text-brand">
                                                     <% if (product.offer || product.discountedPrice < product.price) { %>
-                                                        ₹<span id="discountedPrice"><%= product.discountedPrice %>/-</span>
+                                                        ₹<span id="discountedPrice"><%= product.discountedPrice.toFixed(2) %>/-</span>
                                                         <span class="old-price">₹<%= product.price.toFixed(2) %>/-</span>
                                                         <div class="offer-details">
                                                           <% if (product.appliedOffer) { %>
@@ -622,158 +622,134 @@
 //add to cart
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-    const sizeOptions = document.querySelectorAll('.size-option');
-    const addToCartButton = document.getElementById('add-to-cart-btn');
-    const adjustQty = document.getElementById('qty-adjust');
-    const qtyUp = document.getElementById("qty-up");
-    const qtyDown = document.getElementById("qty-down");
-    const qtyValElement = document.getElementById('qty-val');
-    const availabilityElement = document.getElementById('availability');
-    let selectedSizeQuantity = 0;
-
-    addToCartButton.style.display = 'none';
-    adjustQty.style.display = 'none';
-
-    sizeOptions.forEach(option => {
-        option.addEventListener('click', function (event) {
-            event.preventDefault();
-            selectedSizeQuantity = parseInt(this.getAttribute('data-quantity'), 10);
-            if (selectedSizeQuantity === 0) {
-                availabilityElement.textContent = `Sold Out`;
-                availabilityElement.classList.add('out-of-stock');
-                availabilityElement.classList.remove('in-stock');
-                addToCartButton.style.display = 'none';
-                adjustQty.style.display = 'none';
-                addToCartButton.style.backgroundColor = '#ccc';
-            } else {
-                availabilityElement.textContent = `${selectedSizeQuantity} Items In Stock`;
-                availabilityElement.classList.remove('out-of-stock');
-                availabilityElement.classList.add('in-stock');
-                adjustQty.style.display = 'inline-block';
-                addToCartButton.style.display = 'inline-block';
-                addToCartButton.style.backgroundColor = ''; // Reset to original style
-            }
-
-            // Optional: Highlight the selected size
-            sizeOptions.forEach(opt => opt.classList.remove('selected'));
-            this.classList.add('selected');
-        });
+      const sizeOptions = document.querySelectorAll('.size-option');
+      const addToCartButton = document.getElementById('add-to-cart-btn');
+      const adjustQty = document.getElementById('qty-adjust');
+      const qtyUp = document.getElementById("qty-up");
+      const qtyDown = document.getElementById("qty-down");
+      const qtyValElement = document.getElementById('qty-val');
+      const availabilityElement = document.getElementById('availability');
+      const cartCountElement = document.getElementById('cartCount'); // Cart count element
+      let selectedSizeQuantity = 0;
+  
+      addToCartButton.style.display = 'none';
+      adjustQty.style.display = 'none';
+  
+      sizeOptions.forEach(option => {
+          option.addEventListener('click', function (event) {
+              event.preventDefault();
+              selectedSizeQuantity = parseInt(this.getAttribute('data-quantity'), 10);
+              if (selectedSizeQuantity === 0) {
+                  availabilityElement.textContent = `Sold Out`;
+                  availabilityElement.classList.add('out-of-stock');
+                  availabilityElement.classList.remove('in-stock');
+                  addToCartButton.style.display = 'none';
+                  adjustQty.style.display = 'none';
+                  addToCartButton.style.backgroundColor = '#ccc';
+              } else {
+                  availabilityElement.textContent = `${selectedSizeQuantity} Items In Stock`;
+                  availabilityElement.classList.remove('out-of-stock');
+                  availabilityElement.classList.add('in-stock');
+                  adjustQty.style.display = 'inline-block';
+                  addToCartButton.style.display = 'inline-block';
+                  addToCartButton.style.backgroundColor = ''; // Reset to original style
+              }
+  
+              // Optional: Highlight the selected size
+              sizeOptions.forEach(opt => opt.classList.remove('selected'));
+              this.classList.add('selected');
+          });
+      });
+  
+      qtyUp.addEventListener('click', function (event) {
+          event.preventDefault();
+          let currentQuantity = parseInt(qtyValElement.textContent, 10);
+          if (currentQuantity < 10 && currentQuantity < selectedSizeQuantity) {
+              qtyValElement.textContent = currentQuantity + 1;
+          } else {
+              const maxQuantity = Math.min(10, selectedSizeQuantity);
+              qtyValElement.textContent = maxQuantity;
+          }
+      });
+  
+      qtyDown.addEventListener('click', function (event) {
+          event.preventDefault();
+          let currentQuantity = parseInt(qtyValElement.textContent, 10);
+          if (currentQuantity > 1) {
+              qtyValElement.textContent = currentQuantity - 1;
+          }
+      });
+  
+      addToCartButton.addEventListener('click', function () {
+          const productId = '<%= product._id %>';
+          const selectedSize = document.querySelector('.size-option.selected').textContent.trim();
+          const chosenQuantity = parseInt(qtyValElement.textContent.trim(), 10);
+  
+          // Get the discounted price from the element 
+          const discountedPriceElement = document.getElementById('discountedPrice');
+          let discountedPrice = parseFloat(discountedPriceElement.textContent.trim());
+  
+          if (!selectedSize) {
+              Swal.fire('Please select a size.');
+              return;
+          }
+  
+          const maxQuantity = Math.min(10, selectedSizeQuantity);
+          if (chosenQuantity > maxQuantity) {
+              qtyValElement.textContent = maxQuantity;
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'Quantity limit exceeded',
+                  text: `Quantity cannot exceed ${maxQuantity}. It has been adjusted to the maximum allowed.`,
+              });
+              return;
+          }
+  
+          fetch('/cart/add', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  productId,
+                  size: selectedSize,
+                  quantity: chosenQuantity,
+                  price: discountedPrice // Pass the discounted price to the backend
+              }),
+          })
+          .then(response => response.text())
+          .then(result => {
+              if (result === 'Product added to Cart.') {
+                  Swal.fire({
+                      title: 'Success!',  
+                      text: 'Product added to cart.',
+                      icon: 'success',
+                      showConfirmButton: false,
+                      timer: 1500
+                  });
+  
+                  // Update cart count in the DOM
+                  let currentCartCount = parseInt(cartCountElement.textContent);
+                  currentCartCount = isNaN(currentCartCount) ? 0 : currentCartCount;
+                  cartCountElement.textContent = currentCartCount + chosenQuantity;
+              } else {
+                  throw new Error(result);
+              }
+          })
+          .catch(error => {
+              console.error('Error adding to cart:', error);
+              Swal.fire({
+                  title: 'Error!',
+                  text: 'Error adding to cart. Please try again.',
+                  icon: 'error',
+                  confirmButtonText: 'Close'
+              });
+          });
+      });
     });
-
-    qtyUp.addEventListener('click', function (event) {
-        event.preventDefault();
-        let currentQuantity = parseInt(qtyValElement.textContent, 10);
-        if (currentQuantity < 10 && currentQuantity < selectedSizeQuantity) {
-            qtyValElement.textContent = currentQuantity + 1;
-            Swal.fire({
-                icon: 'success',
-                title: 'Quantity updated',
-                text: `Added one more item to your selection.`,
-                toast: true,
-                position: 'top-end',
-                timer: 1500,
-                showConfirmButton: false
-            });
-        } else {
-            const maxQuantity = Math.min(10, selectedSizeQuantity);
-            qtyValElement.textContent = maxQuantity;
-            Swal.fire({
-                icon: 'warning',
-                title: 'Limit reached',
-                text: `Quantity cannot exceed ${maxQuantity}. It has been adjusted to the maximum allowed.`,
-            });
-        }
-    });
-
-    qtyDown.addEventListener('click', function (event) {
-        event.preventDefault();
-        let currentQuantity = parseInt(qtyValElement.textContent, 10);
-        if (currentQuantity > 1) {
-            qtyValElement.textContent = currentQuantity - 1;
-            Swal.fire({
-                icon: 'success',
-                title: 'Quantity updated',
-                text: `Removed one item from your selection.`,
-                toast: true,
-                position: 'top-end',
-                timer: 1500,
-                showConfirmButton: false
-            });
-        } else {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Minimum quantity',
-                text: 'Quantity cannot be less than 1.',
-            });
-        }
-    });
-
-    addToCartButton.addEventListener('click', function () {
-        const productId = '<%= product._id %>';
-        const selectedSize = document.querySelector('.size-option.selected').textContent.trim();
-        const chosenQuantity = parseInt(qtyValElement.textContent.trim(), 10);
-
-        //Get  the discounted price from the element 
-        const discountedPriceElement = document.getElementById('discountedPrice');
-        let discountedPrice = parseFloat(discountedPriceElement.textContent.trim());
-
-
-
-        if (!selectedSize) {
-            Swal.fire('Please select a size.');
-            return;
-        }
-
-        const maxQuantity = Math.min(10, selectedSizeQuantity);
-        if (chosenQuantity > maxQuantity) {
-            qtyValElement.textContent = maxQuantity;
-            Swal.fire({
-                icon: 'warning',
-                title: 'Quantity limit exceeded',
-                text: `Quantity cannot exceed ${maxQuantity}. It has been adjusted to the maximum allowed.`,
-            });
-            return;
-        }
-
-        fetch('/cart/add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                productId,
-                size: selectedSize,
-                quantity: chosenQuantity,
-                price: discountedPrice //Pass the discounted price to the backend
-            }),
-        })
-        .then(response => {
-            if (response.ok) {
-                Swal.fire({
-                    title: 'Success!',  
-                    text: 'Product added to cart.',
-                    icon: 'success',
-                    showConfirmButton:false,
-                    timer:1500
-                });
-            } else {
-                return response.text().then(text => { throw new Error(text) });
-            }
-        })
-        .catch(error => {
-            console.error('Error adding to cart:', error);
-            Swal.fire({
-                title: 'Error!',
-                text: 'Error adding to cart. Please try again.',
-                icon: 'error',
-                confirmButtonText: 'Close'
-            });
-        });
-    });
-});
-
-
-</script>
+  </script>
+  
+  
 //add to wishlist
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -842,7 +818,8 @@
         });
     });
     </script>
-    
+
+
 
 
 </body>
