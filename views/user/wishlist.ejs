@@ -694,11 +694,15 @@
                                                     
                                                 </td>
                                                 <td class="price" data-title="Price">
-                                                    <span>₹<%= item.productId.promo_price %>/-</span>
+                                                    <% if (item.productId.discountedPrice) { %>
+                                                        <span>₹<%= item.productId.discountedPrice.toFixed(2) %>/-</span>
+                                                    <% } else { %>
+                                                        <span>₹<%= item.productId.price.toFixed(2) %>/-</span>
+                                                    <% } %>
                                                 </td>
                                                 
                                                 <td class="text-right" data-title="Cart">
-                                                    <button class="btn btn-sm" onclick="addToCart('<%= item.productId._id %>')">
+                                                    <button class="btn btn-sm" onclick="addToCart('<%= item.productId._id %>', <%= item.productId.discountedPrice || item.productId.price %>)">
                                                         <i class="fi-rs-shopping-bag mr-5"></i>Add to cart
                                                     </button>
                                                 </td>
@@ -932,40 +936,47 @@
     </script>
     //add to cart
     <script>
-        function addToCart(productId) {
-          const size = 8; // Specify the size you want to add to the cart
-          const quantity = 1;
-      
-          fetch('/cart/add', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ productId, size, quantity })
-          })
-          .then(response => {
-              if (response.ok) {
-                  Swal.fire({
-                      title: 'Success!',
-                      text: 'Product has been added to your cart.',
-                      icon: 'success',
-                      showConfirmButton: false
-                  });
-              } else {
-                  return response.text().then(text => { throw new Error(text) });
-              }
-          })
-          .catch(error => {
-              console.error('Error:', error);
-              Swal.fire({
-                  title: 'Error!',
-                  text: 'There was an error adding the product to your cart. Please try again.',
-                  icon: 'error',
-                  confirmButtonText: 'Close'
-              });
-          });
-      }
-      
+        function addToCart(productId, price) {
+    const size = 8; // Specify the size you want to add to the cart
+    const quantity = 1;
+    const cartCountElement = document.getElementById('cartCount'); // Select cart count element
+
+    fetch('/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ productId, size, quantity, price }) // Send the price to the backend
+    })
+    .then(response => {
+        if (response.ok) {
+            Swal.fire({
+                title: 'Success!',
+                text: 'Product has been added to your cart.',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 1500
+            });
+                // Update cart count in DOM based on the added quantity
+                let currentCartCount = parseInt(cartCountElement.textContent);
+                currentCartCount = isNaN(currentCartCount) ? 0 : currentCartCount;
+                cartCountElement.textContent = currentCartCount + quantity;
+            
+        } else {
+            return response.text().then(text => { throw new Error(text) });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'There was an error adding the product to your cart. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'Close'
+        });
+    });
+}
+
     </script>
 </body>
 
