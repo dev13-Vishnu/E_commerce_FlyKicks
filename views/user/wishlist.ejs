@@ -693,7 +693,8 @@
                                                     </h5>
                                                     
                                                 </td>
-                                                <td class="price" data-title="Price">
+                                                <td class="price" data-title="Price"
+                                                id="discountedPrice-<%=item.productId._id %>">
                                                     <% if (item.productId.discountedPrice) { %>
                                                         <span>₹<%= item.productId.discountedPrice.toFixed(2) %>/-</span>
                                                     <% } else { %>
@@ -702,9 +703,34 @@
                                                 </td>
                                                 
                                                 <td class="text-right" data-title="Cart">
-                                                    <button class="btn btn-sm" onclick="addToCart('<%= item.productId._id %>', <%= item.productId.discountedPrice || item.productId.price %>)">
-                                                        <i class="fi-rs-shopping-bag mr-5"></i>Add to cart
-                                                    </button>
+                                                    <div  class="product-action-1 show">
+                                                        <button
+                                                          id="addToCartBtn-<%=item.productId._id %>"
+                                                          aria-label="Add To Cart"
+                                                          class="btn btn-brand  "
+                                                          onclick="showSizeDropdown('<%= item.productId._id %>')"
+                                                          ><i class="fi-rs-shopping-bag-add"></i
+                                                        >Add to cart</button>
+                                                        
+                                                        <!-- Size Dropdown (Initially hidden) -->
+                                                        <div id="sizeDropdown-<%= item.productId._id %>" class="size-dropdown" style="display: none;">
+                                                          
+                                                          <select class="optionStyle"   id="sizeSelect-<%= item.productId._id %>">
+                                                            <!-- Dynamically populate the sizes available -->
+                                                            <% Object.keys(item.productId.stock).forEach(size => { %>
+                                                              <% if (item.productId.stock[size] > 0) { %>
+                                                                <option value="<%= size %>"> <%= size %> </option>
+                                                              <% } %>
+                                                            <% }); %>
+                                                          </select>
+                                                          <button 
+                                                          aria-label="Add"
+                                                          class="btn btn-brand  "
+                                                          onclick="addToCart('<%= item.productId._id %>')"
+                                                          ><i class="fi-rs-shopping-bag-add"></i
+                                                        >Add</button>
+                                                        </div>
+                                                      </div>
                                                 </td>
                                                 <td class="action" data-title="Remove">
                                                     <a href="#" onclick="removeFromWishlist('<%= item.productId._id %>')">
@@ -883,6 +909,118 @@
       <!-- sweetalert -->
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+      //add to cart
+      <script>
+        // Show the size dropdown when the Add to Cart button is clicked
+  function showSizeDropdown(productId) {
+      const sizeDropdown = document.getElementById(`sizeDropdown-${productId}`);
+      const addToCartBtn = document.getElementById(`addToCartBtn-${productId}`);
+      sizeDropdown.style.display = 'block';  // Show the dropdown
+      addToCartBtn.style.display = 'none';
+  }
+  
+  // Add to Cart function (modified with stock check)
+  function addToCart(productId) {
+      // Get the current cart count element
+      const cartCountElement = document.getElementById('cartCount');
+      
+      // Get the selected size
+      const sizeSelect = document.getElementById(`sizeSelect-${productId}`);
+      const selectedSize = sizeSelect.value;
+      
+      // Get the available stock for the selected size
+      const stock = parseInt(sizeSelect.options[sizeSelect.selectedIndex].getAttribute('data-stock'));
+      
+      // If stock is 0, show a warning and don't add to cart
+      if (stock <= 0) {
+          Swal.fire({
+              title: 'Out of Stock!',
+              text: `Sorry, size ${selectedSize} is out of stock.`,
+              icon: 'warning',
+              confirmButtonText: 'Close'
+          });
+          return;
+      }
+  
+      // Try to get the discounted price first
+      let priceElement = document.getElementById(`discountedPrice-${productId}`);
+      
+      // If the discounted price doesn't exist, get the regular price
+      if (!priceElement) {
+          priceElement = document.getElementById(`price-${productId}`);
+      }
+      
+      // If priceElement is not found, log error and return
+      if (!priceElement) {
+          console.error('Price element not found for product:', productId);
+          return;
+      }
+  
+      // Extract the numerical value from the price element
+      const price = parseFloat(priceElement.textContent.replace('₹', '').replace('/-', ''));
+  
+      // Assuming a default quantity for now
+      const quantity = 1;  // Default quantity
+  
+      // Log the data to check before making the request
+      console.log("Product ID:", productId);
+      console.log("Selected Size:", selectedSize);
+      console.log("Quantity:", quantity);
+      console.log("Price:", price);
+      console.log("Stock:", stock);
+  
+      // Make the POST request to add the product to the cart
+      fetch('/cart/add', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+          productId: productId,
+          price: price,
+          size: selectedSize,
+          quantity: quantity
+      }),
+  })
+  .then(response => {
+      if (!response.ok) {
+          // Extract the response text (error message)
+          return response.text().then(text => { throw new Error(text); });
+      }
+      return response.text();  // Return success message
+  })
+  .then(data => {
+      // Show success SweetAlert
+      Swal.fire({
+          title: 'Success!',
+          text: data,  // This will display the success message from the backend
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500
+      });
+      
+                  // Update cart count in DOM based on the added quantity
+                  let currentCartCount = parseInt(cartCountElement.textContent);
+                  currentCartCount = isNaN(currentCartCount) ? 0 : currentCartCount;
+                  cartCountElement.textContent = currentCartCount + quantity;
+  
+  })
+  .catch(error => {
+      // Show error SweetAlert with the response message from the backend
+      Swal.fire({
+          title: 'Error!',
+          text: error.message,  // This will display the error message from the backend
+          icon: 'error',
+          confirmButtonText: 'Close'
+      });
+  });
+  
+  }
+  
+  
+    </script>
+
+    // remove from wishlist
     <script>
     function removeFromWishlist(productId) {
         const wishlistCountElement = document.getElementById('wishlistCount'); // Select cart count element
@@ -944,50 +1082,6 @@
                 );  
             });
         }
-    });
-}
-
-    </script>
-    //add to cart
-    <script>
-        function addToCart(productId, price) {
-    const size = 8; // Specify the size you want to add to the cart
-    const quantity = 1;
-    const cartCountElement = document.getElementById('cartCount'); // Select cart count element
-
-    fetch('/cart/add', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ productId, size, quantity, price }) // Send the price to the backend
-    })
-    .then(response => {
-        if (response.ok) {
-            Swal.fire({
-                title: 'Success!',
-                text: 'Product has been added to your cart.',
-                icon: 'success',
-                showConfirmButton: false,
-                timer: 1500
-            });
-                // Update cart count in DOM based on the added quantity
-                let currentCartCount = parseInt(cartCountElement.textContent);
-                currentCartCount = isNaN(currentCartCount) ? 0 : currentCartCount;
-                cartCountElement.textContent = currentCartCount + quantity;
-            
-        } else {
-            return response.text().then(text => { throw new Error(text) });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            title: 'Error!',
-            text: 'There was an error adding the product to your cart. Please try again.',
-            icon: 'error',
-            confirmButtonText: 'Close'
-        });
     });
 }
 

@@ -34,6 +34,11 @@
             text-overflow: ellipsis;
             vertical-align: bottom;
         }
+        .optionStyle{
+          border: 1px solid #badaca; /* Adjust border style, width, and color as needed */
+
+          border-radius: 3.5px;
+        }
     </style>
   </head>
 
@@ -737,7 +742,8 @@
                               <% } %>
                             </div>
                             
-                            <div class="product-action-1 show">
+                            <!-- add to cart button and size selector  -->
+                            <div  class="product-action-1 show">
                               <a
                                 id="addToCartBtn-<%=product._id %>"
                                 aria-label="Add To Cart"
@@ -748,11 +754,12 @@
                               
                               <!-- Size Dropdown (Initially hidden) -->
                               <div id="sizeDropdown-<%= product._id %>" class="size-dropdown" style="display: none;">
-                                <select id="sizeSelect-<%= product._id %>">
+                                
+                                <select class="optionStyle"   id="sizeSelect-<%= product._id %>">
                                   <!-- Dynamically populate the sizes available -->
                                   <% Object.keys(product.stock).forEach(size => { %>
                                     <% if (product.stock[size] > 0) { %>
-                                      <option value="<%= size %>">Size <%= size %> (In stock: <%= product.stock[size] %>)</option>
+                                      <option value="<%= size %>"> <%= size %> </option>
                                     <% } %>
                                   <% }); %>
                                 </select>
@@ -2205,8 +2212,12 @@ function addToCart(productId) {
         showConfirmButton: false,
         timer: 1500
     });
+    
+                // Update cart count in DOM based on the added quantity
+                let currentCartCount = parseInt(cartCountElement.textContent);
+                currentCartCount = isNaN(currentCartCount) ? 0 : currentCartCount;
+                cartCountElement.textContent = currentCartCount + quantity;
 
-    // Update cart count or other actions as needed
 })
 .catch(error => {
     // Show error SweetAlert with the response message from the backend
