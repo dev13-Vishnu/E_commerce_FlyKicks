@@ -482,7 +482,7 @@
                                     </thead>
                                     <tbody>
                                         <% if(orderData && orderData.length > 0){ %>
-                                            <% orderData.reverse().forEach(order => { %>
+                                            <% orderData.forEach(order => { %>
                                                 <tr id="order-row-<%= order._id %>">
                                                     <td><%= order.orderId %></td>
                                                     <td><%= new Date(order.orderDate).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) %></td>
@@ -491,7 +491,7 @@
                                                     <td id="order-status-<%= order._id %>"><%= order.products[0].status %></td>
                                                     
                                                     <!-- Display total price and number of items -->
-                                                    <td>₹<%= order.payableAmount %> /- for <%= order.products.length %> item<%= order.products.length > 1 ? 's' : '' %></td>
+                                                    <td>₹<%= order.payableAmount.toFixed(2) %> /- for <%= order.products.length %> item<%= order.products.length > 1 ? 's' : '' %></td>
                                                     
                                                     <!-- New Details column with View button -->
                                                     <td>

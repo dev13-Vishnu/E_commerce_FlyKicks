@@ -59,13 +59,22 @@
             <div class="header-action-icon-2">
               <a href="/wishlist">
                 <img class="svgInject" alt="Evara" src="/user/assets/imgs/theme/icons/icon-heart.svg" />
-                <span class="pro-count blue" id="wishlistCount"><%=wishlist.products.length %></span>
-              </a>
+                <% if (wishlist && wishlist.products) { %>
+                  <span class="pro-count blue" id="wishlistCount"><%= wishlist.products.length %></span>
+                <% } else { %>
+                  <span class="pro-count blue" id="wishlistCount">0</span>
+                <% } %>
             </div>
             <div class="header-action-icon-2">
               <a class="mini-cart-icon" href="/cart">
                 <img alt="Evara" src="/user/assets/imgs/theme/icons/icon-cart.svg" />
-                <span class="pro-count blue" id="cartCount"><%=cart.products.reduce((sum,product) => sum+product.quantity,0) %></span>
+                <% if (cart && cart.products) { %>
+                  <span class="pro-count blue" id="cartCount">
+                    <%= cart.products.reduce((sum, product) => sum + product.quantity, 0) %>
+                  </span>
+                <% } else { %>
+                  <span class="pro-count blue" id="cartCount">0</span>
+                <% } %>
               </a>
             </div>
           </div>

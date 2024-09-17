@@ -769,9 +769,9 @@ const returnProduct = async (req,res)=> {
 
         const size = productInOrder.size;
 
-        if(!product.stock[size]) {
-            return res.status(400).json({message:`Size '${size}' not found in product stock`});
-        }
+        // if(!product.stock[size]) {
+        //     return res.status(400).json({message:`Size '${size}' not found in product stock`});
+        // }
         
         product.stock[size] += productInOrder.quantity;
         await product.save();
@@ -803,7 +803,7 @@ const returnProduct = async (req,res)=> {
 
         await order.save();
 
-        return res.status(200).json({message:'Product returned successfully, stok updated, order adjusted , and reason saved'});
+        return res.status(200).json({message:'Return reques in process'});
 
     } catch (error) {
         console.log('Error form orderController returnProduct:', error);

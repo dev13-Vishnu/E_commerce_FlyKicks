@@ -15,6 +15,14 @@
     <link rel="shortcut icon" type="image/x-icon" href="/user/assets/imgs/theme/favicon.svg">
     <!-- Template CSS -->
     <link rel="stylesheet" href="/user/assets/css/main.css?v=3.4">
+    <style>
+        .optionStyle{
+          width: 22% !important;
+          border: 1px solid #badaca; /* Adjust border style, width, and color as needed */
+
+          border-radius: 3.5px;
+        }
+    </style>
 </head>
 
 <body>
@@ -707,13 +715,14 @@
                                                         <button
                                                           id="addToCartBtn-<%=item.productId._id %>"
                                                           aria-label="Add To Cart"
-                                                          class="btn btn-brand  "
+                                                          class="btn btn-brand btn-sm"
                                                           onclick="showSizeDropdown('<%= item.productId._id %>')"
                                                           ><i class="fi-rs-shopping-bag-add"></i
                                                         >Add to cart</button>
                                                         
                                                         <!-- Size Dropdown (Initially hidden) -->
                                                         <div id="sizeDropdown-<%= item.productId._id %>" class="size-dropdown" style="display: none;">
+                                                            <p>Select a size</p>
                                                           
                                                           <select class="optionStyle"   id="sizeSelect-<%= item.productId._id %>">
                                                             <!-- Dynamically populate the sizes available -->
