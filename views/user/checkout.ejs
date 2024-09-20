@@ -1260,10 +1260,10 @@ document.getElementById('couponForm').addEventListener('submit',function (event)
                 document.getElementById('couponCode').style.display = 'none';
 
                  // Update the discount amount in the DOM
-                document.getElementById('discount_amount').textContent = `₹${data.totalDiscount.toFixed(2)}/-`;
+                document.getElementById('discount_amount').textContent = `₹${data.totalDiscount}/-`;
                 
                 // // Update the UI with the new total price
-                document.querySelector('.product-subtotal').innerText = `₹${data.newTotal.toFixed(2)}`;
+                document.querySelector('.product-subtotal').innerText = `₹${data.newTotal}`;
 
                 
                 if(data.newTotal< 10000){
