@@ -211,7 +211,7 @@ const placeOrderRazorPay = async (req, res) => {
       });
 
        // Remove the applied coupon from the session
-       delete req.session.appliedCouponId;  // Alternatively, you can set it to null
+    //    delete req.session.appliedCouponId;  // Alternatively, you can set it to null
 
       res.status(200).json({ success: true, orderId: order.id });
   } catch (error) {
@@ -803,7 +803,7 @@ const returnProduct = async (req,res)=> {
 
         await order.save();
 
-        return res.status(200).json({message:'Return reques in process'});
+        return res.status(200).json({message:'Product returned successfully, stok updated, order adjusted , and reason saved'});
 
     } catch (error) {
         console.log('Error form orderController returnProduct:', error);

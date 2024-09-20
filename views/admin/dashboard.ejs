@@ -465,7 +465,7 @@
                       <td><a href="#" class="fw-bold"><%= order.orderId %></a></td>
                       <td><%= order.userId.username %></td>
                       <td><%= order.orderDate.toDateString() %></td>
-                      <td>₹<%=order.payableAmount %>/-</td>
+                      <td>₹<%=order.payableAmount.toFixed(2) %>/-</td>
                       <td>₹<%= order.discounts %>/-</td> <!-- New Discount Value -->
                       <td>
                         <span class="badge badge-pill 
@@ -557,61 +557,115 @@
      <script>
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Adjust the limit if necessary (default is 10)
-    const limit = 10;
-    let currentPage = 1; // To keep track of the current page
+    const limit = 10; // Limit per page
+    let currentPage = 1;
+    let filteredOrders = [...orders]; // Initially, filteredOrders is the same as the full list
 
-    // Example orders array (replace with actual data)
-    const orders = [
-        /* Array of order objects */
-    ];
-
-    // Function to render orders based on the current page and limit
     function renderOrders(orders) {
-        // Calculate the start and end index for slicing the orders array
         const start = (currentPage - 1) * limit;
         const end = start + limit;
-
-        // Slice the orders array to get the current page's orders
         const paginatedOrders = orders.slice(start, end);
 
-        // Render the paginated orders (replace with your rendering logic)
-        const ordersContainer = document.querySelector('#orders-container');
-        ordersContainer.innerHTML = ''; // Clear the previous orders
-        paginatedOrders.forEach(order => {
-            const orderElement = document.createElement('div');
-            orderElement.textContent = `Order ID: ${order.id}`; // Adjust based on your order structure
-            ordersContainer.appendChild(orderElement);
-        });
+        const tbody = document.querySelector('#ordersTableBody');
+        tbody.innerHTML = ''; // Clear the table
 
-        // Update the pagination controls
+        if (paginatedOrders.length === 0) {
+            document.getElementById('noResultsMessage').style.display = 'block';
+        } else {
+            document.getElementById('noResultsMessage').style.display = 'none';
+            paginatedOrders.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><a href="#" class="fw-bold">${order.orderId}</a></td>
+                    <td>${order.userId.username}</td>
+                    <td>${new Date(order.orderDate).toDateString()}</td>
+                    <td>₹${order.payableAmount.toFixed(2)}/-</td>
+                    <td>₹${order.discounts.toFixed(2)}/-</td>
+                    <td>
+                        <span class="badge badge-pill ${
+                            order.paymentStatus === 'Success' ? 'badge-soft-success' :
+                            order.paymentStatus === 'Pending' ? 'badge-soft-warning' :
+                            order.paymentStatus === 'Failed' ? 'badge-soft-danger' : ''
+                        }">${order.paymentStatus}</span>
+                    </td>
+                    <td>
+                        <i class="material-icons md-payment font-xxl text-muted mr-5"></i>
+                        ${order.paymentMethod}
+                    </td>
+                    <td>
+                        <a href="/admin/order-details?orderObjectId=${order._id}" class="btn btn-xs">View details</a>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
         updatePaginationControls(orders.length);
     }
 
-    // Function to update pagination controls
-    function updatePaginationControls(totalOrdersPagination) {
-        const totalPages = Math.ceil(totalOrdersPagination / limit);
-        const paginationContainer = document.querySelector('#pagination-controls');
+    function updatePaginationControls(totalOrders) {
+        const totalPages = Math.ceil(totalOrders / limit);
+        const paginationContainer = document.querySelector('.pagination ul');
         paginationContainer.innerHTML = ''; // Clear previous pagination controls
 
+        // Handle "Previous" button
+        if (currentPage > 1) {
+            const prevButton = document.createElement('li');
+            prevButton.classList.add('page-item');
+            prevButton.innerHTML = `<a class="page-link" href="#">Prev</a>`;
+            prevButton.addEventListener('click', () => {
+                currentPage--;
+                renderOrders(filteredOrders);
+            });
+            paginationContainer.appendChild(prevButton);
+        }
+
+        // Create page buttons
         for (let i = 1; i <= totalPages; i++) {
-            const pageButton = document.createElement('button');
-            pageButton.textContent = i;
-            pageButton.classList.add('page-button');
-            if (i === currentPage) {
-                pageButton.classList.add('active');
-            }
+            const pageButton = document.createElement('li');
+            pageButton.classList.add('page-item', currentPage === i ? 'active' : '');
+            pageButton.innerHTML = `<a class="page-link" href="#">${i}</a>`;
             pageButton.addEventListener('click', () => {
                 currentPage = i;
-                renderOrders(orders);
+                renderOrders(filteredOrders);
             });
             paginationContainer.appendChild(pageButton);
         }
+
+        // Handle "Next" button
+        if (currentPage < totalPages) {
+            const nextButton = document.createElement('li');
+            nextButton.classList.add('page-item');
+            nextButton.innerHTML = `<a class="page-link" href="#">Next</a>`;
+            nextButton.addEventListener('click', () => {
+                currentPage++;
+                renderOrders(filteredOrders);
+            });
+            paginationContainer.appendChild(nextButton);
+        }
     }
 
-    // Initial render of orders and pagination
-    renderOrders(orders);
+    // Initial render
+    renderOrders(filteredOrders);
+
+    // Event listener for the filter
+    document.getElementById('filterDateRange').addEventListener('click', function(event) {
+        event.preventDefault();
+
+        if (validate_start_date() && validate_end_date()) {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+
+            filteredOrders = orders.filter(order => {
+                const orderDate = new Date(order.orderDate);
+                return orderDate >= startDate && orderDate <= endDate;
+            });
+
+            currentPage = 1; // Reset to first page
+            renderOrders(filteredOrders);
+        }
+    });
 });
+
 
 
      </script>
@@ -652,8 +706,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><a href="#" class="fw-bold">${order.orderId}</a></td>
                 <td>${order.userId.username}</td>
                 <td>${new Date(order.orderDate).toDateString()}</td>
-                <td>₹${order.payableAmount}/-</td>
-                <td>₹${order.discounts}/-</td>
+                <td>₹${order.payableAmount.toFixed(2)}/-</td>
+                <td>₹${order.discounts.toFixed(2)}/-</td>
                 <td>
                     <span class="badge badge-pill ${
                         order.paymentStatus === 'Success' ? 'badge-soft-success' :

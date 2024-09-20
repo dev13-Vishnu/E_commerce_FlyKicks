@@ -183,14 +183,14 @@ const applyCoupon = async (req, res) => {
 
         // Apply the coupon
     const discountAmount = (coupon.offer_percentage / 100) * totalPrice;
-        const newTotal = totalPrice - discountAmount;
+        const newTotal = (totalPrice - discountAmount);
 
         let actualTotalPrice = 0;
         cart.products.forEach(product => {
             actualTotalPrice += product.productId.price *product.quantity;
         });
         // console.log('couponController applycoupon actualTotalPrice:',actualTotalPrice);
-        const totalDiscount = actualTotalPrice - newTotal;
+        const totalDiscount = (actualTotalPrice - newTotal).toFixed(2);
 
 
         //save coupon Id in session

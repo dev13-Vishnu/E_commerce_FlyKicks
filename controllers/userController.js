@@ -575,14 +575,24 @@ const loadAccount = async (req, res) => {
       {
         $match: {
           userId: new mongoose.Types.ObjectId(userId),
-          wallet: { $exists: true, $ne: 0.00 }
+          wallet: { $exists: true,  $ne: 0.00 } // Only consider orders with a non-zero wallet value
         }
       },
-      { $sort: { orderDate: -1 } },
-      { $skip: skip },
-      { $limit: limit }
+      {
+        $project: {
+          orderId: 1,
+          orderDate: 1,
+          paymentStatus: 1,
+          wallet: 1,
+          transactionType: {
+            $cond: { if: { $gte: ["$wallet", 0] }, then: "Credit", else: "Debit" } // Determine if the transaction is a credit or debit
+          }
+        }
+      },
+      {
+        $sort: { orderDate: -1 } // Sort transactions by orderDate in descending order (most recent first)
+      }
     ]);
-
     // Total wallet transactions
     const totalTransactions = await Order.countDocuments({
       userId: new mongoose.Types.ObjectId(userId),

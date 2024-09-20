@@ -35,7 +35,7 @@
             vertical-align: bottom;
         }
         .optionStyle{
-          width: 22%;
+          width: 40%;
           border: 1px solid #badaca; /* Adjust border style, width, and color as needed */
 
           border-radius: 3.5px;
@@ -756,7 +756,7 @@
                               
                               <!-- Size Dropdown (Initially hidden) -->
                               <div id="sizeDropdown-<%= product._id %>" class="size-dropdown" style="display: none;">
-                                
+                                <p>Select size</p>
                                 <select class="optionStyle"   id="sizeSelect-<%= product._id %>">
                                   <!-- Dynamically populate the sizes available -->
                                   <% Object.keys(product.stock).forEach(size => { %>

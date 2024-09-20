@@ -997,8 +997,8 @@
                             <th>Final Total with Shipping</th>
                             <td id="product_overall_subtotal" colspan="3" class="product-overall-subtotal">
                                 <span id="subtotal" class="font-xl text-brand fw-900">₹
-                                    <%= (cart.total + 500).toFixed(2) %>
-                                </span>/-
+                                    <%= (cart.total + 500).toFixed(2) %>/-
+                                </span>
                             </td>
                         </tr>
                         <% } else { %>
@@ -1011,8 +1011,8 @@
                             <th>Final Total with Shipping</th>
                             <td id="product_overall_subtotal" colspan="3" class="product-overall-subtotal">
                                 <span id="subtotal" class="font-xl text-brand fw-900">₹
-                                    <%=cart.total.toFixed(2) %>
-                                </span>/-
+                                    <%=cart.total.toFixed(2) %>/-
+                                </span>
                             </td>
                         </tr>
                         <% } %>
@@ -1260,21 +1260,21 @@ document.getElementById('couponForm').addEventListener('submit',function (event)
                 document.getElementById('couponCode').style.display = 'none';
 
                  // Update the discount amount in the DOM
-                document.getElementById('discount_amount').textContent = `₹${data.totalDiscount}/-`;
+                document.getElementById('discount_amount').textContent = `₹${data.totalDiscount.toFixed(2)}/-`;
                 
                 // // Update the UI with the new total price
-                document.querySelector('.product-subtotal').innerText = `₹${data.newTotal}/-`;
+                document.querySelector('.product-subtotal').innerText = `₹${data.newTotal.toFixed(2)}`;
 
                 
                 if(data.newTotal< 10000){
 
                     document.getElementById('shippingStatus').innerText = '₹500/-(Free shipping for orders above ₹10000/-)'
 
-                document.getElementById('subtotal').innerText = `₹${data.newTotal + 500}/-`;
+                document.getElementById('subtotal').innerText = `₹${(data.newTotal + 500).toFixed(2)}/-`;
                 }else{
                     document.getElementById('shippingStatus').innerText = 'Free shipping'
 
-                    document.getElementById('subtotal').innerText = `₹${data.newTotal}/-`;
+                    document.getElementById('subtotal').innerText = `₹${data.newTotal.toFixed(2)}/-`;
                 }
             } else { 
                 Swal.fire({
@@ -1330,11 +1330,11 @@ document.querySelector('#couponForm button').addEventListener('click', function(
                         if(data.totalPrice< 10000){
                     document.getElementById('shippingStatus').innerText = '₹500/-(Free shipping for orders above ₹10000/-)'
 
-                        document.getElementById('subtotal').innerText = `₹${data.totalPrice + 500}/-`;
+                        document.getElementById('subtotal').innerText = `₹${(data.totalPrice + 500).toFixed(2)}/-`;
                         }else{
                     document.getElementById('shippingStatus').innerText = 'Free shipping'
 
-                            document.getElementById('subtotal').innerText = `₹${data.totalPrice}/-`;
+                            document.getElementById('subtotal').innerText = `₹${data.totalPrice.toFixed(2)}/-`;
 }
                     });
                 } else {
@@ -1470,7 +1470,7 @@ return valid;
                 // Remove special characters (₹ and /-)
                 let sanitizedPrice = priceString.replace(/[^\d.-]/g, '');
 
-                let orderTotalAmount= parseFloat(sanitizedPrice);
+                let orderTotalAmount= parseFloat(sanitizedPrice).toFixed(2);
 
                 const orderData = {
                     orderTotalAmount,
@@ -1517,6 +1517,7 @@ return valid;
                 }
                 if(payment_method === "razorpay") {
                     try {
+                        console.log('orderTotalAmount:',orderTotalAmount)
                         const razorpayResponse = await fetch('/place-order-razorpay',{
                             method:'POST',
                             headers: {

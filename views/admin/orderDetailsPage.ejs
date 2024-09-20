@@ -174,16 +174,21 @@
                                             <td> <%= product.quantity %> </td>
                                             <td class="text-end">₹<%= (product.productPrice * product.quantity).toFixed(2) %> </td>
                                             <td>
-                                                <select class="form-select d-inline-block mw-200 product-status" data-order-id="<%= order._id %>" data-product-id="<%= product._id %>">
-                                                    <option value="Pending"<%= product.status === 'Pending' ? ' selected' : '' %>>Pending</option>
-                                                    <option value="Processing"<%= product.status === 'Processing' ? ' selected' : '' %>>Processing</option>
-                                                    <option value="Shipped"<%= product.status === 'Shipped' ? ' selected' : '' %>>Shipped</option>
-                                                    <option value="Delivered"<%= product.status === 'Delivered' ? ' selected' : '' %>>Delivered</option>
-                                                    <option value="Cancelled"<%= product.status === 'Cancelled' ? ' selected' : '' %>>Cancelled</option>
-                                                    <option value="Return Pending"<%= product.status === 'Return Pending' ? ' selected' : '' %>>Return Pending</option>
-                                                    <option value="Return Cancelled"<%= product.status === 'Return Cancelled' ? ' selected' : '' %>>Return Cancelled</option>
-                                                    <option value="Return Success"<%= product.status === 'Return Success' ? ' selected' : '' %>>Return Success</option>
-                                                </select>
+                                                <select class="form-select d-inline-block mw-200 product-status" 
+                                                data-order-id="<%= order._id %>" 
+                                                data-product-id="<%= product._id %>" 
+                                                onchange="checkStatus(this)"
+                                                <%= product.status === 'Delivered' ? 'disabled' : '' %>>
+                                            <option value="Pending"<%= product.status === 'Pending' ? ' selected' : '' %>>Pending</option>
+                                            <option value="Processing"<%= product.status === 'Processing' ? ' selected' : '' %>>Processing</option>
+                                            <option value="Shipped"<%= product.status === 'Shipped' ? ' selected' : '' %>>Shipped</option>
+                                            <option value="Delivered"<%= product.status === 'Delivered' ? ' selected' : '' %>>Delivered</option>
+                                            <option value="Cancelled"<%= product.status === 'Cancelled' ? ' selected' : '' %>>Cancelled</option>
+                                            <option value="Return Pending"<%= product.status === 'Return Pending' ? ' selected' : '' %>>Return Pending</option>
+                                            <option value="Return Cancelled"<%= product.status === 'Return Cancelled' ? ' selected' : '' %>>Return Cancelled</option>
+                                            <option value="Return Success"<%= product.status === 'Return Success' ? ' selected' : '' %>>Return Success</option>
+                                        </select>
+
                                             </td>
                                         </tr>
                                         <% }) %>
@@ -266,7 +271,18 @@
     <!-- sweet alert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- change attribute of order status element if Delivered -->
+    <script>
+        function checkStatus(selectElement) {
+          if (selectElement.value === 'Delivered') {
+            selectElement.setAttribute('disabled', 'disabled');
+          }
+        }
+        </script>
+        
+
     <!-- change the product status in order -->
+
      <script>
         document.querySelectorAll('.product-status').forEach(select => {
     select.addEventListener('change', function() {
