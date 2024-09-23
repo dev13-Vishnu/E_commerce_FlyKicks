@@ -318,7 +318,7 @@ const loadHome = async (req, res, next) => {
     const cart = await Cart.findOne({userId:userId})
 
     let page = parseInt(req.query.page) || 1;
-    const limit = 6;
+    const limit = 3;
     let count;
 
     let sortCriteria = {};
